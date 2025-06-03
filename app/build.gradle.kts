@@ -1,8 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ksp.plugin)
+    alias(libs.plugins.kotlin.serializer.plugin)
+
 }
+
 
 android {
     namespace = "com.tonyxlab.notemark"
@@ -41,19 +45,52 @@ android {
 
 dependencies {
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
+    implementation(AndroidX.core.ktx)
+    implementation(AndroidX.lifecycle.runtime.ktx)
+    implementation(AndroidX.activity.compose)
+    implementation(platform(AndroidX.compose.bom))
+    implementation(AndroidX.compose.ui)
+    implementation(AndroidX.compose.ui.graphics)
+    implementation(AndroidX.compose.ui.toolingPreview)
+
+    // Material 3
+    implementation(AndroidX.compose.material3)
+
+    // Material Extended Icons
+    implementation(AndroidX.compose.material.icons.extended)
+
+    // Splash Screen
+    implementation(AndroidX.core.splashscreen)
+
+    // Room
+    implementation(AndroidX.room.ktx)
+    ksp(AndroidX.room.compiler)
+
+    // Data Store
+    implementation(AndroidX.dataStore.preferences)
+
+    // Kotlinx Serialization
+    implementation(KotlinX.serialization.json)
+
+    // Compose Navigation
+    implementation(AndroidX.navigation.compose)
+
+    // Accompanist Permissions
+    implementation(Google.accompanist.permissions)
+
+    // Logging
+    implementation(JakeWharton.timber)
+
+    // Testing
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinTest)
+
+    // Android Tests
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 }
