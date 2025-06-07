@@ -18,7 +18,8 @@ private val AppColorScheme = lightColorScheme(
         onPrimary = OnPrimary,
         error = Error,
         onSurface = OnSurface,
-        inverseSurface = SurfaceLowest
+        background = SurfaceLowest,
+        onSurfaceVariant = OnSurface12
 )
 
 @Composable

@@ -1,4 +1,4 @@
-package com.tonyxlab.notemark.presentation.core
+package com.tonyxlab.notemark.presentation.core.utils
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
