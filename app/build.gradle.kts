@@ -56,6 +56,9 @@ dependencies {
     // Material 3
     implementation(AndroidX.compose.material3)
 
+    // Window Size Class
+    implementation(AndroidX.compose.material3.windowSizeClass)
+
     // Material Extended Icons
     implementation(AndroidX.compose.material.icons.extended)
 
