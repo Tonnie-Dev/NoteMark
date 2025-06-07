@@ -1,4 +1,4 @@
-package com.tonyxlab.notemark.ui.theme
+package com.tonyxlab.notemark.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
