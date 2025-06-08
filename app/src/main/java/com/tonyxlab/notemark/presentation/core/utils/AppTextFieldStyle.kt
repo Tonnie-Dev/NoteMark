@@ -10,29 +10,31 @@ import androidx.compose.ui.unit.Dp
 sealed class AppTextFieldStyle() {
 
     @Composable
-    abstract fun textStyle(): TextStyle
-
-    @Composable
     abstract fun textColor(): Color
 
     @Composable
     abstract fun backgroundColor(): Color
 
-
     @Composable
     abstract fun borderColor(): Color
+
+    @Composable
+    abstract fun cursorColor(): Color
+
+    @Composable
+    abstract fun supportingTextColor(): Color
+
+    @Composable
+    abstract fun textStyle(): TextStyle
+
 
     @Composable
     abstract fun borderWidth(): Dp
 
     data object PlaceHolderStyle : AppTextFieldStyle() {
-        @Composable
-        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge
-
 
         @Composable
         override fun textColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
-
 
         @Composable
         override fun backgroundColor(): Color = MaterialTheme.colorScheme.surface
@@ -42,13 +44,18 @@ sealed class AppTextFieldStyle() {
 
         @Composable
         override fun borderWidth(): Dp = MaterialTheme.spacing.spaceDefault
+
+        @Composable
+        override fun cursorColor(): Color = Color.Transparent
+
+        @Composable
+        override fun supportingTextColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
+
+        @Composable
+        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge
     }
 
-    data object OnFillingTextStyle : AppTextFieldStyle() {
-        @Composable
-        override fun textStyle(): TextStyle = MaterialTheme.typography.bodySmall
-
-
+    data object FocusedTextStyle : AppTextFieldStyle() {
         @Composable
         override fun textColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
@@ -59,14 +66,20 @@ sealed class AppTextFieldStyle() {
         override fun borderColor(): Color = MaterialTheme.colorScheme.primary
 
         @Composable
-        override fun borderWidth(): Dp = MaterialTheme.spacing.spaceSingleDp
-    }
+        override fun cursorColor(): Color = MaterialTheme.colorScheme.primary
 
-    data object FilledTextStyle : AppTextFieldStyle() {
+        @Composable
+        override fun borderWidth(): Dp = MaterialTheme.spacing.spaceSingleDp
+
+        @Composable
+        override fun supportingTextColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
+
         @Composable
         override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge
 
+    }
 
+    data object DefaultTextStyle : AppTextFieldStyle() {
         @Composable
         override fun textColor(): Color = MaterialTheme.colorScheme.onSurface
 
@@ -78,12 +91,18 @@ sealed class AppTextFieldStyle() {
 
         @Composable
         override fun borderWidth(): Dp = MaterialTheme.spacing.spaceDefault
+
+        @Composable
+        override fun cursorColor(): Color = Color.Transparent
+
+        @Composable
+        override fun supportingTextColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
+
+        @Composable
+        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge
     }
 
     data object ErrorTextStyle : AppTextFieldStyle() {
-        @Composable
-        override fun textStyle(): TextStyle = MaterialTheme.typography.bodySmall
-
 
         @Composable
         override fun textColor(): Color = MaterialTheme.colorScheme.error
@@ -95,6 +114,15 @@ sealed class AppTextFieldStyle() {
         override fun borderColor(): Color = MaterialTheme.colorScheme.error
 
         @Composable
+        override fun cursorColor(): Color = MaterialTheme.colorScheme.error
+
+        @Composable
+        override fun supportingTextColor(): Color = MaterialTheme.colorScheme.error
+
+        @Composable
         override fun borderWidth(): Dp = MaterialTheme.spacing.spaceSingleDp
+
+        @Composable
+        override fun textStyle(): TextStyle = MaterialTheme.typography.bodySmall
     }
 }
