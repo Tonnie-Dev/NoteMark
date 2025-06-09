@@ -26,7 +26,7 @@ private val AppColorScheme = lightColorScheme(
 fun NoteMarkTheme(content: @Composable () -> Unit) {
     MaterialTheme(
             colorScheme = AppColorScheme,
-            shapes = shapes,
+            shapes = customShapes,
             typography = Typography,
             content = content
     )

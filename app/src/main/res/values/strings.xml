@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">NoteMark</string>
+
+    <!--Header Texts-->
+    <string name="header_text_stats">Statistics</string>
+    <string name="header_text_your_notes">Your Own Collection of Notes</string>
+
+    <!--Caption Texts-->
+    <string name="cap_text_capture_thoughts">Capture your thoughts and ideas.</string>
+
+    <!--Button Texts-->
+    <string name="btn_text_get_started">Get Started</string>
+    <string name="btn_text_login"> Log in</string>
 </resources>

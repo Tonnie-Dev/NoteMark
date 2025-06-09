@@ -1,6 +1,7 @@
 package com.tonyxlab.notemark.presentation.core.components
 
 
+import android.R.attr.onClick
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,7 +31,6 @@ import com.tonyxlab.notemark.util.ifThen
 @Composable
 fun AppButton(
     buttonText: String,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = MaterialTheme.typography.titleSmall,
     isEnabled: Boolean = true,
@@ -39,7 +39,8 @@ fun AppButton(
     disabledContainerColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     outlineColor: Color = MaterialTheme.colorScheme.primary,
     buttonHeight: Dp = MaterialTheme.spacing.spaceTwelve * 4,
-    shape: RoundedCornerShape = RoundedCornerShape(MaterialTheme.spacing.spaceTwelve)
+    shape: RoundedCornerShape = RoundedCornerShape(MaterialTheme.spacing.spaceTwelve),
+    onClick: () -> Unit,
 ) {
 
     Box(
