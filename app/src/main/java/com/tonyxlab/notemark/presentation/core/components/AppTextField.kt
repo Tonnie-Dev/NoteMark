@@ -10,11 +10,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -87,15 +90,21 @@ fun AppTextField(
                     )
                 }
         )
+
+        Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceSmall))
+
+        Text(
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = MaterialTheme.spacing.spaceMedium)
+                        .padding(end = MaterialTheme.spacing.spaceMedium),
+                text = supportingText,
+                style = MaterialTheme.typography.bodySmall,
+                color = currentStyle.supportingTextColor()
+        )
+
     }
 
-    Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceSmall))
-
-    Text(
-            text = supportingText,
-            style = MaterialTheme.typography.bodySmall,
-            color = currentStyle.supportingTextColor()
-    )
 
 }
 
@@ -113,7 +122,7 @@ private fun TextFieldDecorator(
 
     Row(
             modifier = modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .background(
                             color = style.backgroundColor(),
                             shape = MaterialTheme.shapes.medium
@@ -125,7 +134,8 @@ private fun TextFieldDecorator(
                     )
                     .padding(vertical = MaterialTheme.spacing.spaceMedium)
                     .padding(end = MaterialTheme.spacing.spaceMedium)
-                    .padding(start = MaterialTheme.spacing.spaceMedium)
+                    .padding(start = MaterialTheme.spacing.spaceMedium),
+            horizontalArrangement = Arrangement.SpaceBetween
     ) {
 
 
@@ -155,7 +165,6 @@ private fun TextFieldDecorator(
 }
 
 
-
 @PreviewLightDark
 @Composable
 private fun AppTextFieldPreview() {
@@ -177,18 +186,29 @@ private fun AppTextFieldPreview() {
                     label = "Username",
                     placeholderString = "John.doe",
                     supportingText = "Use 8 + Characters",
-                    textFieldState =  textFieldState
+                    textFieldState = textFieldState
             )
 
 
-          /*  AppTextField(
+            AppTextField(
                     label = "Username",
                     placeholderString = "John.doe",
                     supportingText = "Use 8 + Characters",
-                    textFieldState =  textFieldState,
+                    textFieldState = textFieldState,
                     isError = true
 
-            )*/
+            )
+
+
+            AppTextField(
+                    label = "Username",
+                    placeholderString = "John.doe",
+                    supportingText = "Use 8 + Characters",
+                    textFieldState = textFieldState,
+                    isSecureText = true,
+                    icon = Icons.Default.Visibility
+
+            )
 
         }
     }
