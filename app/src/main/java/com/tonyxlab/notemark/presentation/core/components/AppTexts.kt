@@ -19,7 +19,7 @@ import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 
 @Composable
-fun AppHeaderText(
+fun AppTitleText(
     text: String,
     modifier: Modifier = Modifier,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
@@ -65,7 +65,7 @@ private fun AppTextFieldPreview() {
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium)
         ) {
 
-            AppHeaderText(text = stringResource(id = R.string.header_text_your_notes))
+            AppTitleText(text = stringResource(id = R.string.header_text_your_notes))
             AppCaptionText(text = stringResource(id = R.string.header_text_your_notes))
         }
     }

@@ -18,12 +18,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.components.AppButton
-import com.tonyxlab.notemark.presentation.core.components.AppCaptionText
-import com.tonyxlab.notemark.presentation.core.components.AppHeaderText
+import com.tonyxlab.notemark.presentation.core.components.HeaderText
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 
@@ -34,8 +33,8 @@ fun LandingScreen(modifier: Modifier = Modifier, navOperations: NavOperations) {
 
         LandingScreenContent(
                 modifier = modifier.padding(innerPadding),
-                onLogin = { navOperations.navigateToLoginScreenDestination()},
-                onGetStarted = {navOperations.navigateToLoginScreenDestination()})
+                onLogin = { navOperations.navigateToLoginScreenDestination() },
+                onGetStarted = { navOperations.navigateToLoginScreenDestination() })
     }
 }
 
@@ -77,11 +76,13 @@ fun LandingScreenContent(
                             .padding(bottom = MaterialTheme.spacing.spaceTen * 4)
             ) {
 
-                AppHeaderText(text = stringResource(id = R.string.header_text_your_notes))
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceSingleDp * 6))
-                AppCaptionText(text = stringResource(id = R.string.cap_text_capture_thoughts))
+                HeaderText(
+                        title = R.string.header_text_your_notes,
+                        subTitle = R.string.cap_text_capture_thoughts
+                )
 
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceTen * 4))
+
                 AppButton(
                         buttonText = stringResource(id = R.string.btn_text_get_started),
                         onClick = onGetStarted
@@ -94,17 +95,15 @@ fun LandingScreenContent(
                         isOutlined = true,
                         onClick = onLogin
                 )
-
-
             }
         }
     }
 }
 
-@PreviewLightDark
+@PreviewScreenSizes
+
 @Composable
 private fun LandingScreenContentPreview() {
-
 
     NoteMarkTheme {
 
