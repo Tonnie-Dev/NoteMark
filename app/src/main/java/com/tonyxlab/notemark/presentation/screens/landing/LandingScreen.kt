@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,11 +20,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.R
+import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.components.AppButton
 import com.tonyxlab.notemark.presentation.core.components.AppCaptionText
 import com.tonyxlab.notemark.presentation.core.components.AppHeaderText
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
+
+
+@Composable
+fun LandingScreen(modifier: Modifier = Modifier, navOperations: NavOperations) {
+    Scaffold { innerPadding ->
+
+        LandingScreenContent(
+                modifier = modifier.padding(innerPadding),
+                onLogin = { navOperations.navigateToLoginScreenDestination()},
+                onGetStarted = {navOperations.navigateToLoginScreenDestination()})
+    }
+}
 
 @Composable
 fun LandingScreenContent(
@@ -56,7 +70,8 @@ fun LandingScreenContent(
         ) {
 
             Column(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                            .fillMaxWidth()
                             .padding(horizontal = MaterialTheme.spacing.spaceMedium)
                             .padding(top = MaterialTheme.spacing.spaceLarge)
                             .padding(bottom = MaterialTheme.spacing.spaceTen * 4)
@@ -73,8 +88,9 @@ fun LandingScreenContent(
                 )
 
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceTwelve))
+
                 AppButton(
-                        buttonText = stringResource(id = R.string.btn_text_get_started),
+                        buttonText = stringResource(id = R.string.btn_text_login),
                         isOutlined = true,
                         onClick = onLogin
                 )
