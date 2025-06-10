@@ -24,7 +24,7 @@ abstract class BaseViewModel<S : UiState, E : UiEvent, A : ActionEvent> : ViewMo
     val uiState = _uiState.asStateFlow()
 
     private val _actionEvent = Channel<A>()
-    val actionVEvent = _actionEvent.receiveAsFlow()
+    val actionEvent = _actionEvent.receiveAsFlow()
 
 
     protected val currentState: S

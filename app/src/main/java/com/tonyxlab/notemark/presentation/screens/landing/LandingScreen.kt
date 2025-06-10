@@ -1,0 +1,102 @@
+package com.tonyxlab.notemark.presentation.screens.landing
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.tonyxlab.notemark.R
+import com.tonyxlab.notemark.presentation.core.components.AppButton
+import com.tonyxlab.notemark.presentation.core.components.AppCaptionText
+import com.tonyxlab.notemark.presentation.core.components.AppHeaderText
+import com.tonyxlab.notemark.presentation.core.utils.spacing
+import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
+
+@Composable
+fun LandingScreenContent(
+    modifier: Modifier = Modifier,
+    onLogin: () -> Unit,
+    onGetStarted: () -> Unit
+) {
+
+    Box(modifier = modifier.fillMaxSize()) {
+
+        val clippingShape = RoundedCornerShape(
+                topStart = MaterialTheme.spacing.spaceTen * 2,
+                topEnd = MaterialTheme.spacing.spaceTen * 2
+        )
+
+        Image(
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.TopStart),
+                painter = painterResource(R.drawable.landing_image),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
+        )
+
+        Surface(
+                modifier = Modifier
+                        .align(Alignment.BottomStart),
+                color = MaterialTheme.colorScheme.background,
+                shape = clippingShape
+        ) {
+
+            Column(
+                    modifier = Modifier.fillMaxWidth()
+                            .padding(horizontal = MaterialTheme.spacing.spaceMedium)
+                            .padding(top = MaterialTheme.spacing.spaceLarge)
+                            .padding(bottom = MaterialTheme.spacing.spaceTen * 4)
+            ) {
+
+                AppHeaderText(text = stringResource(id = R.string.header_text_your_notes))
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceSingleDp * 6))
+                AppCaptionText(text = stringResource(id = R.string.cap_text_capture_thoughts))
+
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceTen * 4))
+                AppButton(
+                        buttonText = stringResource(id = R.string.btn_text_get_started),
+                        onClick = onGetStarted
+                )
+
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceTwelve))
+                AppButton(
+                        buttonText = stringResource(id = R.string.btn_text_get_started),
+                        isOutlined = true,
+                        onClick = onLogin
+                )
+
+
+            }
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun LandingScreenContentPreview() {
+
+
+    NoteMarkTheme {
+
+        LandingScreenContent(
+                modifier = Modifier,
+                onGetStarted = {},
+                onLogin = {}
+        )
+    }
+}
+
