@@ -38,18 +38,7 @@ fun LandingScreen(modifier: Modifier = Modifier, navOperations: NavOperations) {
                 onLogin = { navOperations.navigateToLoginScreenDestination() },
                 onGetStarted = { navOperations.navigateToLoginScreenDestination() }
         )
-    /*    Box(modifier = modifier.padding(innerPadding)){
 
-            Image(
-                    modifier = Modifier
-                            .fillMaxWidth()
-                    .align(Alignment.TopStart),
-                     painter = painterResource(R.drawable.landing_image),
-                    contentDescription = null,
-                    contentScale = ContentScale.FillWidth
-            )
-
-         }*/
 
     }
 }
@@ -89,7 +78,7 @@ fun LandingScreenContent(
                             .fillMaxWidth()
                             .padding(horizontal = MaterialTheme.spacing.spaceMedium)
                             .padding(top = MaterialTheme.spacing.spaceLarge)
-                            .padding(bottom = MaterialTheme.spacing.spaceTen * 4)
+                            .padding(bottom = MaterialTheme.spacing.spaceMedium)
             ) {
 
                 Header(
