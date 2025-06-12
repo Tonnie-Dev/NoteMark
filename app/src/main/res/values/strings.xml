@@ -4,6 +4,7 @@
     <!--Header Texts-->
     <string name="header_text_stats">Statistics</string>
     <string name="header_text_your_notes">Your Own Collection of Notes</string>
+    <string name="header_text_login">Log In</string>
 
     <!--Caption Texts-->
     <string name="cap_text_capture_thoughts">Capture your thoughts and ideas.</string>
@@ -11,4 +12,12 @@
     <!--Button Texts-->
     <string name="btn_text_get_started">Get Started</string>
     <string name="btn_text_login"> Log in</string>
+
+    <!--Label Texts-->
+    <string name="lab_text_email_label">Email</string>
+    <string name="lab_text_password_label">Password</string>
+
+    <!--Placeholder Texts-->
+    <string name="placeholder_text_email">john.doe@example.com</string>
+    <string name="placeholder_text_passwordj">Password</string>
 </resources>

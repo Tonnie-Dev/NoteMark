@@ -16,10 +16,11 @@ import androidx.compose.ui.platform.LocalContext
 private val AppColorScheme = lightColorScheme(
         primary = Primary,
         onPrimary = OnPrimary,
-        error = Error,
+        surface = Surface,
         onSurface = OnSurface,
+        onSurfaceVariant = OnSurfaceVariant,
         background = SurfaceLowest,
-        onSurfaceVariant = OnSurfaceVariant
+        error = Error,
 )
 
 @Composable

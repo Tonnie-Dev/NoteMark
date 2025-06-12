@@ -42,14 +42,14 @@ import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 fun AppTextField(
     label: String,
     placeholderString: String,
-    supportingText: String,
     modifier: Modifier = Modifier,
+    supportingText: String = "",
     icon: ImageVector? = null,
     isError: Boolean = false,
     textFieldState: TextFieldState,
     onIconClick: () -> Unit = {},
     isSecureText: Boolean = false,
-    textFieldStyle: AppTextFieldStyle = AppTextFieldStyle.DefaultTextStyle,
+    textFieldStyle: AppTextFieldStyle = AppTextFieldStyle.PlaceHolderStyle,
     labelTextStyle: TextStyle = MaterialTheme.typography.bodyMedium
 ) {
 

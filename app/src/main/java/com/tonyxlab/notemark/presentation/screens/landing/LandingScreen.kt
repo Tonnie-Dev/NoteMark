@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.components.AppButton
-import com.tonyxlab.notemark.presentation.core.components.HeaderText
+import com.tonyxlab.notemark.presentation.core.components.Header
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 
@@ -30,11 +30,27 @@ import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 @Composable
 fun LandingScreen(modifier: Modifier = Modifier, navOperations: NavOperations) {
     Scaffold { innerPadding ->
-
         LandingScreenContent(
-                modifier = modifier.padding(innerPadding),
+
+                modifier = modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
                 onLogin = { navOperations.navigateToLoginScreenDestination() },
-                onGetStarted = { navOperations.navigateToLoginScreenDestination() })
+                onGetStarted = { navOperations.navigateToLoginScreenDestination() }
+        )
+    /*    Box(modifier = modifier.padding(innerPadding)){
+
+            Image(
+                    modifier = Modifier
+                            .fillMaxWidth()
+                    .align(Alignment.TopStart),
+                     painter = painterResource(R.drawable.landing_image),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillWidth
+            )
+
+         }*/
+
     }
 }
 
@@ -45,7 +61,7 @@ fun LandingScreenContent(
     onGetStarted: () -> Unit
 ) {
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier) {
 
         val clippingShape = RoundedCornerShape(
                 topStart = MaterialTheme.spacing.spaceTen * 2,
@@ -55,8 +71,8 @@ fun LandingScreenContent(
         Image(
                 modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.TopStart),
-                painter = painterResource(R.drawable.landing_image),
+                 .align(Alignment.TopStart),
+                 painter = painterResource(R.drawable.landing_image),
                 contentDescription = null,
                 contentScale = ContentScale.Crop
         )
@@ -76,7 +92,7 @@ fun LandingScreenContent(
                             .padding(bottom = MaterialTheme.spacing.spaceTen * 4)
             ) {
 
-                HeaderText(
+                Header(
                         title = R.string.header_text_your_notes,
                         subTitle = R.string.cap_text_capture_thoughts
                 )
@@ -87,9 +103,7 @@ fun LandingScreenContent(
                         buttonText = stringResource(id = R.string.btn_text_get_started),
                         onClick = onGetStarted
                 )
-
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceTwelve))
-
                 AppButton(
                         buttonText = stringResource(id = R.string.btn_text_login),
                         isOutlined = true,

@@ -11,7 +11,7 @@ import com.tonyxlab.notemark.presentation.core.utils.spacing
 
 
 @Composable
-fun HeaderText(@StringRes title: Int, @StringRes subTitle: Int) {
+fun Header(@StringRes title: Int, @StringRes subTitle: Int) {
     AppTitleText(text = stringResource(id = title))
     Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceSingleDp * 6))
     AppCaptionText(text = stringResource(id = subTitle))
