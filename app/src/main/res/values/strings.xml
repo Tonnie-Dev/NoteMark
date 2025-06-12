@@ -13,6 +13,10 @@
     <string name="btn_text_get_started">Get Started</string>
     <string name="btn_text_login"> Log in</string>
 
+    <!--Text Button Texts-->
+    <string name="txt_btn_no_account">Don’t have an account?</string>
+    <string name="txt_btn_already_have_account">Already have an account?</string>
+
     <!--Label Texts-->
     <string name="lab_text_email_label">Email</string>
     <string name="lab_text_password_label">Password</string>
