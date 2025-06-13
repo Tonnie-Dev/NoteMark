@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -25,6 +27,7 @@ import com.tonyxlab.notemark.presentation.core.components.Header
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
+
 
 @Composable
 fun LoginScreen(
@@ -56,8 +59,8 @@ fun LoginScreenContent(
     onClickTextButton: () -> Unit
 ) {
 
-    val emailTextFieldState = TextFieldState()
-    val passwordTextFieldState = TextFieldState()
+    val emailTextFieldState = remember { TextFieldState() }
+    val passwordTextFieldState = rememberTextFieldState(initialText = "Tonnie Xiii")
 
     Surface(
             modifier = modifier
