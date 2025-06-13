@@ -1,6 +1,5 @@
 package com.tonyxlab.notemark.presentation
 
-import android.graphics.Color.toArgb
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -13,8 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import com.tonyxlab.notemark.navigation.AppNavHost
 import com.tonyxlab.notemark.navigation.rememberNavOperations
 import com.tonyxlab.notemark.presentation.core.utils.spacing

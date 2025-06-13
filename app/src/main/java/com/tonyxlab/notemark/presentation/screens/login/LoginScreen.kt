@@ -3,8 +3,11 @@ package com.tonyxlab.notemark.presentation.screens.login
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,10 +31,14 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     navOperations: NavOperations
 ) {
-    Scaffold(containerColor = MaterialTheme.colorScheme.primary) { innerPadding ->
+    Scaffold(
+
+            containerColor = MaterialTheme.colorScheme.primary
+    ) { innerPadding ->
         LoginScreenContent(
                 modifier = modifier
-                        .padding(innerPadding),
+                        .padding(innerPadding)
+                       ,
                 onClickButton = { navOperations.navigateToLoginScreenDestination() },
                 onClickTextButton = { navOperations.navigateToLoginScreenDestination() }
 
@@ -53,13 +60,14 @@ fun LoginScreenContent(
     val passwordTextFieldState = TextFieldState()
 
     Surface(
-            modifier = Modifier
+            modifier = modifier
+                    .padding(WindowInsets.statusBars.asPaddingValues()) // 👈 Add this here if you want spacing
                     .padding(top = MaterialTheme.spacing.spaceLarge),
             color = MaterialTheme.colorScheme.background,
             shape = getClippingShape()
     ) {
         Column(
-                modifier = modifier
+                modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = MaterialTheme.spacing.spaceMedium)
                         .padding(top = MaterialTheme.spacing.spaceLarge)
