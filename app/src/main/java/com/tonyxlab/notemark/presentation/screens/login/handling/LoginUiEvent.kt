@@ -8,4 +8,5 @@ sealed interface LoginUiEvent : UiEvent {
     data class EnterPassword(val password: String) : LoginUiEvent
     data object Login : LoginUiEvent
     data object RegisterAccount : LoginUiEvent
+    data object TogglePasswordVisibility: LoginUiEvent
 }
