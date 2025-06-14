@@ -20,33 +20,33 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.navigation.NavOperations
+import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
 import com.tonyxlab.notemark.presentation.core.components.AppButton
 import com.tonyxlab.notemark.presentation.core.components.AppTextButton
 import com.tonyxlab.notemark.presentation.core.components.AppTextField
 import com.tonyxlab.notemark.presentation.core.components.Header
 import com.tonyxlab.notemark.presentation.core.utils.spacing
+import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiEvent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
+import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    navOperations: NavOperations
+    navOperations: NavOperations,
+    viewModel: LoginViewModel = koinViewModel()
 ) {
-    Scaffold(
+    BaseContentLayout(
+            modifier = modifier,
+            viewModel = viewModel
+    ) {
 
-            containerColor = MaterialTheme.colorScheme.primary
-    ) { innerPadding ->
         LoginScreenContent(
-                modifier = modifier
-                        .padding(innerPadding)
-                       ,
-                onClickButton = { navOperations.navigateToLoginScreenDestination() },
-                onClickTextButton = { navOperations.navigateToLoginScreenDestination() }
-
+                modifier = modifier,
+                onEvent = viewModel::onEvent
         )
-
     }
 
 }
@@ -55,8 +55,7 @@ fun LoginScreen(
 @Composable
 fun LoginScreenContent(
     modifier: Modifier = Modifier,
-    onClickButton: () -> Unit,
-    onClickTextButton: () -> Unit
+    onEvent:(LoginUiEvent) -> Unit
 ) {
 
     val emailTextFieldState = remember { TextFieldState() }
@@ -100,11 +99,11 @@ fun LoginScreenContent(
 
                     AppButton(
                             buttonText = stringResource(id = R.string.btn_text_login),
-                            onClick = onClickButton
-                    )
+                            onClick = { onEvent(LoginUiEvent.Login)}                    )
                     AppTextButton(
                             text = stringResource(id = R.string.txt_btn_no_account),
-                            onClick = onClickTextButton
+                            onClick = { onEvent(LoginUiEvent.RegisterAccount)}
+
                     )
                 }
             }
@@ -121,8 +120,7 @@ private fun LoginScreenContentPreview() {
 
         LoginScreenContent(
                 modifier = Modifier.background(color = MaterialTheme.colorScheme.background),
-                onClickButton = {},
-                onClickTextButton = {}
+                onEvent = {}
         )
     }
 

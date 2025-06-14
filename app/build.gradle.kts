@@ -73,6 +73,10 @@ dependencies {
     // Data Store
     implementation(AndroidX.dataStore.preferences)
 
+    // Koin
+    implementation(Koin.android)
+    implementation(Koin.compose)
+
     // Kotlinx Serialization
     implementation(KotlinX.serialization.json)
 
