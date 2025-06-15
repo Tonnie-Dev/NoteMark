@@ -1,28 +1,19 @@
 package com.tonyxlab.notemark.presentation.screens.login
 
-import androidx.compose.runtime.snapshotFlow
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginActionEvent
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiEvent
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
-import timber.log.Timber
 
 typealias LoginBaseViewModel = BaseViewModel<LoginUiState, LoginUiEvent, LoginActionEvent>
 
 class LoginViewModel() : LoginBaseViewModel() {
-
-
 
     override val initialState: LoginUiState
         get() = LoginUiState()
 
 
     override fun onEvent(event: LoginUiEvent) {
-
-        Timber.i("OnEvent() called")
 
         when (event) {
             is LoginUiEvent.EnterEmail -> TODO()
@@ -33,18 +24,6 @@ class LoginViewModel() : LoginBaseViewModel() {
         }
     }
 
-
-   /* private fun editEmail(emailText: String) {
-        Timber.i("editEmail event")
-        currentState.emailTextFieldState.edit { replace(0, length, emailText) }
-        //updateState { it.copy(emailTextFieldState = it.emailTextFieldState.apply { text = emailText }) }
-    }
-
-    private fun editPassword(passwordText: String) {
-        Timber.i("editPassword event")
-        currentState.passwordTextFieldState.edit { replace(0, length, passwordText) }
-
-    }*/
    private fun onTogglePasswordVisibility() {
 
        updateState { it.copy(isPasswordVisible = !currentState.isPasswordVisible) }
@@ -54,12 +33,8 @@ class LoginViewModel() : LoginBaseViewModel() {
        sendActionEvent(LoginActionEvent.NavigateToMainScreen)
     }
 
-
-
     private fun onRegister() {
         sendActionEvent(LoginActionEvent.NavigateToRegistrationScreen)
     }
-
-
 
 }
