@@ -52,15 +52,15 @@ sealed class AppTextFieldStyle() {
         override fun supportingTextColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
         @Composable
-        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge
+        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge.copy(color = this.textColor() )
     }
 
     data object FocusedTextStyle : AppTextFieldStyle() {
         @Composable
-        override fun textColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
+        override fun textColor(): Color = MaterialTheme.colorScheme.onSurface
 
         @Composable
-        override fun backgroundColor(): Color = Color.Transparent
+        override fun backgroundColor(): Color = Color.White
 
         @Composable
         override fun borderColor(): Color = MaterialTheme.colorScheme.primary
@@ -75,32 +75,10 @@ sealed class AppTextFieldStyle() {
         override fun supportingTextColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
         @Composable
-        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge
+        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge.copy(color = this.textColor())
 
     }
 
-    data object DefaultTextStyle : AppTextFieldStyle() {
-        @Composable
-        override fun textColor(): Color = MaterialTheme.colorScheme.onSurface
-
-        @Composable
-        override fun backgroundColor(): Color = MaterialTheme.colorScheme.surface
-
-        @Composable
-        override fun borderColor(): Color = MaterialTheme.colorScheme.surface
-
-        @Composable
-        override fun borderWidth(): Dp = MaterialTheme.spacing.spaceDefault
-
-        @Composable
-        override fun cursorColor(): Color = Color.Transparent
-
-        @Composable
-        override fun supportingTextColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
-
-        @Composable
-        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge
-    }
 
     data object ErrorTextStyle : AppTextFieldStyle() {
 
@@ -123,6 +101,6 @@ sealed class AppTextFieldStyle() {
         override fun borderWidth(): Dp = MaterialTheme.spacing.spaceSingleDp
 
         @Composable
-        override fun textStyle(): TextStyle = MaterialTheme.typography.bodySmall
+        override fun textStyle(): TextStyle = MaterialTheme.typography.bodySmall.copy(color = this.textColor() )
     }
 }
