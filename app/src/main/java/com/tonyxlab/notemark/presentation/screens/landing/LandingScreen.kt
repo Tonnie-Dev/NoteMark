@@ -2,32 +2,26 @@
 
 package com.tonyxlab.notemark.presentation.screens.landing
 
-import android.R.attr.contentDescription
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.components.AppButton
@@ -40,8 +34,8 @@ import com.tonyxlab.notemark.presentation.theme.getClippingShape
 @Composable
 fun LandingScreen(modifier: Modifier = Modifier, navOperations: NavOperations) {
     Scaffold(
-
-            contentWindowInsets = WindowInsets(0)
+            containerColor = Color.Transparent,
+            //contentWindowInsets = WindowInsets(0)
     ) { innerPadding ->
         LandingScreenContent(
 
@@ -69,10 +63,10 @@ fun LandingScreenContent(
                 modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.TopStart)
-                        .height(622.dp)
-                        .padding(top = 0.dp) // No padding
-                        .statusBarsPadding(), // 👈 Key line: adds safe padding *only* if you need to position over the status bar
-                painter = painterResource(R.drawable.landing_image),
+                // .height(622.dp)
+                // .padding(top = 0.dp) // No padding
+                //  .statusBarsPadding(), // 👈 Key line: adds safe padding *only* if you need to position over the status bar
+                , painter = painterResource(R.drawable.landing_image),
                 contentDescription = null,
                 contentScale = ContentScale.Crop
         )
