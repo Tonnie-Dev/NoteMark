@@ -37,7 +37,7 @@ val Typography = Typography(
 
         bodyMedium = TextStyle(
                 fontFamily = InterFontFamily,
-                fontWeight = FontWeight.Normal,
+                fontWeight = FontWeight.Medium,
                 fontSize = 15.sp,
                 lineHeight = 20.sp
         ),
