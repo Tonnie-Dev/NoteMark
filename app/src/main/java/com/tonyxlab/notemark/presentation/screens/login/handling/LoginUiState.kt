@@ -10,7 +10,7 @@ data class LoginUiState(
     val passwordTextFieldState: TextFieldState = TextFieldState(),
     val fieldError: FieldError? = null,
     val isPasswordVisible: Boolean = false,
-    val isLoginButtonEnabled: Boolean = false
+    //val isLoginButtonEnabled: Boolean = false
 ) : UiState {
 
     @Stable
@@ -18,4 +18,8 @@ data class LoginUiState(
         data object InvalidEmail : FieldError
         data object InvalidPassword : FieldError
     }
+
+    val isLoginButtonEnabled: Boolean
+        get() = fieldError == null
+
 }

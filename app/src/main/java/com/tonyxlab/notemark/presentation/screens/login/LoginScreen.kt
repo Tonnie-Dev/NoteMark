@@ -1,26 +1,21 @@
 package com.tonyxlab.notemark.presentation.screens.login
 
-import android.R.attr.bottom
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import androidx.compose.ui.unit.dp
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
@@ -47,14 +42,12 @@ fun LoginScreen(
             viewModel = viewModel
     ) { state ->
         LoginScreenContent(
-                uiState = state,
                 modifier = modifier,
+                uiState = state,
                 onEvent = viewModel::onEvent
         )
     }
-
 }
-
 
 @Composable
 fun LoginScreenContent(
@@ -65,59 +58,73 @@ fun LoginScreenContent(
 
     val emailTextFieldState = uiState.emailTextFieldState
     val passwordTextFieldState = uiState.passwordTextFieldState
+    val eyeIcon = when{ uiState.isPasswordVisible -> Icons.Default.VisibilityOff
+   else ->Icons.Default.Visibility
+    }
 
-    Surface(
+    Box(
             modifier = modifier
-                    .padding(WindowInsets.statusBars.asPaddingValues()) // 👈 Add this here if you want spacing
-                    .padding(top = MaterialTheme.spacing.spaceLarge),
-            color = MaterialTheme.colorScheme.background,
-            shape = getClippingShape()
+                    .background(color = MaterialTheme.colorScheme.primary)
+                    .fillMaxSize()
+                    .padding(top = MaterialTheme.spacing.spaceLarge)
     ) {
-        Column(
+        Surface(
                 modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = MaterialTheme.spacing.spaceMedium)
-                        .padding(top = MaterialTheme.spacing.spaceLarge)
+                        .clip(getClippingShape())
+                        .padding(top = MaterialTheme.spacing.spaceLarge),
+                color = MaterialTheme.colorScheme.background,
+                shape = getClippingShape()
         ) {
+            Column(
+                    modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = MaterialTheme.spacing.spaceMedium)
+                            .padding(top = MaterialTheme.spacing.spaceLarge)
+            ) {
+                Header(
+                        modifier = Modifier.padding(bottom = MaterialTheme.spacing.spaceTen * 4),
+                        title = R.string.header_text_login,
+                        subTitle = R.string.cap_text_capture_thoughts,
+                        )
 
-            Header(
-                    modifier = Modifier.padding(bottom = MaterialTheme.spacing.spaceTen * 4),
-                    title = R.string.header_text_login,
-                    subTitle = R.string.cap_text_capture_thoughts,
+                Column {
+                    Column(
+                            modifier = Modifier.padding(bottom = MaterialTheme.spacing.spaceTwelve * 2),
+                            verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium)
+                    ) {
 
-            )
+                        AppTextField(
+                                label = stringResource(id = R.string.lab_text_email_label),
+                                placeholderString = stringResource(id = R.string.placeholder_text_email),
+                                textFieldState = emailTextFieldState,
 
-            Column {
-                Column(
-                        modifier = Modifier.padding(bottom = MaterialTheme.spacing.spaceTwelve * 2),
-                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium)) {
+                                )
 
-                    AppTextField(
-                            label = stringResource(id = R.string.lab_text_email_label),
-                            placeholderString = stringResource(id = R.string.placeholder_text_email),
-                            textFieldState = emailTextFieldState,
+                        AppTextField(
+                                label = stringResource(id = R.string.lab_text_password_label),
+                                placeholderString = stringResource(id = R.string.placeholder_text_password),
+                                textFieldState = passwordTextFieldState,
+                                isSecureText = uiState.isPasswordVisible,
+                                onIconClick = { onEvent(LoginUiEvent.TogglePasswordVisibility)},
+                                icon = eyeIcon
+                        )
 
-                    )
+                    }
 
-                    AppTextField(
-                            label = stringResource(id = R.string.lab_text_password_label),
-                            placeholderString = stringResource(id = R.string.placeholder_text_email),
-                            textFieldState = passwordTextFieldState,
-                            isSecureText = true
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceTwelve)) {
 
-                }
+                        AppButton(
+                                buttonText = stringResource(id = R.string.btn_text_login),
+                                onClick = { onEvent(LoginUiEvent.Login) },
+                                isEnabled = uiState.isLoginButtonEnabled
 
-                Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceTwelve)) {
+                        )
+                        AppTextButton(
+                                text = stringResource(id = R.string.txt_btn_no_account),
+                                onClick = { onEvent(LoginUiEvent.RegisterAccount) }
 
-                    AppButton(
-                            buttonText = stringResource(id = R.string.btn_text_login),
-                            onClick = { onEvent(LoginUiEvent.Login) })
-                    AppTextButton(
-                            text = stringResource(id = R.string.txt_btn_no_account),
-                            onClick = { onEvent(LoginUiEvent.RegisterAccount) }
-
-                    )
+                        )
+                    }
                 }
             }
         }

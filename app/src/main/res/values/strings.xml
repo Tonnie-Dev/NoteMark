@@ -23,5 +23,5 @@
 
     <!--Placeholder Texts-->
     <string name="placeholder_text_email">john.doe@example.com</string>
-    <string name="placeholder_text_passwordj">Password</string>
+    <string name="placeholder_text_password">Password</string>
 </resources>
