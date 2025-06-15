@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -27,6 +26,7 @@ import com.tonyxlab.notemark.presentation.core.components.AppTextField
 import com.tonyxlab.notemark.presentation.core.components.Header
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiEvent
+import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
 import org.koin.androidx.compose.koinViewModel
@@ -41,9 +41,9 @@ fun LoginScreen(
     BaseContentLayout(
             modifier = modifier,
             viewModel = viewModel
-    ) {
-
+    ) { state ->
         LoginScreenContent(
+                uiState = state,
                 modifier = modifier,
                 onEvent = viewModel::onEvent
         )
@@ -55,10 +55,11 @@ fun LoginScreen(
 @Composable
 fun LoginScreenContent(
     modifier: Modifier = Modifier,
-    onEvent:(LoginUiEvent) -> Unit
+    uiState: LoginUiState,
+    onEvent: (LoginUiEvent) -> Unit
 ) {
 
-    val emailTextFieldState = remember { TextFieldState() }
+    val emailTextFieldState = uiState.emailTextFieldState
     val passwordTextFieldState = rememberTextFieldState(initialText = "Tonnie Xiii")
 
     Surface(
@@ -99,10 +100,10 @@ fun LoginScreenContent(
 
                     AppButton(
                             buttonText = stringResource(id = R.string.btn_text_login),
-                            onClick = { onEvent(LoginUiEvent.Login)}                    )
+                            onClick = { onEvent(LoginUiEvent.Login) })
                     AppTextButton(
                             text = stringResource(id = R.string.txt_btn_no_account),
-                            onClick = { onEvent(LoginUiEvent.RegisterAccount)}
+                            onClick = { onEvent(LoginUiEvent.RegisterAccount) }
 
                     )
                 }
@@ -120,6 +121,7 @@ private fun LoginScreenContentPreview() {
 
         LoginScreenContent(
                 modifier = Modifier.background(color = MaterialTheme.colorScheme.background),
+                uiState = LoginUiState(),
                 onEvent = {}
         )
     }
