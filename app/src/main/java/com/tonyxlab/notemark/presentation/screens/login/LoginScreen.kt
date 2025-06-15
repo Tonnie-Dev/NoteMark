@@ -1,5 +1,6 @@
 package com.tonyxlab.notemark.presentation.screens.login
 
+import android.R.attr.bottom
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -63,7 +64,7 @@ fun LoginScreenContent(
 ) {
 
     val emailTextFieldState = uiState.emailTextFieldState
-    val passwordTextFieldState = rememberTextFieldState(initialText = "Tonnie Xiii")
+    val passwordTextFieldState = uiState.passwordTextFieldState
 
     Surface(
             modifier = modifier
@@ -80,25 +81,30 @@ fun LoginScreenContent(
         ) {
 
             Header(
+                    modifier = Modifier.padding(bottom = MaterialTheme.spacing.spaceTen * 4),
                     title = R.string.header_text_login,
-                    subTitle = R.string.cap_text_capture_thoughts
+                    subTitle = R.string.cap_text_capture_thoughts,
+
             )
 
             Column {
-                Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium)) {
-                    AppTextField(
-                            label = stringResource(id = R.string.lab_text_email_label),
-                            placeholderString = stringResource(id = R.string.placeholder_text_email),
-                            textFieldState = emailTextFieldState
-                    )
+                Column(
+                        modifier = Modifier.padding(bottom = MaterialTheme.spacing.spaceTwelve * 2),
+                        verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium)) {
 
                     AppTextField(
                             label = stringResource(id = R.string.lab_text_email_label),
                             placeholderString = stringResource(id = R.string.placeholder_text_email),
-                            textFieldState = passwordTextFieldState
+                            textFieldState = emailTextFieldState,
+
                     )
 
-                    AdvancedTextField(textFieldState = uiState.emailTextFieldState)
+                    AppTextField(
+                            label = stringResource(id = R.string.lab_text_password_label),
+                            placeholderString = stringResource(id = R.string.placeholder_text_email),
+                            textFieldState = passwordTextFieldState,
+                            isSecureText = true
+                    )
 
                 }
 
@@ -117,21 +123,7 @@ fun LoginScreenContent(
         }
     }
 }
-@Composable
-fun AdvancedTextField(textFieldState: TextFieldState) {
-    // Create and remember the TextFieldState
-    //val textFieldState = rememberTextFieldState("ff")
 
-    BasicTextField(
-            state = textFieldState,
-            modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-    )
-
-    // You can access the text value anywhere using:
-    // textFieldState.text.toString()
-}
 
 @PreviewLightDark
 @Composable
