@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
+import com.tonyxlab.notemark.presentation.theme.OnSurface12
 import com.tonyxlab.notemark.util.ifThen
 
 
@@ -36,7 +37,7 @@ fun AppButton(
     isEnabled: Boolean = true,
     isOutlined: Boolean = false,
     enabledContainerColor: Color = MaterialTheme.colorScheme.primary,
-    disabledContainerColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    disabledContainerColor: Color = OnSurface12,
     outlineColor: Color = MaterialTheme.colorScheme.primary,
     buttonHeight: Dp = MaterialTheme.spacing.spaceTwelve * 4,
     shape: RoundedCornerShape = RoundedCornerShape(MaterialTheme.spacing.spaceTwelve),
