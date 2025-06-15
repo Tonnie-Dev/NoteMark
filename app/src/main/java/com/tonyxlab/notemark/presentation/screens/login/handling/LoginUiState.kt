@@ -22,6 +22,3 @@ data class LoginUiState(
         data object InvalidPassword : FieldError
     }
 }
-class TextFieldState {
-    var text by mutableStateOf("")
-}

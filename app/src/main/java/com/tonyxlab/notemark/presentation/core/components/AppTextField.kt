@@ -43,7 +43,7 @@ fun AppTextField(
     label: String,
     placeholderString: String,
     modifier: Modifier = Modifier,
-    supportingText: String = "",
+    supportingText: String = "ddd",
     icon: ImageVector? = null,
     isError: Boolean = false,
     textFieldState: TextFieldState,
@@ -119,7 +119,7 @@ private fun TextFieldDecorator(
 ) {
 
     Row(
-            modifier = modifier
+            modifier = Modifier
                     .fillMaxWidth()
                     .background(
                             color = style.backgroundColor(),
@@ -130,8 +130,8 @@ private fun TextFieldDecorator(
                             color = style.borderColor(),
                             shape = MaterialTheme.shapes.medium
                     )
-                    .padding(vertical = MaterialTheme.spacing.spaceMedium)
-                    .padding(end = MaterialTheme.spacing.spaceMedium)
+                    .padding(vertical = MaterialTheme.spacing.spaceLarge)
+                    .padding(end = MaterialTheme.spacing.spaceSmall)
                     .padding(start = MaterialTheme.spacing.spaceMedium),
             horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -139,13 +139,13 @@ private fun TextFieldDecorator(
 
         Box {
             if (isTextEmpty) {
-
                 Text(
                         text = placeholderString,
                         style = AppTextFieldStyle.PlaceHolderStyle.textStyle()
                 )
+            } else {
+                innerTextField()
             }
-            innerTextField
         }
 
         icon?.let {
@@ -179,20 +179,27 @@ private fun AppTextFieldPreview() {
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium)
         ) {
 
-            val textFieldState = remember { TextFieldState() }
+            val textFieldState1 = remember { TextFieldState() }
+            val textFieldState2 = remember { TextFieldState(initialText = "Tonnie X") }
             AppTextField(
                     label = "Username",
                     placeholderString = "John.doe",
                     supportingText = "Use 8 + Characters",
-                    textFieldState = textFieldState
+                    textFieldState = textFieldState1
             )
 
-
             AppTextField(
                     label = "Username",
                     placeholderString = "John.doe",
                     supportingText = "Use 8 + Characters",
-                    textFieldState = textFieldState,
+                    textFieldState = textFieldState2,
+                    textFieldStyle = AppTextFieldStyle.FocusedTextStyle
+            )
+            AppTextField(
+                    label = "Username",
+                    placeholderString = "John.doe",
+                    supportingText = "Use 8 + Characters",
+                    textFieldState = textFieldState1,
                     isError = true
 
             )
@@ -202,7 +209,7 @@ private fun AppTextFieldPreview() {
                     label = "Username",
                     placeholderString = "John.doe",
                     supportingText = "Use 8 + Characters",
-                    textFieldState = textFieldState,
+                    textFieldState = textFieldState1,
                     isSecureText = true,
                     icon = Icons.Default.Visibility
 
