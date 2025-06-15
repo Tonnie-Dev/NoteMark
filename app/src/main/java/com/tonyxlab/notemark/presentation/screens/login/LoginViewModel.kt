@@ -5,7 +5,8 @@ import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginActionEvent
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiEvent
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiState
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 
 typealias LoginBaseViewModel = BaseViewModel<LoginUiState, LoginUiEvent, LoginActionEvent>
 
@@ -15,7 +16,7 @@ class LoginViewModel() : LoginBaseViewModel() {
 
         launch {
 
-            run()
+            observeEmailAndPasswordInputs()
         }
     }
 
@@ -36,7 +37,7 @@ class LoginViewModel() : LoginBaseViewModel() {
 
     private fun onTogglePasswordVisibility() {
 
-        updateState { it.copy(isPasswordVisible = !currentState.isPasswordVisible) }
+        updateState { it.copy(isSecureText = !currentState.isSecureText) }
     }
 
     private fun onLogin() {
@@ -47,41 +48,35 @@ class LoginViewModel() : LoginBaseViewModel() {
         sendActionEvent(LoginActionEvent.NavigateToRegistrationScreen)
     }
 
-    fun isValidEmail(email: CharSequence?): Boolean {
-        return !email.isNullOrBlank() && android.util.Patterns.EMAIL_ADDRESS.matcher(email)
-                .matches()
+
+    private suspend fun observeEmailAndPasswordInputs() {
+
+        val emailTextFlow = snapshotFlow { currentState.emailTextFieldState.text }
+        val passwordTextFlow = snapshotFlow { currentState.passwordTextFieldState.text }
+
+        combine(emailTextFlow, passwordTextFlow) { emailText, passwordText ->
+
+            validateEmailAndPassword(emailText, passwordText)
+        }.collect()
+
     }
 
-    suspend fun run() {
 
-        snapshotFlow { currentState.emailTextFieldState.text }.collectLatest {
-
-            textFieldState ->
-           updateFieldError(textFieldState)
-        }
-    }
-
-
-
-
-
-    fun updateFieldError(emailText: CharSequence) {
-      //  val email = currentState.emailTextFieldState.text
-        val password = currentState.passwordTextFieldState.text
+    fun validateEmailAndPassword(emailText: CharSequence, passwordText: CharSequence) {
 
         val error = when {
             !isValidEmail(emailText) -> LoginUiState.FieldError.InvalidEmail
-            password.length < 6 -> LoginUiState.FieldError.InvalidPassword
+            passwordText.isBlank() -> LoginUiState.FieldError.InvalidPassword
             else -> null
         }
 
         updateState {
-
-
             it.copy(fieldError = error)
         }
     }
 
-
-
+    private fun isValidEmail(email: CharSequence?): Boolean {
+        return !email.isNullOrBlank() && android.util.Patterns.EMAIL_ADDRESS.matcher(email)
+                .matches()
+    }
 }

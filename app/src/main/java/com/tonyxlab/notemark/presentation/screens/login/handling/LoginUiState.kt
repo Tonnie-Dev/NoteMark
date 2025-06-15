@@ -9,8 +9,8 @@ data class LoginUiState(
     val emailTextFieldState: TextFieldState = TextFieldState(),
     val passwordTextFieldState: TextFieldState = TextFieldState(),
     val fieldError: FieldError? = null,
-    val isPasswordVisible: Boolean = false,
-    //val isLoginButtonEnabled: Boolean = false
+    val isSecureText: Boolean = true
+
 ) : UiState {
 
     @Stable
