@@ -2,14 +2,8 @@
 <resources>
 
     <style name="Theme.NoteMark.Splash" parent="Theme.SplashScreen">
-
         <item name="windowSplashScreenBackground">@color/blue_600</item>
         <item name="postSplashScreenTheme">@style/Theme.NoteMark</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:fitsSystemWindows">false</item> <!-- Optional, often handled in Compose -->
-
     </style>
 </resources>

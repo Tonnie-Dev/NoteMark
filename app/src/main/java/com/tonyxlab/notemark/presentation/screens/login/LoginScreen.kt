@@ -29,7 +29,6 @@ import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
 import org.koin.androidx.compose.koinViewModel
-import timber.log.Timber
 
 
 @Composable
@@ -51,17 +50,18 @@ fun LoginScreen(
 }
 
 @Composable
-fun LoginScreenContent(
+private fun LoginScreenContent(
     modifier: Modifier = Modifier,
     uiState: LoginUiState,
     onEvent: (LoginUiEvent) -> Unit
 ) {
 
-    Timber.i("Is Password Visible ${uiState.isSecureText}")
     val emailTextFieldState = uiState.emailTextFieldState
     val passwordTextFieldState = uiState.passwordTextFieldState
-    val eyeIcon = when{ uiState.isSecureText -> Icons.Default.Visibility
-   else ->Icons.Default.VisibilityOff
+
+    val eyeIcon = when {
+        uiState.isSecureText -> Icons.Default.Visibility
+        else -> Icons.Default.VisibilityOff
     }
 
     Box(
@@ -87,7 +87,7 @@ fun LoginScreenContent(
                         modifier = Modifier.padding(bottom = MaterialTheme.spacing.spaceTen * 4),
                         title = R.string.header_text_login,
                         subTitle = R.string.cap_text_capture_thoughts,
-                        )
+                )
 
                 Column {
                     Column(
@@ -107,7 +107,7 @@ fun LoginScreenContent(
                                 placeholderString = stringResource(id = R.string.placeholder_text_password),
                                 textFieldState = passwordTextFieldState,
                                 isSecureText = uiState.isSecureText,
-                                onIconClick = { onEvent(LoginUiEvent.TogglePasswordVisibility)},
+                                onIconClick = { onEvent(LoginUiEvent.TogglePasswordVisibility) },
                                 icon = eyeIcon
                         )
 

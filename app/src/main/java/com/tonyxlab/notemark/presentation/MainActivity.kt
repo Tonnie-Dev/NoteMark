@@ -27,9 +27,9 @@ class MainActivity : ComponentActivity() {
             setKeepOnScreenCondition { false }
         }
 
-       enableEdgeToEdge(
-                statusBarStyle = SystemBarStyle.auto(
-                        lightScrim = Color.Transparent.toArgb(),
+        enableEdgeToEdge(
+                statusBarStyle = SystemBarStyle.light(
+                        scrim = Color.Transparent.toArgb(),
                         darkScrim = Color.Transparent.toArgb()
                 ),
                 navigationBarStyle = SystemBarStyle.light(
@@ -37,11 +37,9 @@ class MainActivity : ComponentActivity() {
                         darkScrim = SurfaceLowest.toArgb()
                 )
         )
-
-               setContent {
-                NoteMarkTheme {
-
-                    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+        setContent {
+            NoteMarkTheme {
+                val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
                 val padding = MaterialTheme.spacing.spaceDefault
 
                 AppNavHost(

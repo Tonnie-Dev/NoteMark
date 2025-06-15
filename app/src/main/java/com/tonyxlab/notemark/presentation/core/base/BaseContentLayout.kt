@@ -42,7 +42,7 @@ fun <S : UiState, E : UiEvent, A : ActionEvent> BaseContentLayout(
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
-    containerColor: Color = MaterialTheme.colorScheme.background,
+    containerColor: Color = Color.Transparent,
     contentColor: Color = contentColorFor(containerColor),
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
     actionEventHandler: (suspend CoroutineScope.(context: Context, actionEvent: A) -> Unit)? = null,
@@ -67,7 +67,6 @@ fun <S : UiState, E : UiEvent, A : ActionEvent> BaseContentLayout(
             enabled = onBackPressed != null,
             onBack = { onBackPressed?.invoke() }
     )
-
     Surface(
             modifier = Modifier.fillMaxSize(),
             color = containerColor
@@ -90,7 +89,5 @@ fun <S : UiState, E : UiEvent, A : ActionEvent> BaseContentLayout(
                 content(uiState)
             }
         }
-
     }
-
 }

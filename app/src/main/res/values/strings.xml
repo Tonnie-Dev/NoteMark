@@ -2,9 +2,9 @@
     <string name="app_name">NoteMark</string>
 
     <!--Header Texts-->
-    <string name="header_text_stats">Statistics</string>
     <string name="header_text_your_notes">Your Own Collection of Notes</string>
     <string name="header_text_login">Log In</string>
+    <string name="header_text_create_account">Create account</string>
 
     <!--Caption Texts-->
     <string name="cap_text_capture_thoughts">Capture your thoughts and ideas.</string>
@@ -20,8 +20,11 @@
     <!--Label Texts-->
     <string name="lab_text_email_label">Email</string>
     <string name="lab_text_password_label">Password</string>
+    <string name="lab_text_username_label">UserName</string>
+    <string name="lab_text_repeat_password_label">Repeat password</string>
 
     <!--Placeholder Texts-->
     <string name="placeholder_text_email">john.doe@example.com</string>
+    <string name="placeholder_text_username">John.doe</string>
     <string name="placeholder_text_password">Password</string>
 </resources>
