@@ -103,6 +103,8 @@ fun SignupScreenContent(
                     AppTextField(
                             label = stringResource(R.string.lab_text_username_label),
                             placeholderString = stringResource(id = R.string.placeholder_text_username),
+                            showSupportingText = true,
+                            supportingText = stringResource(id = R.string.sup_text_user_field),
                             textFieldState = uiState.fieldTextState.username
                     )
 
@@ -115,6 +117,8 @@ fun SignupScreenContent(
                     AppTextField(
                             label = stringResource(id = R.string.lab_text_password_label),
                             placeholderString = stringResource(id = R.string.placeholder_text_password),
+                            showSupportingText = true,
+                            supportingText = stringResource(R.string.sup_text_password_field),
                             textFieldState = uiState.fieldTextState.passwordOne,
                             isSecureText = passwordOneVisibility,
                             icon = passwordOneVisibility.eyeIcon,

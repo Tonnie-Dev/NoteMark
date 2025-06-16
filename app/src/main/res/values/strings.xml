@@ -27,4 +27,9 @@
     <string name="placeholder_text_email">john.doe@example.com</string>
     <string name="placeholder_text_username">John.doe</string>
     <string name="placeholder_text_password">Password</string>
+
+
+    <!--Supporting Texts-->
+    <string name="sup_text_user_field">Use between 3 and 20 characters for your username.</string>
+    <string name="sup_text_password_field">Use 8+ characters with a number or symbol for better security.</string>
 </resources>

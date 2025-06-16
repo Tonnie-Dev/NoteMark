@@ -46,6 +46,7 @@ fun AppTextField(
     placeholderString: String,
     modifier: Modifier = Modifier,
     supportingText: String = "",
+    showSupportingText: Boolean = false,
     icon: ImageVector? = null,
     isError: Boolean = false,
     textFieldState: TextFieldState,
@@ -96,7 +97,7 @@ fun AppTextField(
                 }
         )
 
-        if (supportingText.isNotBlank()) {
+        if (isFocussed && showSupportingText) {
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceSmall))
             Text(
                     modifier = Modifier
