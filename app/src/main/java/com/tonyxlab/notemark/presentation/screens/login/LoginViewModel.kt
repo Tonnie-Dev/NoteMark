@@ -27,8 +27,6 @@ class LoginViewModel() : LoginBaseViewModel() {
     override fun onEvent(event: LoginUiEvent) {
 
         when (event) {
-            is LoginUiEvent.EnterEmail -> TODO()
-            is LoginUiEvent.EnterPassword -> TODO()
             LoginUiEvent.Login -> onLogin()
             LoginUiEvent.RegisterAccount -> onRegister()
             LoginUiEvent.TogglePasswordVisibility -> onTogglePasswordVisibility()
