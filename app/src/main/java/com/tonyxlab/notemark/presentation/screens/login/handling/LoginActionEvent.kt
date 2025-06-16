@@ -4,5 +4,5 @@ import com.tonyxlab.notemark.presentation.core.base.handling.ActionEvent
 
 sealed interface LoginActionEvent: ActionEvent {
     data object NavigateToMainScreen: LoginActionEvent
-    data object NavigateToRegistrationScreen: LoginActionEvent
+    data object NavigateToSignupScreen: LoginActionEvent
 }

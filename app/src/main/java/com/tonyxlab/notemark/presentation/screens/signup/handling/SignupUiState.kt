@@ -2,13 +2,14 @@ package com.tonyxlab.notemark.presentation.screens.signup.handling
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Stable
+import com.tonyxlab.notemark.presentation.core.base.handling.UiState
 
 @Stable
 data class SignupUiState(
     val fieldTextState: FieldTextState = FieldTextState(),
     val fieldErrors: FieldErrors = FieldErrors(),
     val passwordVisibility: PasswordVisibilityState = PasswordVisibilityState()
-) {
+): UiState {
     @Stable
     data class FieldTextState(
         val username: TextFieldState = TextFieldState(),
@@ -39,8 +40,8 @@ data class SignupUiState(
 
     @Stable
     data class PasswordVisibilityState(
-        val isPasswordOneVisible: Boolean = false,
-        val isPasswordTwoVisible: Boolean = false
+        val isPasswordOneVisible: Boolean = true,
+        val isPasswordTwoVisible: Boolean = true
     )
 
 

@@ -23,7 +23,9 @@ import com.tonyxlab.notemark.presentation.core.components.AppButton
 import com.tonyxlab.notemark.presentation.core.components.AppTextButton
 import com.tonyxlab.notemark.presentation.core.components.AppTextField
 import com.tonyxlab.notemark.presentation.core.components.Header
+import com.tonyxlab.notemark.presentation.core.utils.eyeIcon
 import com.tonyxlab.notemark.presentation.core.utils.spacing
+import com.tonyxlab.notemark.presentation.screens.login.handling.LoginActionEvent
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiEvent
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
@@ -39,7 +41,17 @@ fun LoginScreen(
 ) {
     BaseContentLayout(
             modifier = modifier,
-            viewModel = viewModel
+            viewModel = viewModel,
+            actionEventHandler = { _, actionEvent ->
+                when (actionEvent) {
+                    LoginActionEvent.NavigateToMainScreen -> {}
+                    LoginActionEvent.NavigateToSignupScreen -> {
+                        navOperations.navigateToSignupScreenDestination()
+                    }
+                }
+
+            }
+
     ) { state ->
         LoginScreenContent(
                 modifier = modifier,
@@ -98,8 +110,7 @@ private fun LoginScreenContent(
                         AppTextField(
                                 label = stringResource(id = R.string.lab_text_email_label),
                                 placeholderString = stringResource(id = R.string.placeholder_text_email),
-                                textFieldState = emailTextFieldState,
-
+                                textFieldState = emailTextFieldState
                                 )
 
                         AppTextField(
@@ -108,7 +119,7 @@ private fun LoginScreenContent(
                                 textFieldState = passwordTextFieldState,
                                 isSecureText = uiState.isSecureText,
                                 onIconClick = { onEvent(LoginUiEvent.TogglePasswordVisibility) },
-                                icon = eyeIcon
+                                icon = uiState.isSecureText.eyeIcon
                         )
 
                     }

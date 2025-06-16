@@ -17,14 +17,16 @@ import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 
 @Composable
-fun AppTextButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun AppTextButton(
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
 
     TextButton(
             modifier = modifier
-                    .fillMaxWidth()
-            //.padding(horizontal = MaterialTheme.spacing.spaceTen * 2)
-            //.padding(vertical = MaterialTheme.spacing.spaceTen),
-            , onClick = onClick
+                    .fillMaxWidth(),
+            onClick = onClick
     ) {
 
         Text(

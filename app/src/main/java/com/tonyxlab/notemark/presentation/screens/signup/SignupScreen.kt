@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -15,23 +14,63 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.R
+import com.tonyxlab.notemark.navigation.NavOperations
+import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
 import com.tonyxlab.notemark.presentation.core.components.AppButton
 import com.tonyxlab.notemark.presentation.core.components.AppTextButton
 import com.tonyxlab.notemark.presentation.core.components.AppTextField
 import com.tonyxlab.notemark.presentation.core.components.Header
+import com.tonyxlab.notemark.presentation.core.utils.eyeIcon
 import com.tonyxlab.notemark.presentation.core.utils.spacing
+import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupActionEvent
+import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiEvent
+import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
+import org.koin.androidx.compose.koinViewModel
+
 
 @Composable
-fun SignupScreenContent(modifier: Modifier = Modifier) {
+fun SignupScreen(
+    navOperations: NavOperations,
+    modifier: Modifier = Modifier,
+    viewModel: SignupViewModel = koinViewModel()
+) {
 
-    val textFieldState = rememberTextFieldState()
+    BaseContentLayout(
+            viewModel = viewModel,
+            actionEventHandler = { _, signupActionEvent ->
 
-    /* val eyeIcon = when {
-         uiState.isSecureText -> Icons.Default.Visibility
-         else -> Icons.Default.VisibilityOff
-     }*/
+                when (signupActionEvent) {
+
+                    SignupActionEvent.NavigateToLoginScreen -> {
+                        navOperations.navigateToLoginScreenDestination()
+                    }
+
+                    SignupActionEvent.NavigateToMainScreen -> TODO()
+                }
+            }
+    ) { uiState ->
+
+        SignupScreenContent(
+                modifier = modifier,
+                uiState = uiState,
+                onEvent = viewModel::onEvent
+        )
+
+    }
+}
+
+@Composable
+fun SignupScreenContent(
+    uiState: SignupUiState,
+    onEvent: (SignupUiEvent) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+
+    val passwordOneVisibility = uiState.passwordVisibility.isPasswordOneVisible
+    val passwordTwoVisibility = uiState.passwordVisibility.isPasswordTwoVisible
+
     Box(
             modifier = modifier
                     .background(color = MaterialTheme.colorScheme.primary)
@@ -64,24 +103,30 @@ fun SignupScreenContent(modifier: Modifier = Modifier) {
                     AppTextField(
                             label = stringResource(R.string.lab_text_username_label),
                             placeholderString = stringResource(id = R.string.placeholder_text_username),
-                            textFieldState = textFieldState
+                            textFieldState = uiState.fieldTextState.username
                     )
 
                     AppTextField(
                             label = stringResource(id = R.string.lab_text_email_label),
                             placeholderString = stringResource(id = R.string.placeholder_text_email),
-                            textFieldState = textFieldState,
+                            textFieldState = uiState.fieldTextState.email,
                     )
 
                     AppTextField(
                             label = stringResource(id = R.string.lab_text_password_label),
                             placeholderString = stringResource(id = R.string.placeholder_text_password),
-                            textFieldState = textFieldState,
+                            textFieldState = uiState.fieldTextState.passwordOne,
+                            isSecureText = passwordOneVisibility,
+                            icon = passwordOneVisibility.eyeIcon,
+                            onIconClick = { onEvent(SignupUiEvent.TogglePasswordOneVisibility) }
                     )
                     AppTextField(
                             label = stringResource(id = R.string.lab_text_repeat_password_label),
                             placeholderString = stringResource(id = R.string.placeholder_text_password),
-                            textFieldState = textFieldState,
+                            textFieldState = uiState.fieldTextState.passwordTwo,
+                            isSecureText = passwordTwoVisibility,
+                            icon = passwordTwoVisibility.eyeIcon,
+                            onIconClick = { onEvent(SignupUiEvent.TogglePasswordTwoVisibility) }
                     )
                 }
 
@@ -89,13 +134,13 @@ fun SignupScreenContent(modifier: Modifier = Modifier) {
 
                     AppButton(
                             buttonText = stringResource(id = R.string.btn_text_login),
-                            onClick = { },
+                            onClick = { onEvent(SignupUiEvent.CreateAccount) },
                             isEnabled = false
 
                     )
                     AppTextButton(
                             text = stringResource(id = R.string.txt_btn_already_have_account),
-                            onClick = { }
+                            onClick = { onEvent(SignupUiEvent.CreateAccount) }
 
                     )
                 }
@@ -114,8 +159,11 @@ private fun LoginScreenContentPreview() {
 
         SignupScreenContent(
                 modifier = Modifier.background(color = MaterialTheme.colorScheme.background),
-
-                )
+                uiState = SignupUiState(),
+                onEvent = {}
+        )
     }
 
 }
+
+

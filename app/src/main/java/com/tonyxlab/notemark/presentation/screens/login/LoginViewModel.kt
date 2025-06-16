@@ -43,7 +43,7 @@ class LoginViewModel() : LoginBaseViewModel() {
     }
 
     private fun onRegister() {
-        sendActionEvent(LoginActionEvent.NavigateToRegistrationScreen)
+        sendActionEvent(LoginActionEvent.NavigateToSignupScreen)
     }
 
 
