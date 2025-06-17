@@ -2,6 +2,7 @@ package com.tonyxlab.notemark.presentation.screens.login
 
 import androidx.compose.runtime.snapshotFlow
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
+import com.tonyxlab.notemark.presentation.core.utils.isValidEmail
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginActionEvent
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiEvent
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiState
@@ -73,8 +74,5 @@ class LoginViewModel() : LoginBaseViewModel() {
         }
     }
 
-    private fun isValidEmail(email: CharSequence?): Boolean {
-        return !email.isNullOrBlank() && android.util.Patterns.EMAIL_ADDRESS.matcher(email)
-                .matches()
-    }
+
 }

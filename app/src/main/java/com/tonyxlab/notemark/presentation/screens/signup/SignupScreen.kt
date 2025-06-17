@@ -25,6 +25,9 @@ import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupActionEvent
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiEvent
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState
+import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState.FieldError
+import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState.FieldError.*
+import com.tonyxlab.notemark.presentation.screens.signup.handling.hasFieldError
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
 import org.koin.androidx.compose.koinViewModel
@@ -105,13 +108,15 @@ fun SignupScreenContent(
                             placeholderString = stringResource(id = R.string.placeholder_text_username),
                             showSupportingText = true,
                             supportingText = stringResource(id = R.string.sup_text_user_field),
-                            textFieldState = uiState.fieldTextState.username
+                            textFieldState = uiState.fieldTextState.username,
+                            isError =uiState.fieldError.usernameError
                     )
 
                     AppTextField(
                             label = stringResource(id = R.string.lab_text_email_label),
                             placeholderString = stringResource(id = R.string.placeholder_text_email),
                             textFieldState = uiState.fieldTextState.email,
+                            isError = uiState.fieldError.emailError
                     )
 
                     AppTextField(
@@ -122,6 +127,7 @@ fun SignupScreenContent(
                             textFieldState = uiState.fieldTextState.passwordOne,
                             isSecureText = passwordOneVisibility,
                             icon = passwordOneVisibility.eyeIcon,
+                            isError = uiState.fieldError.passwordError,
                             onIconClick = { onEvent(SignupUiEvent.TogglePasswordOneVisibility) }
                     )
                     AppTextField(
@@ -130,6 +136,7 @@ fun SignupScreenContent(
                             textFieldState = uiState.fieldTextState.passwordTwo,
                             isSecureText = passwordTwoVisibility,
                             icon = passwordTwoVisibility.eyeIcon,
+                            isError = uiState.fieldError.confirmPasswordError,
                             onIconClick = { onEvent(SignupUiEvent.TogglePasswordTwoVisibility) }
                     )
                 }
@@ -139,7 +146,7 @@ fun SignupScreenContent(
                     AppButton(
                             buttonText = stringResource(id = R.string.btn_text_login),
                             onClick = { onEvent(SignupUiEvent.CreateAccount) },
-                            isEnabled = false
+                            isEnabled = uiState.isCreateAccountButtonEnabled
 
                     )
                     AppTextButton(
@@ -153,6 +160,7 @@ fun SignupScreenContent(
     }
 
 }
+
 
 
 @PreviewLightDark
