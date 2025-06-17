@@ -59,7 +59,7 @@ fun AppTextField(
 
   val currentStyle = remember(isError, isFocussed, textFieldStyle) {
         when {
-            isError -> AppTextFieldStyle.ErrorTextStyle
+            isError && isFocussed.not() -> AppTextFieldStyle.ErrorTextStyle
             isFocussed -> AppTextFieldStyle.FocusedTextStyle
             else -> textFieldStyle
         }
