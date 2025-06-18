@@ -20,14 +20,13 @@ import com.tonyxlab.notemark.presentation.core.components.AppButton
 import com.tonyxlab.notemark.presentation.core.components.AppTextButton
 import com.tonyxlab.notemark.presentation.core.components.AppTextField
 import com.tonyxlab.notemark.presentation.core.components.Header
+import com.tonyxlab.notemark.presentation.core.utils.SupportText
 import com.tonyxlab.notemark.presentation.core.utils.eyeIcon
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupActionEvent
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiEvent
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState
-import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState.FieldError
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState.FieldError.*
-import com.tonyxlab.notemark.presentation.screens.signup.handling.hasFieldError
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
 import org.koin.androidx.compose.koinViewModel
@@ -107,7 +106,7 @@ fun SignupScreenContent(
                             label = stringResource(R.string.lab_text_username_label),
                             placeholderString = stringResource(id = R.string.placeholder_text_username),
                             showSupportingText = true,
-                            supportingText = stringResource(id = R.string.sup_text_user_field),
+                            supportText = SupportText.UsernameSupportText,
                             textFieldState = uiState.fieldTextState.username,
                             isError =uiState.fieldError.usernameError
                     )
@@ -116,14 +115,15 @@ fun SignupScreenContent(
                             label = stringResource(id = R.string.lab_text_email_label),
                             placeholderString = stringResource(id = R.string.placeholder_text_email),
                             textFieldState = uiState.fieldTextState.email,
-                            isError = uiState.fieldError.emailError
+                            isError = uiState.fieldError.emailError,
+                            supportText = SupportText.EmailSupportText
                     )
 
                     AppTextField(
                             label = stringResource(id = R.string.lab_text_password_label),
                             placeholderString = stringResource(id = R.string.placeholder_text_password),
                             showSupportingText = true,
-                            supportingText = stringResource(R.string.sup_text_password_field),
+                            supportText = SupportText.PasswordOneSupportText,
                             textFieldState = uiState.fieldTextState.passwordOne,
                             isSecureText = passwordOneVisibility,
                             icon = passwordOneVisibility.eyeIcon,
@@ -135,6 +135,7 @@ fun SignupScreenContent(
                             placeholderString = stringResource(id = R.string.placeholder_text_password),
                             textFieldState = uiState.fieldTextState.passwordTwo,
                             isSecureText = passwordTwoVisibility,
+                            supportText = SupportText.PasswordTwoSupportText,
                             icon = passwordTwoVisibility.eyeIcon,
                             isError = uiState.fieldError.confirmPasswordError,
                             onIconClick = { onEvent(SignupUiEvent.TogglePasswordTwoVisibility) }

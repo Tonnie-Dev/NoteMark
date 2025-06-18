@@ -30,6 +30,15 @@
 
 
     <!--Supporting Texts-->
-    <string name="sup_text_user_field">Use between 3 and 20 characters for your username.</string>
-    <string name="sup_text_password_field">Use 8+ characters with a number or symbol for better security.</string>
+    <string name="sup_text_def_username">Use between 3 and 20 characters for your username.</string>
+    <string name="sup_text_error_username">Username must be at least 3 characters</string>
+
+    <string name="sup_text_def_email" />
+    <string name="sup_text_error_email">Invalid email provided</string>
+
+    <string name="sup_text_def_password_one">Use 8+ characters with a number or symbol for better security.</string>
+    <string name="sup_text_error_password_one">Password must be at least 8 characters and include a number or symbol</string>
+
+    <string name="sup_text_def_password_two" />
+    <string name="sup_text_error_password_two">Password do not match</string>
 </resources>

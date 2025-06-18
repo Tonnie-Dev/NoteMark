@@ -16,6 +16,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import okio.AsyncTimeout.Companion.condition
 
 typealias SignupBaseViewModel = BaseViewModel<SignupUiState, SignupUiEvent, SignupActionEvent>
@@ -80,16 +81,16 @@ class SignupViewModel : SignupBaseViewModel() {
 
             val usernameFlow = snapshotFlow {
                 currentState.fieldTextState.username.text
-            }.debounce(300)
+            }.debounce(300).distinctUntilChanged()
             val emailFlow = snapshotFlow {
                 currentState.fieldTextState.email.text
-            }.debounce(300)
+            }.debounce(300).distinctUntilChanged()
             val passwordOneFlow = snapshotFlow {
                 currentState.fieldTextState.passwordOne.text
-            }.debounce(300)
+            }.debounce(300).distinctUntilChanged()
             val passwordTwoFlow = snapshotFlow {
                 currentState.fieldTextState.passwordTwo.text
-            }.debounce(300)
+            }.debounce(300).distinctUntilChanged()
             combine(
                     usernameFlow,
                     emailFlow,

@@ -23,6 +23,7 @@ import com.tonyxlab.notemark.presentation.core.components.AppButton
 import com.tonyxlab.notemark.presentation.core.components.AppTextButton
 import com.tonyxlab.notemark.presentation.core.components.AppTextField
 import com.tonyxlab.notemark.presentation.core.components.Header
+import com.tonyxlab.notemark.presentation.core.utils.SupportText
 import com.tonyxlab.notemark.presentation.core.utils.eyeIcon
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginActionEvent
@@ -110,7 +111,8 @@ private fun LoginScreenContent(
                         AppTextField(
                                 label = stringResource(id = R.string.lab_text_email_label),
                                 placeholderString = stringResource(id = R.string.placeholder_text_email),
-                                textFieldState = emailTextFieldState
+                                textFieldState = emailTextFieldState,
+                                supportText = SupportText.EmailSupportText
                                 )
 
                         AppTextField(
@@ -118,6 +120,7 @@ private fun LoginScreenContent(
                                 placeholderString = stringResource(id = R.string.placeholder_text_password),
                                 textFieldState = passwordTextFieldState,
                                 isSecureText = uiState.isSecureText,
+                                supportText = SupportText.PasswordOneSupportText,
                                 onIconClick = { onEvent(LoginUiEvent.TogglePasswordVisibility) },
                                 icon = uiState.isSecureText.eyeIcon
                         )

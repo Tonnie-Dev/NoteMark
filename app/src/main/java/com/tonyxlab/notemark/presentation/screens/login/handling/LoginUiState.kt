@@ -12,7 +12,6 @@ data class LoginUiState(
     val isSecureText: Boolean = true
 
 ) : UiState {
-
     @Stable
     sealed interface FieldError {
         data object InvalidEmail : FieldError

@@ -31,21 +31,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.presentation.core.utils.AppTextFieldStyle
+import com.tonyxlab.notemark.presentation.core.utils.SupportText
+import com.tonyxlab.notemark.presentation.core.utils.getDefaultText
+import com.tonyxlab.notemark.presentation.core.utils.getErrorText
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
-import timber.log.Timber
 
 
 @Composable
 fun AppTextField(
     label: String,
     placeholderString: String,
+    supportText: SupportText,
     modifier: Modifier = Modifier,
-    supportingText: String = "",
     showSupportingText: Boolean = false,
     icon: ImageVector? = null,
     isError: Boolean = false,
@@ -55,15 +58,21 @@ fun AppTextField(
     textFieldStyle: AppTextFieldStyle = AppTextFieldStyle.PlaceHolderStyle,
     labelTextStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
 ) {
+
+    val context = LocalContext.current
+
     var isFocussed by remember { mutableStateOf(false) }
 
-  val currentStyle = remember(isError, isFocussed, textFieldStyle) {
+    val currentStyle = remember(isError, isFocussed, textFieldStyle) {
         when {
             isError && isFocussed.not() -> AppTextFieldStyle.ErrorTextStyle
             isFocussed -> AppTextFieldStyle.FocusedTextStyle
             else -> textFieldStyle
         }
     }
+
+    val supportingText =
+        if (isError) supportText.getErrorText(context) else supportText.getDefaultText(context)
 
     Column(modifier = modifier) {
         Text(
@@ -97,7 +106,7 @@ fun AppTextField(
                 }
         )
 
-        if (isFocussed && showSupportingText) {
+        if ((isFocussed) || isError) {
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceSmall))
             Text(
                     modifier = Modifier
@@ -185,21 +194,22 @@ private fun AppTextFieldPreview() {
             AppTextField(
                     label = "Username",
                     placeholderString = "John.doe",
-                    supportingText = "Use 8 + Characters",
-                    textFieldState = textFieldState1
-            )
+                    supportText = SupportText.UsernameSupportText,
+                    textFieldState = textFieldState1,
+
+                    )
 
             AppTextField(
                     label = "Username",
                     placeholderString = "John.doe",
-                    supportingText = "Use 8 + Characters",
+                    supportText = SupportText.UsernameSupportText,
                     textFieldState = textFieldState2,
                     textFieldStyle = AppTextFieldStyle.FocusedTextStyle
             )
             AppTextField(
                     label = "Username",
                     placeholderString = "John.doe",
-                    supportingText = "Use 8 + Characters",
+                    supportText = SupportText.UsernameSupportText,
                     textFieldState = textFieldState1,
                     isError = true
 
@@ -209,7 +219,7 @@ private fun AppTextFieldPreview() {
             AppTextField(
                     label = "Username",
                     placeholderString = "John.doe",
-                    supportingText = "Use 8 + Characters",
+                    supportText = SupportText.UsernameSupportText,
                     textFieldState = textFieldState1,
                     isSecureText = true,
                     icon = Icons.Default.Visibility
