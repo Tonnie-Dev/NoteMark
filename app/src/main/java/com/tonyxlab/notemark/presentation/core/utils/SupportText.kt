@@ -6,6 +6,10 @@ import com.tonyxlab.notemark.R
 
 sealed class SupportText(@StringRes val defaultText: Int, @StringRes val errorText: Int) {
 
+    data object BlankSupportText : SupportText(
+            defaultText = R.string.sup_text_blank,
+            errorText = R.string.sup_text_blank
+    )
 
     data object UsernameSupportText : SupportText(
             defaultText = R.string.sup_text_def_username,
@@ -13,7 +17,7 @@ sealed class SupportText(@StringRes val defaultText: Int, @StringRes val errorTe
     )
 
     data object EmailSupportText : SupportText(
-            defaultText = R.string.sup_text_def_email,
+            defaultText = R.string.sup_text_blank,
             errorText = R.string.sup_text_error_email
     )
 
@@ -25,7 +29,7 @@ sealed class SupportText(@StringRes val defaultText: Int, @StringRes val errorTe
 
 
     data object PasswordTwoSupportText : SupportText(
-            defaultText = R.string.sup_text_def_password_two,
+            defaultText = R.string.sup_text_blank,
             errorText = R.string.sup_text_error_password_two
     )
 
