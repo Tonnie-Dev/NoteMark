@@ -47,9 +47,8 @@ import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 fun AppTextField(
     label: String,
     placeholderString: String,
-    supportText: SupportText,
     modifier: Modifier = Modifier,
-    showSupportingText: Boolean = false,
+    supportText: SupportText = SupportText.BlankSupportText,
     icon: ImageVector? = null,
     isError: Boolean = false,
     textFieldState: TextFieldState,
@@ -62,6 +61,9 @@ fun AppTextField(
     val context = LocalContext.current
 
     var isFocussed by remember { mutableStateOf(false) }
+
+    val isTextEmpty = textFieldState.text.isEmpty()
+    val isSupportingTextEmpty = supportText.getDefaultText(context).isBlank()
 
     val currentStyle = remember(isError, isFocussed, textFieldStyle) {
         when {
@@ -98,7 +100,7 @@ fun AppTextField(
                             isFocussed = isFocussed,
                             innerTextField = innerTextField,
                             placeholderString = placeholderString,
-                            isTextEmpty = textFieldState.text.isEmpty(),
+                            isTextEmpty = isTextEmpty,
                             icon = icon,
                             style = currentStyle,
                             onIconClick = onIconClick
@@ -106,7 +108,7 @@ fun AppTextField(
                 }
         )
 
-        if ((isFocussed) || isError) {
+        if ((isFocussed && !isSupportingTextEmpty) || isError) {
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceSmall))
             Text(
                     modifier = Modifier
