@@ -16,7 +16,12 @@ fun isValidPassword(input: CharSequence): Boolean {
     return isLongEnough && hasNumberOrSymbol
 }
 
+fun isValidLoginPassword(input: CharSequence): Boolean = input.isNotBlank()
+
 infix fun CharSequence.isSameAs(other: CharSequence): Boolean = this.trim()==other.trim()
+
+fun allFieldsFilled(vararg fields: CharSequence): Boolean = fields.all { it.isNotBlank() }
+
 
 fun checkIfError(input: CharSequence, validator: (CharSequence)-> Boolean): Boolean {
 
