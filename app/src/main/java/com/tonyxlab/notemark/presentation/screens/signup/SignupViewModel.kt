@@ -4,6 +4,7 @@ package com.tonyxlab.notemark.presentation.screens.signup
 
 import androidx.compose.runtime.snapshotFlow
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
+import com.tonyxlab.notemark.presentation.core.utils.allFieldsFilled
 import com.tonyxlab.notemark.presentation.core.utils.checkIfError
 import com.tonyxlab.notemark.presentation.core.utils.isSameAs
 import com.tonyxlab.notemark.presentation.core.utils.isValidEmail
@@ -12,6 +13,7 @@ import com.tonyxlab.notemark.presentation.core.utils.isValidUsername
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupActionEvent
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiEvent
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState
+import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState.*
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
@@ -119,13 +121,14 @@ class SignupViewModel : SignupBaseViewModel() {
         email: CharSequence,
         passwordOne: CharSequence,
         passwordTwo: CharSequence
-    ): SignupUiState.FieldError {
+    ): FieldError {
 
-        return SignupUiState.FieldError(
+        return FieldError(
                 usernameError = checkIfError  (username, ::isValidUsername),
                 emailError = checkIfError(email, ::isValidEmail),
                 passwordError =checkIfError (passwordOne, ::isValidPassword),
-                confirmPasswordError = checkIfError (passwordTwo){ passwordOne isSameAs passwordTwo}
+                confirmPasswordError = checkIfError (passwordTwo){ passwordOne isSameAs passwordTwo},
+                allFieldsFilled = allFieldsFilled(username,email, passwordOne, passwordTwo)
         )
     }
 

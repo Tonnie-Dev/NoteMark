@@ -17,15 +17,16 @@ data class SignupUiState(
         val email: TextFieldState = TextFieldState(),
         val passwordOne: TextFieldState = TextFieldState(),
         val passwordTwo: TextFieldState = TextFieldState()
+
     )
 
     @Stable
     data class FieldError(
-
         val usernameError: Boolean = false,
         val emailError: Boolean = false,
         val passwordError: Boolean = false,
-        val confirmPasswordError: Boolean = false
+        val confirmPasswordError: Boolean = false,
+        val allFieldsFilled: Boolean = true
     )
 
     @Stable
@@ -34,9 +35,18 @@ data class SignupUiState(
         val isPasswordTwoVisible: Boolean = true
     )
 
+    val areAllFieldsFilled = fieldTextState.run {
+        listOf(
+                username.text,
+                email.text,
+                passwordOne.text,
+                passwordTwo.text
+        ).all { it.isNotBlank() }
+    }
+
     @Stable
     val isCreateAccountButtonEnabled: Boolean
-        get() = fieldError == FieldError()
+        get() = (fieldError == FieldError()) && areAllFieldsFilled
 
 }
 

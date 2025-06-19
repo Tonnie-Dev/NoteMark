@@ -26,7 +26,6 @@ import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupActionEvent
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiEvent
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState
-import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState.FieldError.*
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
 import org.koin.androidx.compose.koinViewModel
@@ -105,7 +104,6 @@ fun SignupScreenContent(
                     AppTextField(
                             label = stringResource(R.string.lab_text_username_label),
                             placeholderString = stringResource(id = R.string.placeholder_text_username),
-                            showSupportingText = true,
                             supportText = SupportText.UsernameSupportText,
                             textFieldState = uiState.fieldTextState.username,
                             isError =uiState.fieldError.usernameError
@@ -122,7 +120,6 @@ fun SignupScreenContent(
                     AppTextField(
                             label = stringResource(id = R.string.lab_text_password_label),
                             placeholderString = stringResource(id = R.string.placeholder_text_password),
-                            showSupportingText = true,
                             supportText = SupportText.PasswordOneSupportText,
                             textFieldState = uiState.fieldTextState.passwordOne,
                             isSecureText = passwordOneVisibility,
@@ -147,13 +144,12 @@ fun SignupScreenContent(
                     AppButton(
                             buttonText = stringResource(id = R.string.btn_text_login),
                             onClick = { onEvent(SignupUiEvent.CreateAccount) },
-                            isEnabled = uiState.isCreateAccountButtonEnabled
+                            isEnabled = uiState.fieldError == SignupUiState.FieldError()//uiState.isCreateAccountButtonEnabled
 
                     )
                     AppTextButton(
                             text = stringResource(id = R.string.txt_btn_already_have_account),
                             onClick = { onEvent(SignupUiEvent.CreateAccount) }
-
                     )
                 }
             }
