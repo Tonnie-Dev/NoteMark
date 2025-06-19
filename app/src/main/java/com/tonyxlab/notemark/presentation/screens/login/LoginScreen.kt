@@ -29,6 +29,7 @@ import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginActionEvent
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiEvent
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiState
+import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiEvent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
 import org.koin.androidx.compose.koinViewModel
@@ -69,13 +70,6 @@ private fun LoginScreenContent(
     onEvent: (LoginUiEvent) -> Unit
 ) {
 
-    val emailTextFieldState = uiState.emailTextFieldState
-    val passwordTextFieldState = uiState.passwordTextFieldState
-
-    val eyeIcon = when {
-        uiState.isSecureText -> Icons.Default.Visibility
-        else -> Icons.Default.VisibilityOff
-    }
 
     Box(
             modifier = modifier
@@ -111,28 +105,31 @@ private fun LoginScreenContent(
                         AppTextField(
                                 label = stringResource(id = R.string.lab_text_email_label),
                                 placeholderString = stringResource(id = R.string.placeholder_text_email),
-                                textFieldState = emailTextFieldState,
-                                supportText = SupportText.EmailSupportText
+                                textFieldState = uiState.fieldTextState.emailTextFieldState,
+                                supportText = SupportText.EmailSupportText,
+                                isError = uiState.fieldError.emailError
                                 )
 
                         AppTextField(
                                 label = stringResource(id = R.string.lab_text_password_label),
+                                supportText = SupportText.BlankSupportText,
                                 placeholderString = stringResource(id = R.string.placeholder_text_password),
-                                textFieldState = passwordTextFieldState,
+                                textFieldState = uiState.fieldTextState.passwordTextFieldState,
+                                isError = uiState.fieldError.passwordError,
                                 isSecureText = uiState.isSecureText,
-                                supportText = SupportText.PasswordOneSupportText,
                                 onIconClick = { onEvent(LoginUiEvent.TogglePasswordVisibility) },
                                 icon = uiState.isSecureText.eyeIcon
                         )
 
-                    }
+
+                                          }
 
                     Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceTwelve)) {
 
                         AppButton(
                                 buttonText = stringResource(id = R.string.btn_text_login),
                                 onClick = { onEvent(LoginUiEvent.Login) },
-                                isEnabled = uiState.isLoginButtonEnabled
+                                isEnabled = uiState.fieldError == LoginUiState.FieldError() //uiState.isLoginButtonEnabled
 
                         )
                         AppTextButton(

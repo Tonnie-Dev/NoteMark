@@ -6,19 +6,30 @@ import com.tonyxlab.notemark.presentation.core.base.handling.UiState
 
 @Stable
 data class LoginUiState(
-    val emailTextFieldState: TextFieldState = TextFieldState(),
-    val passwordTextFieldState: TextFieldState = TextFieldState(),
-    val fieldError: FieldError? = null,
+    val fieldTextState:FieldTextState = FieldTextState(),
+    val fieldError: FieldError = FieldError(),
     val isSecureText: Boolean = true
 
 ) : UiState {
-    @Stable
-    sealed interface FieldError {
-        data object InvalidEmail : FieldError
-        data object InvalidPassword : FieldError
-    }
 
+   @Stable
+   data class FieldTextState(
+       val emailTextFieldState: TextFieldState = TextFieldState(),
+       val passwordTextFieldState: TextFieldState = TextFieldState(),
+   )
+
+    @Stable
+    data class FieldError(
+        val emailError: Boolean = false,
+        val passwordError: Boolean = false,
+            val allFieldsFilled: Boolean = true
+    )
+
+    val areAllFieldsFilled = fieldTextState.run {
+
+        listOf(emailTextFieldState.text, passwordTextFieldState.text).all { it.isNotBlank() }
+    }
     val isLoginButtonEnabled: Boolean
-        get() = fieldError == null
+        get() = (fieldError == FieldError()) && areAllFieldsFilled
 
 }
