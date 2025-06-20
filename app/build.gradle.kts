@@ -80,6 +80,14 @@ dependencies {
     // Kotlinx Serialization
     implementation(KotlinX.serialization.json)
 
+
+    // Ktor
+    implementation(Ktor.client.core)
+    implementation(Ktor.client.auth)
+    implementation(Ktor.client.cio)
+    implementation(Ktor.client.contentNegotiation)
+    implementation(Ktor.client.serialization)
+
     // Compose Navigation
     implementation(AndroidX.navigation.compose)
 

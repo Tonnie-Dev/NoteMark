@@ -27,7 +27,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import com.tonyxlab.notemark.presentation.core.base.handling.ActionEvent
-import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.core.base.handling.UiEvent
 import com.tonyxlab.notemark.presentation.core.base.handling.UiState
 import kotlinx.coroutines.CoroutineScope
@@ -42,7 +41,7 @@ fun <S : UiState, E : UiEvent, A : ActionEvent> BaseContentLayout(
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
-    containerColor: Color = Color.Transparent,
+    containerColor: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = contentColorFor(containerColor),
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
     actionEventHandler: (suspend CoroutineScope.(context: Context, actionEvent: A) -> Unit)? = null,
