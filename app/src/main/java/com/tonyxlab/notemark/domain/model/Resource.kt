@@ -12,3 +12,10 @@ sealed class Resource<out R> {
         }
     }
 }
+
+interface AuthRepository{
+
+    suspend fun register(registerRequest:RegisterRequest): Resource<Int>
+    suspend fun register(loginRequest:LoginRequest): Resource<Int>
+    suspend fun register(refreshRequest:RefreshRequest): Resource<Int>
+}
