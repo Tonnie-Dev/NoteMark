@@ -4,18 +4,15 @@ sealed class Resource<out R> {
 
     data class Success<out T>(val data: T) : Resource<T>()
     data class Error(val exception: Exception) : Resource<Nothing>()
+    data object Loading: Resource<Nothing>()
+    data object Empty: Resource<Nothing>()
 
     override fun toString(): String {
         return when (this) {
             is Success<*> -> "Success[data=$data]"
             is Error -> "Error[exception=$exception]"
+            is Loading -> "Loading"
+            is Empty ->  "Empty"
         }
     }
-}
-
-interface AuthRepository{
-
-    suspend fun register(registerRequest:RegisterRequest): Resource<Int>
-    suspend fun register(loginRequest:LoginRequest): Resource<Int>
-    suspend fun register(refreshRequest:RefreshRequest): Resource<Int>
 }
