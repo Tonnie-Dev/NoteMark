@@ -1,6 +1,7 @@
 package com.tonyxlab.notemark
 
 import android.app.Application
+import com.tonyxlab.notemark.data.datastore.TokenStorage
 import com.tonyxlab.notemark.di.networkModule
 import com.tonyxlab.notemark.di.repositoryModule
 import com.tonyxlab.notemark.di.viewModelModule
@@ -13,6 +14,7 @@ class NoteMarkApp: Application() {
         super.onCreate()
         Timber.plant(Timber.DebugTree())
 
+        TokenStorage.init(this)
         startKoin {
             modules(listOf(viewModelModule, repositoryModule, networkModule))
         }
