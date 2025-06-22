@@ -86,7 +86,7 @@ dependencies {
     implementation(Ktor.client.auth)
     implementation(Ktor.client.cio)
     implementation(Ktor.client.contentNegotiation)
-    implementation(Ktor.client.serialization)
+    implementation(Ktor.plugins.serialization.kotlinx.json)
 
     // Compose Navigation
     implementation(AndroidX.navigation.compose)
