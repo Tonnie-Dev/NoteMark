@@ -1,7 +1,6 @@
 package com.tonyxlab.notemark.presentation.core.components
 
 
-import android.R.attr.onClick
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,6 +37,7 @@ fun AppButton(
     textStyle: TextStyle = MaterialTheme.typography.titleSmall,
     isEnabled: Boolean = true,
     isOutlined: Boolean = false,
+    isLoading: Boolean = false,
     enabledContainerColor: Color = MaterialTheme.colorScheme.primary,
     disabledContainerColor: Color = OnSurface12,
     outlineColor: Color = MaterialTheme.colorScheme.primary,
@@ -71,7 +73,22 @@ fun AppButton(
             else -> MaterialTheme.colorScheme.onSurface
         }
 
-        Text(text = buttonText, style = textStyle.copy(color = textColor))
+        if (isLoading.not()) {
+
+
+            Text(text = buttonText, style = textStyle.copy(color = textColor))
+
+        } else {
+
+            CircularProgressIndicator(
+                    modifier = Modifier
+                            .size(MaterialTheme.spacing.spaceTwelve)
+                            .align(Alignment.Center),
+                    color = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+
+
     }
 
 }
@@ -97,6 +114,7 @@ private fun AppButtonPreview() {
             AppButton(buttonText = "Get Started", onClick = {})
             AppButton(buttonText = "Log in", onClick = {}, isOutlined = true)
             AppButton(buttonText = "Log in", onClick = {}, isEnabled = false)
+            AppButton(buttonText = "Log In", isLoading = true) { }
 
         }
     }
