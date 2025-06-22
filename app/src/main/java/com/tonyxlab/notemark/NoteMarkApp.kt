@@ -1,7 +1,9 @@
 package com.tonyxlab.notemark
 
 import android.app.Application
-import com.tonyxlab.notemark.presentation.di.appModule
+import com.tonyxlab.notemark.di.networkModule
+import com.tonyxlab.notemark.di.repositoryModule
+import com.tonyxlab.notemark.di.viewModelModule
 import org.koin.core.context.startKoin
 import timber.log.Timber
 
@@ -12,8 +14,7 @@ class NoteMarkApp: Application() {
         Timber.plant(Timber.DebugTree())
 
         startKoin {
-
-            modules(listOf(appModule))
+            modules(listOf(viewModelModule, repositoryModule, networkModule))
         }
     }
 }
