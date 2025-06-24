@@ -33,3 +33,7 @@ data class LoginUiState(
         get() = (fieldError == FieldError()) && areAllFieldsFilled
 
 }
+
+
+val TextFieldState.toText:String
+    get() = text.toString()
