@@ -7,19 +7,31 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tonyxlab.notemark.R
+import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
 import com.tonyxlab.notemark.presentation.core.components.AppButton
+import com.tonyxlab.notemark.presentation.core.components.AppSnackbarHost
 import com.tonyxlab.notemark.presentation.core.components.AppTextButton
 import com.tonyxlab.notemark.presentation.core.components.AppTextField
 import com.tonyxlab.notemark.presentation.core.components.Header
+import com.tonyxlab.notemark.presentation.core.components.ShowAppSnackbar
 import com.tonyxlab.notemark.presentation.core.utils.SupportText
 import com.tonyxlab.notemark.presentation.core.utils.eyeIcon
 import com.tonyxlab.notemark.presentation.core.utils.spacing
@@ -29,6 +41,7 @@ import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
 import org.koin.androidx.compose.koinViewModel
+import timber.log.Timber
 
 
 @Composable
@@ -37,9 +50,26 @@ fun SignupScreen(
     modifier: Modifier = Modifier,
     viewModel: SignupViewModel = koinViewModel()
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    var snackbarMessage by remember { mutableStateOf("") }
+    var showSnackbar by remember { mutableStateOf(false) }
+
+
+    val context = LocalContext.current
+
+Timber.i("UI Error Status: ${state.loginStatus is Resource.Error}")
 
     BaseContentLayout(
             viewModel = viewModel,
+            snackbarHost = {
+                AppSnackbarHost(
+                        snackbarHostState = snackbarHostState,
+                        isError = state.loginStatus is Resource.Error
+                )
+            },
+
             actionEventHandler = { _, signupActionEvent ->
 
                 when (signupActionEvent) {
@@ -48,7 +78,12 @@ fun SignupScreen(
                         navOperations.navigateToLoginScreenDestination()
                     }
 
-                    SignupActionEvent.NavigateToMainScreen -> TODO()
+                    is SignupActionEvent.ShowSnackbar -> {
+
+Timber.i("Action Event received on Screen")
+                      snackbarMessage = context.getString(signupActionEvent.messageRes)
+                        showSnackbar = true
+                    }
                 }
             }
     ) { uiState ->
@@ -60,6 +95,14 @@ fun SignupScreen(
         )
 
     }
+
+    ShowAppSnackbar(
+            showSnackbar = showSnackbar,
+            snackbarHostState = snackbarHostState,
+            message = snackbarMessage,
+            onActionClick = {},
+            onDismiss = { showSnackbar = false}
+    )
 }
 
 @Composable
@@ -106,7 +149,7 @@ fun SignupScreenContent(
                             placeholderString = stringResource(id = R.string.placeholder_text_username),
                             supportText = SupportText.UsernameSupportText,
                             textFieldState = uiState.fieldTextState.username,
-                            isError =uiState.fieldError.usernameError
+                            isError = uiState.fieldError.usernameError
                     )
 
                     AppTextField(
@@ -144,7 +187,8 @@ fun SignupScreenContent(
                     AppButton(
                             buttonText = stringResource(id = R.string.btn_text_login),
                             onClick = { onEvent(SignupUiEvent.CreateAccount) },
-                            isEnabled = uiState.fieldError == SignupUiState.FieldError()//uiState.isCreateAccountButtonEnabled
+                            isEnabled = uiState.fieldError == SignupUiState.FieldError() ,
+                            isLoading = uiState.loginStatus == Resource.Loading
 
                     )
                     AppTextButton(
@@ -157,7 +201,6 @@ fun SignupScreenContent(
     }
 
 }
-
 
 
 @PreviewLightDark
