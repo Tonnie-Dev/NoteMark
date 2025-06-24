@@ -82,7 +82,7 @@ fun AppButton(
 
             CircularProgressIndicator(
                     modifier = Modifier
-                            .size(MaterialTheme.spacing.spaceTwelve)
+                            .size(MaterialTheme.spacing.spaceTwelve * 2)
                             .align(Alignment.Center),
                     color = MaterialTheme.colorScheme.onPrimary
             )
