@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import timber.log.Timber
 
 typealias SignupBaseViewModel = BaseViewModel<SignupUiState, SignupUiEvent, SignupActionEvent>
 
@@ -80,7 +81,7 @@ class SignupViewModel(private val authRepository: AuthRepository) : SignupBaseVi
                 }
 
                 else -> {
-
+Timber.i("Error is: ${response.toString()}")
                     updateState { it.copy(loginStatus = Resource.Error(Exception("Signup failed"))) }
 
                     sendActionEvent(
