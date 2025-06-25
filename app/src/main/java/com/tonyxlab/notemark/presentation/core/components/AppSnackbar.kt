@@ -3,10 +3,12 @@ package com.tonyxlab.notemark.presentation.core.components
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDefaults.actionContentColor
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,22 +24,25 @@ fun AppSnackbarHost(
     isError: Boolean = true,
 ) {
     val containerColor = if (isError) MaterialTheme.colorScheme.error else Color.Green
+    val contentColor = contentColorFor(containerColor)
 
     SnackbarHost(
             hostState = snackbarHostState,
-            modifier = modifier.padding(MaterialTheme.spacing.spaceMedium)
+            modifier = modifier.padding(MaterialTheme.spacing.spaceSmall)
     ) { snackbarData ->
         Snackbar(
                 snackbarData = snackbarData,
                 containerColor = containerColor,
-                contentColor = contentColorFor(containerColor)
+                contentColor = contentColor,
+                actionColor = contentColor
+
         )
     }
 }
 
 @Composable
 fun ShowAppSnackbar(
-    showSnackbar: Boolean,
+    triggerId: Int,
     snackbarHostState: SnackbarHostState,
     message: String,
     actionLabel: String = "",
@@ -45,16 +50,15 @@ fun ShowAppSnackbar(
     onDismiss: () -> Unit = {}
 ) {
 
-    Timber.i("Snackbar Value Change: $showSnackbar")
-    LaunchedEffect(showSnackbar) {
-        if (showSnackbar) {
+
+    LaunchedEffect(triggerId) {
+        if (triggerId>0) {
 
             Timber.i("Snackbar Value Change Launched")
             val result = snackbarHostState.showSnackbar(
                     message = message,
                     actionLabel = actionLabel,
-                    duration = SnackbarDuration.Indefinite,
-                    withDismissAction = true
+                    duration = SnackbarDuration.Short
             )
             if (result == SnackbarResult.ActionPerformed) {
                 onActionClick()
