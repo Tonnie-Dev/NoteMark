@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import timber.log.Timber
 
 typealias SignupBaseViewModel = BaseViewModel<SignupUiState, SignupUiEvent, SignupActionEvent>
 
@@ -68,6 +67,8 @@ class SignupViewModel(private val authRepository: AuthRepository) : SignupBaseVi
                 )) {
 
                 is Resource.Success -> {
+
+                    updateState { it.copy(loginStatus = Resource.Success(response.data)) }
                     sendActionEvent(
                             SignupActionEvent.ShowSnackbar(
                                     messageRes = R.string.snack_text_signup_success,
@@ -77,23 +78,25 @@ class SignupViewModel(private val authRepository: AuthRepository) : SignupBaseVi
                             )
                     )
 
-                    updateState { it.copy(loginStatus = Resource.Success(response.data)) }
+
                 }
 
-                else -> {
-Timber.i("Error is: ${response.toString()}")
-                    updateState { it.copy(loginStatus = Resource.Error(Exception("Signup failed"))) }
+                is Resource.Error -> {
+
+                    updateState { it.copy(loginStatus = Resource.Error(response.exception)) }
 
                     sendActionEvent(
                             SignupActionEvent.ShowSnackbar(
                                     messageRes = R.string.snack_text_signup_failed,
-                                    actionLabelRes = R.string.snack_text_try_again,
+                                    actionLabelRes = R.string.snack_text_retry,
                                     isError = true,
                                     onActionClick = SignupUiEvent.RetrySnackbarAction
                             )
                     )
 
                 }
+
+                else -> Unit
             }
 
         }

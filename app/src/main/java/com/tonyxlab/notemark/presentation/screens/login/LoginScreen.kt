@@ -42,7 +42,7 @@ fun LoginScreen(
             viewModel = viewModel,
             actionEventHandler = { _, actionEvent ->
                 when (actionEvent) {
-                    LoginActionEvent.NavigateToMainScreen -> {}
+                    LoginActionEvent.NavigateToHomeScreen -> {}
                     LoginActionEvent.NavigateToSignupScreen -> {
                         navOperations.navigateToSignupScreenDestination()
                     }

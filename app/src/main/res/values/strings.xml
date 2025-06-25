@@ -32,7 +32,8 @@
     <!--Snackbar Texts-->
     <string name="snack_text_signup_failed">Signup failed</string>
     <string name="snack_text_signup_success">Account created successfully!</string>
-    <string name="snack_text_try_again">Try Again</string>
+    <string name="snack_text_login_failed">Login failed</string>
+    <string name="snack_text_retry">Retry</string>
     <string name="snack_text_login">Login</string>
 
     <!--Supporting Texts-->
