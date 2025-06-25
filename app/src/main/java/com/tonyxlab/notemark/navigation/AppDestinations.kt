@@ -4,6 +4,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.tonyxlab.notemark.navigation.Destinations.LandingScreenDestination
+import com.tonyxlab.notemark.presentation.screens.home.HomeScreen
 import com.tonyxlab.notemark.presentation.screens.landing.LandingScreen
 import com.tonyxlab.notemark.presentation.screens.login.LoginScreen
 import com.tonyxlab.notemark.presentation.screens.signup.SignupScreen
@@ -37,6 +38,11 @@ fun NavGraphBuilder.appDestinations(
                 navOperations = navOperations
         )
     }
+
+    composable< Destinations.HomeScreenDestination> {
+
+        HomeScreen()
+    }
 }
 
 
@@ -52,4 +58,7 @@ sealed class Destinations {
 
     @Serializable
     data object SignupScreenDestination : Destinations()
+
+    @Serializable
+    data object HomeScreenDestination : Destinations()
 }
