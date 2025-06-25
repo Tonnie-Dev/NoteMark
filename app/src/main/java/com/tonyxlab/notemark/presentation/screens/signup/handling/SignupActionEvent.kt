@@ -7,7 +7,7 @@ sealed interface SignupActionEvent : ActionEvent {
     data object NavigateToLoginScreen : SignupActionEvent
     data class ShowSnackbar(
         @StringRes val messageRes: Int,
-        @StringRes val actionLabelRes: Int? = null,
+        @StringRes val actionLabelRes:Int,
         val onActionClick: SignupUiEvent? = null,
         val isError: Boolean = false,
     ) : SignupActionEvent

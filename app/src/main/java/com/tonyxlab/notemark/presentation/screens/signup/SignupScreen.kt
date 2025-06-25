@@ -8,11 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,7 +40,6 @@ import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
 import org.koin.androidx.compose.koinViewModel
-import timber.log.Timber
 
 
 @Composable
@@ -51,16 +49,30 @@ fun SignupScreen(
     viewModel: SignupViewModel = koinViewModel()
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    var snackbarTriggerId by remember { mutableIntStateOf(0) }
     var snackbarMessage by remember { mutableStateOf("") }
-    var showSnackbar by remember { mutableStateOf(false) }
+    var snackbarActionLabel by remember { mutableStateOf("") }
+    var snackbarActionEvent by remember {
+        mutableStateOf<SignupUiEvent?>(null)
 
+    }
 
     val context = LocalContext.current
 
-Timber.i("UI Error Status: ${state.loginStatus is Resource.Error}")
-
+    ShowAppSnackbar(
+            triggerId = snackbarTriggerId,
+            snackbarHostState = snackbarHostState,
+            message = snackbarMessage,
+            actionLabel = snackbarActionLabel,
+            onActionClick = { snackbarActionEvent?.let { viewModel.onEvent(it) } },
+            onDismiss = {
+                snackbarTriggerId = 0
+                snackbarActionEvent = null
+            }
+    )
     BaseContentLayout(
             viewModel = viewModel,
             snackbarHost = {
@@ -80,9 +92,10 @@ Timber.i("UI Error Status: ${state.loginStatus is Resource.Error}")
 
                     is SignupActionEvent.ShowSnackbar -> {
 
-Timber.i("Action Event received on Screen")
-                      snackbarMessage = context.getString(signupActionEvent.messageRes)
-                        showSnackbar = true
+                        snackbarMessage = context.getString(signupActionEvent.messageRes)
+                        snackbarActionLabel = context.getString(signupActionEvent.actionLabelRes)
+                        snackbarActionEvent = signupActionEvent.onActionClick
+                        snackbarTriggerId++
                     }
                 }
             }
@@ -96,13 +109,6 @@ Timber.i("Action Event received on Screen")
 
     }
 
-    ShowAppSnackbar(
-            showSnackbar = showSnackbar,
-            snackbarHostState = snackbarHostState,
-            message = snackbarMessage,
-            onActionClick = {},
-            onDismiss = { showSnackbar = false}
-    )
 }
 
 @Composable
@@ -187,7 +193,7 @@ fun SignupScreenContent(
                     AppButton(
                             buttonText = stringResource(id = R.string.btn_text_login),
                             onClick = { onEvent(SignupUiEvent.CreateAccount) },
-                            isEnabled = uiState.fieldError == SignupUiState.FieldError() ,
+                            isEnabled = uiState.fieldError == SignupUiState.FieldError(),
                             isLoading = uiState.loginStatus == Resource.Loading
 
                     )
@@ -202,20 +208,16 @@ fun SignupScreenContent(
 
 }
 
-
 @PreviewLightDark
 @Composable
 private fun LoginScreenContentPreview() {
-
     NoteMarkTheme {
-
         SignupScreenContent(
                 modifier = Modifier.background(color = MaterialTheme.colorScheme.background),
                 uiState = SignupUiState(),
                 onEvent = {}
         )
     }
-
 }
 
 

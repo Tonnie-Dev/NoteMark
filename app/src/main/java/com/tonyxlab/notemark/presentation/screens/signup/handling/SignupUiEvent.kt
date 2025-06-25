@@ -8,4 +8,7 @@ sealed interface SignupUiEvent : UiEvent {
     data object TogglePasswordOneVisibility: SignupUiEvent
     data object TogglePasswordTwoVisibility: SignupUiEvent
     data object LoginToExistingAccount : SignupUiEvent
+    data object LoginSnackbarAction: SignupUiEvent
+    data object RetrySnackbarAction: SignupUiEvent
+
 }

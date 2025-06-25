@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import timber.log.Timber
 
 typealias SignupBaseViewModel = BaseViewModel<SignupUiState, SignupUiEvent, SignupActionEvent>
 
@@ -32,7 +31,6 @@ class SignupViewModel(private val authRepository: AuthRepository) : SignupBaseVi
 
     override val initialState: SignupUiState
         get() = SignupUiState()
-
 
     init {
         observeFieldsInputs()
@@ -44,8 +42,8 @@ class SignupViewModel(private val authRepository: AuthRepository) : SignupBaseVi
             SignupUiEvent.TogglePasswordTwoVisibility -> togglePasswordTwo()
             SignupUiEvent.LoginToExistingAccount -> login()
             SignupUiEvent.CreateAccount -> createAccount()
-            SignupUiEvent.LoginSnackbarAction -> TODO()
-            SignupUiEvent.RetrySnackbarAction -> TODO()
+            SignupUiEvent.RetrySnackbarAction -> createAccount()
+            SignupUiEvent.LoginSnackbarAction -> login()
         }
     }
 
@@ -54,14 +52,13 @@ class SignupViewModel(private val authRepository: AuthRepository) : SignupBaseVi
     }
 
     private fun createAccount() {
-        // sendActionEvent(SignupActionEvent.NavigateToMainScreen)
 
         launch {
 
             updateState { it.copy(loginStatus = Resource.Loading) }
 
             when (
-                val response =authRepository.register(
+                val response = authRepository.register(
                         registerRequest = RegisterRequest(
                                 currentState.fieldTextState.username.toText,
                                 currentState.fieldTextState.email.toText,
@@ -80,13 +77,12 @@ class SignupViewModel(private val authRepository: AuthRepository) : SignupBaseVi
                     )
 
                     updateState { it.copy(loginStatus = Resource.Success(response.data)) }
-                    Timber.i ("Success Detected")
                 }
 
                 else -> {
 
- updateState { it.copy(loginStatus = Resource.Error(Exception("Signup failed"))) }
-Timber.i ("Error Detected")
+                    updateState { it.copy(loginStatus = Resource.Error(Exception("Signup failed"))) }
+
                     sendActionEvent(
                             SignupActionEvent.ShowSnackbar(
                                     messageRes = R.string.snack_text_signup_failed,
@@ -165,7 +161,6 @@ Timber.i ("Error Detected")
 
                 updateState { it.copy(fieldError = fieldError) }
 
-
             }.collect()
 
         }
@@ -187,7 +182,5 @@ Timber.i ("Error Detected")
                 allFieldsFilled = allFieldsFilled(username, email, passwordOne, passwordTwo)
         )
     }
-
-
 
 }

@@ -2,13 +2,15 @@ package com.tonyxlab.notemark.presentation.screens.signup.handling
 
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Stable
+import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.presentation.core.base.handling.UiState
 
 @Stable
 data class SignupUiState(
     val fieldTextState: FieldTextState = FieldTextState(),
     val fieldError: FieldError = FieldError(),
-    val passwordVisibility: PasswordVisibilityState = PasswordVisibilityState()
+    val passwordVisibility: PasswordVisibilityState = PasswordVisibilityState(),
+    val loginStatus: Resource<Int> = Resource.Empty
 ) : UiState {
 
     @Stable
@@ -16,9 +18,9 @@ data class SignupUiState(
         val username: TextFieldState = TextFieldState(),
         val email: TextFieldState = TextFieldState(),
         val passwordOne: TextFieldState = TextFieldState(),
-        val passwordTwo: TextFieldState = TextFieldState()
+        val passwordTwo: TextFieldState = TextFieldState(),
 
-    )
+        )
 
     @Stable
     data class FieldError(
@@ -43,6 +45,7 @@ data class SignupUiState(
                 passwordTwo.text
         ).all { it.isNotBlank() }
     }
+
 
     @Stable
     val isCreateAccountButtonEnabled: Boolean
