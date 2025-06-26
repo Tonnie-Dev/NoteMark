@@ -1,6 +1,7 @@
 package com.tonyxlab.notemark.data.auth
 
 
+import android.R.attr.password
 import com.tonyxlab.notemark.data.datastore.TokenStorage
 import com.tonyxlab.notemark.data.dto.LoginResponse
 import com.tonyxlab.notemark.domain.auth.AuthRepository
@@ -10,13 +11,22 @@ import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.util.ApiEndpoints
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.bearer
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
+import kotlin.math.log
 
 class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
     override suspend fun register(registerRequest: RegisterRequest): Resource<Int> =
@@ -37,20 +47,35 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
     override suspend fun login(loginRequest: LoginRequest): Resource<LoginResponse> =
         withContext(Dispatchers.IO) {
             try {
-                val response: LoginResponse = client.post {
+                val email = loginRequest.email.trim()
+                val password = loginRequest.password.trim()
+
+                val result = client.post {
                     url(ApiEndpoints.LOGIN_ENDPOINT)
                     contentType(ContentType.Application.Json)
-                    setBody(loginRequest)
+                    header(HttpHeaders.Accept, ContentType.Application.Json)
+                    header("X-User-Email", email)
+                    setBody(LoginRequest(email = email, password = password))
                 }
-                        .body()
+                if (result.status.isSuccess()) {
 
-                // Here you'd store the tokens locally (DataStore, EncryptedPrefs, etc)
-                TokenStorage.saveTokens(
-                        accessToken = response.accessToken,
-                        refreshToken = response.refreshToken
-                )
+                    val loginResponse = result.body<LoginResponse>()
 
-                Resource.Success(response)
+                    // Here you'd store the tokens locally (DataStore, EncryptedPrefs, etc)
+                    TokenStorage.saveTokens(
+                            accessToken = loginResponse.accessToken,
+                            refreshToken = loginResponse.refreshToken
+                    )
+
+                    Resource.Success(loginResponse)
+                } else {
+                    val errorBody = result.bodyAsText()
+                    Timber.e("Login failed with status: ${result.status}, body: $errorBody")
+                    Timber.i("Email is: ${loginRequest.email}, password is ${loginRequest.password}")
+                    Resource.Error(Exception("Login failed: ${result.status.value}"))
+
+                }
+
 
             } catch (e: Exception) {
                 Resource.Error(e)
@@ -60,7 +85,8 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
 
 }
 
-/*
+
+
 fun installAuth(){
 
 
@@ -84,11 +110,5 @@ fun installAuth(){
     }
 }
 
-val tokenResponse: TokenResponse= client.post("https://api.example.com/login") {
-    setBody(LoginRequest(username, password))
-}
 
-fun sessionStorage() : String = ""
-interface AuthRepository {
-    suspend fun  register(registerRequest: RegisterRequest): ApiResult<Int>
-}*/
+
