@@ -7,19 +7,30 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tonyxlab.notemark.R
+import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
 import com.tonyxlab.notemark.presentation.core.components.AppButton
+import com.tonyxlab.notemark.presentation.core.components.AppSnackbarHost
 import com.tonyxlab.notemark.presentation.core.components.AppTextButton
 import com.tonyxlab.notemark.presentation.core.components.AppTextField
 import com.tonyxlab.notemark.presentation.core.components.Header
+import com.tonyxlab.notemark.presentation.core.components.ShowAppSnackbar
 import com.tonyxlab.notemark.presentation.core.utils.SupportText
 import com.tonyxlab.notemark.presentation.core.utils.eyeIcon
 import com.tonyxlab.notemark.presentation.core.utils.spacing
@@ -30,24 +41,58 @@ import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
 import org.koin.androidx.compose.koinViewModel
 
-
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
     navOperations: NavOperations,
     viewModel: LoginViewModel = koinViewModel()
 ) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    var snackbarTriggerId by remember { mutableIntStateOf(0) }
+    var snackbarMessage by remember { mutableStateOf("") }
+    var snackbarActionLabel by remember { mutableStateOf("") }
+    var snackbarActionEvent by remember { mutableStateOf<LoginUiEvent?>(null) }
+
+    ShowAppSnackbar(
+            triggerId = snackbarTriggerId,
+            snackbarHostState = snackbarHostState,
+            message = snackbarMessage,
+            actionLabel = snackbarActionLabel,
+            onActionClick = { snackbarActionEvent?.let { viewModel.onEvent(it) }},
+            onDismiss = {
+                snackbarTriggerId = 0
+                snackbarActionEvent = null
+            }
+
+    )
+
     BaseContentLayout(
             modifier = modifier,
             viewModel = viewModel,
+            snackbarHost = {
+                AppSnackbarHost(
+                        snackbarHostState = snackbarHostState,
+                        isError = state.loginStatus is Resource.Error
+                )
+            },
+
             actionEventHandler = { _, actionEvent ->
                 when (actionEvent) {
-                    LoginActionEvent.NavigateToHomeScreen -> {}
+                    LoginActionEvent.NavigateToHomeScreen -> { navOperations.navigateToHomeScreenDestination()}
                     LoginActionEvent.NavigateToSignupScreen -> {
                         navOperations.navigateToSignupScreenDestination()
                     }
+                    is LoginActionEvent.ShowSnackbar -> {
+                        snackbarMessage = context.getString(actionEvent.messageRes)
+                        snackbarActionLabel = context.getString(actionEvent.actionLabelRes)
+                        snackbarActionEvent = actionEvent.onActionClick
+                        snackbarTriggerId++
+                    }
                 }
-
             }
 
     ) { state ->
@@ -104,7 +149,7 @@ private fun LoginScreenContent(
                                 textFieldState = uiState.fieldTextState.emailTextFieldState,
                                 supportText = SupportText.EmailSupportText,
                                 isError = uiState.fieldError.emailError
-                                )
+                        )
 
                         AppTextField(
                                 label = stringResource(id = R.string.lab_text_password_label),
@@ -117,15 +162,15 @@ private fun LoginScreenContent(
                                 icon = uiState.isSecureText.eyeIcon
                         )
 
-
-                                          }
+                    }
 
                     Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceTwelve)) {
 
                         AppButton(
                                 buttonText = stringResource(id = R.string.btn_text_login),
                                 onClick = { onEvent(LoginUiEvent.Login) },
-                                isEnabled = uiState.fieldError == LoginUiState.FieldError() //uiState.isLoginButtonEnabled
+                                isEnabled = uiState.fieldError == LoginUiState.FieldError(),
+                                isLoading = uiState.loginStatus is Resource.Loading
 
                         )
                         AppTextButton(

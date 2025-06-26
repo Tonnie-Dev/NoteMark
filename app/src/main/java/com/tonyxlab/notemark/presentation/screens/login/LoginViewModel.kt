@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import timber.log.Timber
 
 typealias LoginBaseViewModel = BaseViewModel<LoginUiState, LoginUiEvent, LoginActionEvent>
 
@@ -49,9 +50,6 @@ class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseView
         updateState { it.copy(isSecureText = !currentState.isSecureText) }
     }
 
-    private fun onLogin() {
-        sendActionEvent(LoginActionEvent.NavigateToHomeScreen)
-    }
 
     private fun onRegister() {
         sendActionEvent(LoginActionEvent.NavigateToSignupScreen)
@@ -80,14 +78,14 @@ class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseView
 
     }
 
-    private fun login() {
+    private fun onLogin() {
         launch {
             updateState { it.copy(loginStatus = Resource.Loading) }
 
             val loginRequest = LoginRequest(
 
                     currentState.fieldTextState.emailTextFieldState.toText,
-                    password = currentState.fieldTextState.emailTextFieldState.toText
+                    password = currentState.fieldTextState.passwordTextFieldState.toText
             )
             val response = authRepository.login(loginRequest = loginRequest)
 
@@ -100,7 +98,7 @@ class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseView
                 }
 
                 is Resource.Error -> {
-
+                    Timber.i("The Login Error is:${response.exception}")
                     updateState { it.copy(loginStatus = Resource.Error(response.exception)) }
                     sendActionEvent(
                             LoginActionEvent.ShowSnackbar(
