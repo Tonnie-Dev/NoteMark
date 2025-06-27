@@ -199,7 +199,7 @@ fun SignupScreenContent(
                     )
                     AppTextButton(
                             text = stringResource(id = R.string.txt_btn_already_have_account),
-                            onClick = { onEvent(SignupUiEvent.CreateAccount) }
+                            onClick = { onEvent(SignupUiEvent.LoginToExistingAccount) }
                     )
                 }
             }

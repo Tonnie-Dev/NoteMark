@@ -15,4 +15,3 @@ data class LoginRequest(
     val password: String
 )
 
-data class RefreshRequest(val refreshToken: String)
