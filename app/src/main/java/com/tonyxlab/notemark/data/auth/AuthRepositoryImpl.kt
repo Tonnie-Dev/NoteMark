@@ -1,7 +1,6 @@
 package com.tonyxlab.notemark.data.auth
 
 
-import android.R.attr.password
 import com.tonyxlab.notemark.data.datastore.TokenStorage
 import com.tonyxlab.notemark.data.dto.LoginResponse
 import com.tonyxlab.notemark.domain.auth.AuthRepository
@@ -26,18 +25,30 @@ import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import kotlin.math.log
 
 class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
+
     override suspend fun register(registerRequest: RegisterRequest): Resource<Int> =
         withContext(Dispatchers.IO) {
+
             try {
-                val response = client.post(ApiEndpoints.REGISTRATION_ENDPOINT) {
+                val email = registerRequest.email.trim()
+                val result = client.post(ApiEndpoints.REGISTRATION_ENDPOINT) {
                     contentType(ContentType.Application.Json)
+                    header("X-User-Email", email)
                     setBody(registerRequest)
                 }
 
-                Resource.Success(response.status.value)
+                if (result.status.isSuccess()){
+
+                    Resource.Success(result.status.value)
+
+                }else {
+                    val errorBody = result.bodyAsText()
+
+                    Resource.Error(Exception("Login failed: ${result.status.value}"))
+                }
+
 
             } catch (e: Exception) {
                 Resource.Error(e)
@@ -45,6 +56,7 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
         }
 
     override suspend fun login(loginRequest: LoginRequest): Resource<LoginResponse> =
+
         withContext(Dispatchers.IO) {
             try {
                 val email = loginRequest.email.trim()
@@ -61,7 +73,6 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
 
                     val loginResponse = result.body<LoginResponse>()
 
-                    // Here you'd store the tokens locally (DataStore, EncryptedPrefs, etc)
                     TokenStorage.saveTokens(
                             accessToken = loginResponse.accessToken,
                             refreshToken = loginResponse.refreshToken
@@ -70,45 +81,16 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
                     Resource.Success(loginResponse)
                 } else {
                     val errorBody = result.bodyAsText()
-                    Timber.e("Login failed with status: ${result.status}, body: $errorBody")
-                    Timber.i("Email is: ${loginRequest.email}, password is ${loginRequest.password}")
-                    Resource.Error(Exception("Login failed: ${result.status.value}"))
+
+                    Resource.Error(Exception("Login failed: ${result.status.value}, $errorBody"))
 
                 }
-
 
             } catch (e: Exception) {
                 Resource.Error(e)
             }
         }
 
-
 }
-
-
-
-fun installAuth(){
-
-
-    HttpClient(CIO){
-
-
-        install(Auth ){
-
-            bearer{
-
-                loadTokens {
-                    TODO()
-
-                }
-
-                refreshTokens {
-                    TODO()
-                }
-            }
-        }
-    }
-}
-
 
 
