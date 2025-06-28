@@ -7,12 +7,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,7 +37,7 @@ import com.tonyxlab.notemark.presentation.theme.getClippingShape
 fun LandingScreen(modifier: Modifier = Modifier, navOperations: NavOperations) {
     Scaffold(
             containerColor = Color.Transparent,
-            //contentWindowInsets = WindowInsets(0)
+            contentWindowInsets = ScaffoldDefaults.contentWindowInsets
     ) { innerPadding ->
         LandingScreenContent(
 

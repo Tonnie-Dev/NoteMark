@@ -10,9 +10,6 @@ import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.util.ApiEndpoints
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.auth.Auth
-import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -24,7 +21,6 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
 
@@ -33,22 +29,22 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
 
             try {
                 val email = registerRequest.email.trim()
+
                 val result = client.post(ApiEndpoints.REGISTRATION_ENDPOINT) {
                     contentType(ContentType.Application.Json)
                     header("X-User-Email", email)
                     setBody(registerRequest)
                 }
 
-                if (result.status.isSuccess()){
+                if (result.status.isSuccess()) {
 
                     Resource.Success(result.status.value)
 
-                }else {
+                } else {
                     val errorBody = result.bodyAsText()
 
                     Resource.Error(Exception("Login failed: ${result.status.value}"))
                 }
-
 
             } catch (e: Exception) {
                 Resource.Error(e)
@@ -59,6 +55,7 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
 
         withContext(Dispatchers.IO) {
             try {
+
                 val email = loginRequest.email.trim()
                 val password = loginRequest.password.trim()
 
@@ -69,6 +66,7 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
                     header("X-User-Email", email)
                     setBody(LoginRequest(email = email, password = password))
                 }
+
                 if (result.status.isSuccess()) {
 
                     val loginResponse = result.body<LoginResponse>()
@@ -81,7 +79,6 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
                     Resource.Success(loginResponse)
                 } else {
                     val errorBody = result.bodyAsText()
-
                     Resource.Error(Exception("Login failed: ${result.status.value}, $errorBody"))
 
                 }

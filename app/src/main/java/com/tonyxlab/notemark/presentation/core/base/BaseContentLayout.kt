@@ -1,5 +1,6 @@
 package com.tonyxlab.notemark.presentation.core.base
 
+
 import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
@@ -7,13 +8,11 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
@@ -41,9 +40,9 @@ fun <S : UiState, E : UiEvent, A : ActionEvent> BaseContentLayout(
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
-    containerColor: Color = MaterialTheme.colorScheme.primary,
+    containerColor: Color = MaterialTheme.colorScheme.background,
     contentColor: Color = contentColorFor(containerColor),
-    contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
+    contentWindowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
     actionEventHandler: (suspend CoroutineScope.(context: Context, actionEvent: A) -> Unit)? = null,
     content: @Composable (BoxScope.(uiState: S) -> Unit)
 ) {
@@ -72,7 +71,6 @@ fun <S : UiState, E : UiEvent, A : ActionEvent> BaseContentLayout(
     ) {
         Scaffold(
                 modifier = Modifier
-                        .windowInsetsPadding(WindowInsets.safeDrawing)
                         .fillMaxWidth(),
                 topBar = { topBar(uiState) },
                 bottomBar = { bottomBar(uiState) },
@@ -84,7 +82,11 @@ fun <S : UiState, E : UiEvent, A : ActionEvent> BaseContentLayout(
                 contentWindowInsets = contentWindowInsets
         ) { paddingValues ->
 
-            Box(modifier = modifier.padding(paddingValues)) {
+            Box(
+                    modifier = modifier
+                            .padding(paddingValues)
+                            .navigationBarsPadding()
+            ) {
                 content(uiState)
             }
         }
