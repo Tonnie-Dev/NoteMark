@@ -15,7 +15,6 @@ class NoteMarkApp: Application() {
         super.onCreate()
         Timber.plant(Timber.DebugTree())
 
-        //TokenStorage.init(this)
         startKoin {
             androidContext(this@NoteMarkApp)
             modules(listOf(viewModelModule, repositoryModule, networkModule))

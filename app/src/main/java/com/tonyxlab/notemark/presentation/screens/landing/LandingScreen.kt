@@ -20,6 +20,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
@@ -31,6 +32,7 @@ import com.tonyxlab.notemark.presentation.screens.landing.handling.LandingUiEven
 import com.tonyxlab.notemark.presentation.screens.landing.handling.LandingUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
+import com.tonyxlab.notemark.util.SetStatusBarIconsColor
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -40,7 +42,7 @@ fun LandingScreen(
     navOperations: NavOperations,
     viewModel: LandingViewModel = koinViewModel()
 ) {
-
+    SetStatusBarIconsColor(true)
     BaseContentLayout(
             modifier = modifier,
             viewModel = viewModel,
@@ -58,8 +60,6 @@ fun LandingScreen(
         )
 
     }
-
-
 }
 
 @Composable
@@ -69,17 +69,11 @@ fun LandingScreenContent(
     modifier: Modifier = Modifier
 
 ) {
-
     Box(modifier = modifier) {
 
         Image(
                 modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.TopStart)
-                // .height(622.dp)
-                // .padding(top = 0.dp) // No padding
-                //  .statusBarsPadding(), // 👈 Key line: adds safe padding *only* if you need to position over the status bar
-                , painter = painterResource(R.drawable.landing_image),
+                        .fillMaxWidth(), painter = painterResource(R.drawable.landing_image),
                 contentDescription = null,
                 contentScale = ContentScale.Crop
         )
@@ -121,9 +115,7 @@ fun LandingScreenContent(
     }
 }
 
-@Preview(showSystemUi = true)
-
-
+@PreviewLightDark
 @Composable
 private fun LandingScreenContentPreview() {
 

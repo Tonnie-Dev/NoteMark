@@ -39,6 +39,7 @@ import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiEvent
 import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
+import com.tonyxlab.notemark.util.SetStatusBarIconsColor
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -47,6 +48,8 @@ fun LoginScreen(
     navOperations: NavOperations,
     viewModel: LoginViewModel = koinViewModel()
 ) {
+
+    SetStatusBarIconsColor(darkIcons = false)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current

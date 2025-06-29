@@ -39,6 +39,7 @@ import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiEvent
 import com.tonyxlab.notemark.presentation.screens.signup.handling.SignupUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.getClippingShape
+import com.tonyxlab.notemark.util.SetStatusBarIconsColor
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -48,6 +49,8 @@ fun SignupScreen(
     modifier: Modifier = Modifier,
     viewModel: SignupViewModel = koinViewModel()
 ) {
+
+    SetStatusBarIconsColor(darkIcons = false)
     val snackbarHostState = remember { SnackbarHostState() }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
