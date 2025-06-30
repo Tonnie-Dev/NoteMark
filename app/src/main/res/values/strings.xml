@@ -8,6 +8,7 @@
 
     <!--Caption Texts-->
     <string name="cap_text_capture_thoughts">Capture your thoughts and ideas.</string>
+    <string name="cap_text_empty_board">You\'ve an empty board, \n let\'s place your first note on it</string>
 
     <!--Button Texts-->
     <string name="btn_text_get_started">Get Started</string>
