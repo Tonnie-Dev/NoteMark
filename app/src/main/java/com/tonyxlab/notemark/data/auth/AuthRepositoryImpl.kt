@@ -24,8 +24,8 @@ import kotlinx.coroutines.withContext
 
 class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
 
-
     override suspend fun register(registerRequest: RegisterRequest): Resource<Int> =
+
         withContext(Dispatchers.IO) {
 
             try {
