@@ -24,6 +24,7 @@ import kotlinx.coroutines.withContext
 
 class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
 
+
     override suspend fun register(registerRequest: RegisterRequest): Resource<Int> =
         withContext(Dispatchers.IO) {
 
@@ -73,7 +74,8 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
 
                     TokenStorage.saveTokens(
                             accessToken = loginResponse.accessToken,
-                            refreshToken = loginResponse.refreshToken
+                            refreshToken = loginResponse.refreshToken,
+                            username = loginResponse.username
                     )
 
                     Resource.Success(loginResponse)
@@ -88,6 +90,17 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
             }
         }
 
+
+    override suspend fun isSignedIn(): Boolean {
+        val accessToken = TokenStorage.getAccessToken()
+        val username = TokenStorage.getUsername()
+        return !accessToken.isNullOrBlank() && !username.isNullOrBlank()
+
+    }
+
+    override suspend fun getUserName(): String? {
+        return TokenStorage.getUsername()
+    }
 }
 
 

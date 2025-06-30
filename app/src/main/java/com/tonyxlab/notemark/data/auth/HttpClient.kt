@@ -43,7 +43,7 @@ fun provideHttpClient(): HttpClient {
                 loadTokens {
                     val access = TokenStorage.getAccessToken()
                     val refresh = TokenStorage.getRefreshToken()
-                    Timber.i("Trying to Load tokens - access:$access, refresh: $refresh")
+
                     if (access != null && refresh != null) {
                         BearerTokens(access, refresh)
                     } else {
@@ -59,6 +59,7 @@ fun provideHttpClient(): HttpClient {
                         Timber.i("Trying to Refresh ...")
                         val refreshResponse = client.post(ApiEndpoints.REFRESH_ENDPOINT) {
                             header("Authorization", "Bearer $refreshToken")
+
                         }
 
                         Timber.i("Refresh response code is: ${refreshResponse.status}")
@@ -66,7 +67,8 @@ fun provideHttpClient(): HttpClient {
                             val newTokens = refreshResponse.body<LoginResponse>()
                             TokenStorage.saveTokens(
                                     accessToken = newTokens.accessToken,
-                                    refreshToken = newTokens.refreshToken
+                                    refreshToken = newTokens.refreshToken,
+                                    username = newTokens.username
                             )
                             BearerTokens(newTokens.accessToken, newTokens.refreshToken)
                         } else {
