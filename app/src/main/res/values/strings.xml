@@ -49,4 +49,8 @@
     <string name="sup_text_error_password_one">Password must be at least 8 characters and include a number or symbol</string>
 
     <string name="sup_text_error_password_two">Password do not match</string>
+
+
+    <!--Content Description Texts-->
+    <string name="cds_text_add">Add</string>
 </resources>

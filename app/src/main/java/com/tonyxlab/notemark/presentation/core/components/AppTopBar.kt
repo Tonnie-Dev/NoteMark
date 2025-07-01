@@ -32,20 +32,21 @@ fun AppTopBar(
     Surface(color = MaterialTheme.colorScheme.background) {
 
         Row(
-                modifier = Modifier
+                modifier = modifier
                         .fillMaxWidth()
                         .height(MaterialTheme.spacing.spaceExtraLarge)
-
                         .padding(vertical = MaterialTheme.spacing.spaceSmall)
                         .padding(horizontal = MaterialTheme.spacing.spaceMedium),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
         ) {
+
             Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
             )
+
             Box(
                     modifier = Modifier
                             .clip(clipShape)
@@ -57,18 +58,14 @@ fun AppTopBar(
                             .padding(MaterialTheme.spacing.spaceExtraSmall),
                     contentAlignment = Alignment.Center
             ) {
-
                 Text(
                         text = profileInitials,
-                        style = MaterialTheme.typography.titleSmall,
+                        style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onPrimary
                 )
-
             }
-
         }
     }
-
 }
 
 @PreviewLightDark
@@ -86,8 +83,6 @@ private fun AppTopBarPreview() {
                     title = "NoteMark",
                     profileInitials = "TX"
             )
-
         }
-
     }
 }
