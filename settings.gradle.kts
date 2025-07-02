@@ -1,3 +1,5 @@
+import Google.Android.PlayServices.tasks
+
 pluginManagement {
     repositories {
         google {
@@ -23,6 +25,9 @@ plugins {
     // See https://jmfayard.github.io/refreshVersions
     id("de.fayard.refreshVersions") version "0.60.5"
 }
+
+
+
 rootProject.name = "NoteMark"
 include(":app")
  

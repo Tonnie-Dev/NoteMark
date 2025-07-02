@@ -1,3 +1,6 @@
+import org.gradle.internal.classpath.Instrumented.systemProperty
+import org.jetbrains.kotlin.gradle.tasks.KotlinTest
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -41,8 +44,11 @@ android {
     buildFeatures {
         compose = true
     }
-}
 
+    tasks.withType<Test> {
+        useJUnitPlatform()
+    }
+}
 dependencies {
 
     implementation(AndroidX.core.ktx)
@@ -68,6 +74,9 @@ dependencies {
 
     // Room
     implementation(AndroidX.room.ktx)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.jupiter)
     ksp(AndroidX.room.compiler)
 
     // Data Store
@@ -101,6 +110,11 @@ dependencies {
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
+   testImplementation(Testing.Kotest.assertions.core)
+   testImplementation(Testing.Kotest.runner.junit5)
+
+
+
 
     // Android Tests
     androidTestImplementation(libs.androidx.junit)

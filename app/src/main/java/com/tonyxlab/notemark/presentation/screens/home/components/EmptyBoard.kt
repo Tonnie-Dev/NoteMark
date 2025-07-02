@@ -21,7 +21,7 @@ import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 fun EmptyBoard(modifier: Modifier = Modifier) {
     Column(
             modifier = modifier
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .background(MaterialTheme.colorScheme.surface)
                     .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
     ) {
