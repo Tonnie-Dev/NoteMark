@@ -1,7 +1,5 @@
 package com.tonyxlab.notemark.data.auth
 
-import android.R.attr.level
-import android.system.Os.access
 import com.tonyxlab.notemark.data.datastore.TokenStorage
 import com.tonyxlab.notemark.data.dto.LoginResponse
 import com.tonyxlab.notemark.util.ApiEndpoints
@@ -23,7 +21,10 @@ import kotlinx.serialization.json.Json
 import timber.log.Timber
 
 fun provideHttpClient(): HttpClient {
+
     return HttpClient(CIO) {
+
+        expectSuccess = false
         install(ContentNegotiation) {
             json(Json {
                 ignoreUnknownKeys = true
@@ -53,16 +54,16 @@ fun provideHttpClient(): HttpClient {
 
                 refreshTokens {
                     val refreshToken = TokenStorage.getRefreshToken() ?: return@refreshTokens null
-                    Timber.i("Refresh block called - token:$refreshToken")
+
                     try {
 
-                        Timber.i("Trying to Refresh ...")
+
                         val refreshResponse = client.post(ApiEndpoints.REFRESH_ENDPOINT) {
                             header("Authorization", "Bearer $refreshToken")
 
                         }
 
-                        Timber.i("Refresh response code is: ${refreshResponse.status}")
+
                         if (refreshResponse.status == HttpStatusCode.OK) {
                             val newTokens = refreshResponse.body<LoginResponse>()
                             TokenStorage.saveTokens(

@@ -10,7 +10,7 @@ import com.tonyxlab.notemark.presentation.core.base.handling.UiState
 data class LoginUiState(
     val fieldTextState:FieldTextState = FieldTextState(),
     val fieldError: FieldError = FieldError(),
-    val loginStatus: Resource<LoginResponse> = Resource.Empty,
+    val loginStatus: Resource<Int> = Resource.Empty,
     val isSecureText: Boolean = true
 
 ) : UiState {

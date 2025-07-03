@@ -9,7 +9,7 @@ interface AuthRepository {
 
 
     suspend fun register(registerRequest: RegisterRequest): Resource<Int>
-    suspend fun login(loginRequest: LoginRequest): Resource<LoginResponse>
+    suspend fun login(loginRequest: LoginRequest): Resource<Int>
     suspend fun isSignedIn(): Boolean
     suspend fun getUserName(): String?
 

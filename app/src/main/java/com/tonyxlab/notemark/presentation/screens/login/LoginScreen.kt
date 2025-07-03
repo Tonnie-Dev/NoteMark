@@ -114,7 +114,6 @@ private fun LoginScreenContent(
     onEvent: (LoginUiEvent) -> Unit
 ) {
 
-
     Box(
             modifier = modifier
                     .background(color = MaterialTheme.colorScheme.primary)

@@ -28,7 +28,7 @@ typealias LoginBaseViewModel = BaseViewModel<LoginUiState, LoginUiEvent, LoginAc
 class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseViewModel() {
 
     init {
-
+        Timber.tag("AuthRepo").i("Init Called")
         observeFieldsInput()
 
     }
@@ -93,7 +93,7 @@ class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseView
 
                 is Resource.Success -> {
 
-                    updateState { it.copy(loginStatus = Resource.Success(response.data)) }
+                    updateState { it.copy(loginStatus = Resource.Success(0)) }
                     sendActionEvent(LoginActionEvent.NavigateToHomeScreen)
                 }
 
