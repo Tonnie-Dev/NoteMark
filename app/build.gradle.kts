@@ -1,5 +1,4 @@
-import org.gradle.internal.classpath.Instrumented.systemProperty
-import org.jetbrains.kotlin.gradle.tasks.KotlinTest
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -23,6 +22,22 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
+
+        //load the values from .properties file
+        val keysFile = project.rootProject.file("keys.properties")
+        val properties = Properties()
+        properties.load(keysFile.inputStream())
+
+        //return empty key in case something goes wrong
+        val userEmail = properties.getProperty("USER_EMAIL") ?: ""
+
+        buildConfigField(
+                type = "String",
+                name = "USER_EMAIL",
+                value = userEmail
+        )
     }
 
     buildTypes {
@@ -43,6 +58,7 @@ android {
     }
     buildFeatures {
         compose = true
+
     }
 
     tasks.withType<Test> {
