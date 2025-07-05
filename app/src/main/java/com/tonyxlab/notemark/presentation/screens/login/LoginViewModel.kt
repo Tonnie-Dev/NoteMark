@@ -2,10 +2,13 @@
 
 package com.tonyxlab.notemark.presentation.screens.login
 
+import android.R.attr.password
 import androidx.compose.runtime.snapshotFlow
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.domain.auth.AuthRepository
-import com.tonyxlab.notemark.domain.model.LoginRequest
+import com.tonyxlab.notemark.domain.model.Credentials
+
+
 import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.core.utils.allFieldsFilled
@@ -82,12 +85,12 @@ class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseView
         launch {
             updateState { it.copy(loginStatus = Resource.Loading) }
 
-            val loginRequest = LoginRequest(
+            val credentials = Credentials(
 
-                    currentState.fieldTextState.emailTextFieldState.toText,
+                    email = currentState.fieldTextState.emailTextFieldState.toText,
                     password = currentState.fieldTextState.passwordTextFieldState.toText
             )
-            val response = authRepository.login(loginRequest = loginRequest)
+            val response = authRepository.login(credentials = credentials)
 
             when (response) {
 

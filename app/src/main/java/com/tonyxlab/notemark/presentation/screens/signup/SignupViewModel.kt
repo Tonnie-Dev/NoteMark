@@ -5,7 +5,7 @@ package com.tonyxlab.notemark.presentation.screens.signup
 import androidx.compose.runtime.snapshotFlow
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.domain.auth.AuthRepository
-import com.tonyxlab.notemark.domain.model.RegisterRequest
+import com.tonyxlab.notemark.domain.model.Credentials
 import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.core.utils.allFieldsFilled
@@ -59,7 +59,7 @@ class SignupViewModel(private val authRepository: AuthRepository) : SignupBaseVi
 
             when (
                 val response = authRepository.register(
-                        registerRequest = RegisterRequest(
+                        credentials = Credentials(
                                 currentState.fieldTextState.username.toText,
                                 currentState.fieldTextState.email.toText,
                                 currentState.fieldTextState.passwordOne.toText
