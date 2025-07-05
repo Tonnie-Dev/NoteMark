@@ -1,10 +1,8 @@
 package com.tonyxlab.notemark.di
 
-import com.tonyxlab.notemark.data.remote.auth.AuthRepositoryImpl
-import com.tonyxlab.notemark.data.network.provideDefaultHttpClient
-import com.tonyxlab.notemark.data.network.provideMainHttpClient
 import com.tonyxlab.notemark.data.local.datastore.TokenStorage
-import com.tonyxlab.notemark.data.network.HttpClientFactoryThree
+import com.tonyxlab.notemark.data.network.HttpClientFactory
+import com.tonyxlab.notemark.data.remote.auth.AuthRepositoryImpl
 import com.tonyxlab.notemark.domain.auth.AuthRepository
 import com.tonyxlab.notemark.presentation.screens.home.HomeViewModel
 import com.tonyxlab.notemark.presentation.screens.landing.LandingViewModel
@@ -25,10 +23,8 @@ val viewModelModule = module {
 val networkModule = module {
 
     single {
-        TokenStorage.init(androidContext()) // Only once at startup
-        provideMainHttpClient()
-        provideDefaultHttpClient()
-        HttpClientFactoryThree()
+        TokenStorage.init(androidContext())
+        HttpClientFactory()
     }
 
 }

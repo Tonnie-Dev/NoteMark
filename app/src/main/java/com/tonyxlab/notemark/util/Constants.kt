@@ -6,4 +6,5 @@ object Constants {
     const val ACCESS_TOKEN = "access_token"
     const val REFRESH_TOKEN = "refresh_token"
     const val USERNAME_KEY = "username_key"
+    const val EMAIL_HEADER_KEY ="X-User-Email"
 }

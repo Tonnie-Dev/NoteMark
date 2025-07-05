@@ -4,15 +4,14 @@ package com.tonyxlab.notemark.data.remote.auth
 import com.tonyxlab.notemark.BuildConfig
 import com.tonyxlab.notemark.data.local.datastore.TokenStorage
 import com.tonyxlab.notemark.data.network.HttpClientFactory
-import com.tonyxlab.notemark.data.remote.auth.dto.AccessTokenRequest
 import com.tonyxlab.notemark.data.remote.auth.dto.AccessTokenResponse
-import com.tonyxlab.notemark.data.remote.auth.dto.RegistrationRequest
 import com.tonyxlab.notemark.data.remote.auth.mappers.toAccessTokenRequest
 import com.tonyxlab.notemark.data.remote.auth.mappers.toRegistrationRequest
 import com.tonyxlab.notemark.domain.auth.AuthRepository
 import com.tonyxlab.notemark.domain.model.Credentials
 import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.util.ApiEndpoints
+import com.tonyxlab.notemark.util.Constants.EMAIL_HEADER_KEY
 import io.ktor.client.call.body
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -62,23 +61,20 @@ class AuthRepositoryImpl(private val httpClientFactory: HttpClientFactory) : Aut
         withContext(Dispatchers.IO) {
             try {
 
-                val email = credentials.email.trim()
-                val password = credentials.password.trim()
+
+
                 val client = httpClientFactory.provideMainHttpClient()
 
                 val result = client.post {
                     url(ApiEndpoints.LOGIN_ENDPOINT)
                     contentType(ContentType.Application.Json)
                     header(HttpHeaders.Accept, ContentType.Application.Json)
-                    header("X-User-Email", email)
+                    header(EMAIL_HEADER_KEY, BuildConfig.USER_EMAIL)
                     setBody(credentials.toAccessTokenRequest())
                 }
 
                 when (result.status.value) {
-
                     200 -> {
-
-
                         val accessTokenResponse = result.body<AccessTokenResponse>()
 
                         TokenStorage.saveTokens(

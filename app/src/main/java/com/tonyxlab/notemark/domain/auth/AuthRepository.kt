@@ -1,14 +1,13 @@
 package com.tonyxlab.notemark.domain.auth
 
-import com.tonyxlab.notemark.domain.model.LoginRequest
-import com.tonyxlab.notemark.domain.model.RegisterRequest
+import com.tonyxlab.notemark.domain.model.Credentials
 import com.tonyxlab.notemark.domain.model.Resource
 
 interface AuthRepository {
 
 
-    suspend fun register(registerRequest: RegisterRequest): Resource<Int>
-    suspend fun login(loginRequest: LoginRequest): Resource<Int>
+    suspend fun register(credentials: Credentials): Resource<Int>
+    suspend fun login(credentials: Credentials): Resource<Int>
     suspend fun isSignedIn(): Boolean
     suspend fun getUserName(): String?
 
