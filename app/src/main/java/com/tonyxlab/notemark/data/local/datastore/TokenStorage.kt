@@ -1,4 +1,4 @@
-package com.tonyxlab.notemark.data.datastore
+package com.tonyxlab.notemark.data.local.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore

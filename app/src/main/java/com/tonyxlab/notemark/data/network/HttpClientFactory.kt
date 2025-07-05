@@ -1,7 +1,9 @@
-package com.tonyxlab.notemark.data.auth
+package com.tonyxlab.notemark.data.network
 
-import com.tonyxlab.notemark.data.datastore.TokenStorage
-import com.tonyxlab.notemark.data.dto.LoginResponse
+import com.tonyxlab.notemark.BuildConfig
+import com.tonyxlab.notemark.data.local.datastore.TokenStorage
+import com.tonyxlab.notemark.data.remote.auth.AccessTokenRequest
+import com.tonyxlab.notemark.data.remote.auth.AccessTokenResponse
 import com.tonyxlab.notemark.util.ApiEndpoints
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -10,30 +12,46 @@ import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.header
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import timber.log.Timber
 
-fun provideHttpClient(): HttpClient {
+
+fun provideDefaultHttpClient(): HttpClient {
+
+    return HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+    }
+}
+
+fun provideMainHttpClient(): HttpClient {
 
     return HttpClient(CIO) {
 
-        expectSuccess = false
+
         install(ContentNegotiation) {
             json(Json {
                 ignoreUnknownKeys = true
             })
         }
         install(Logging) {
-            logger = object : Logger{
+            logger = object : Logger {
                 override fun log(message: String) {
-                    Timber.tag("ApiRequest").d(message)
+                    Timber.tag("ApiRequest")
+                            .d(message)
                 }
 
             }
@@ -65,7 +83,7 @@ fun provideHttpClient(): HttpClient {
 
 
                         if (refreshResponse.status == HttpStatusCode.OK) {
-                            val newTokens = refreshResponse.body<LoginResponse>()
+                            val newTokens = refreshResponse.body<AccessTokenResponse>()
                             TokenStorage.saveTokens(
                                     accessToken = newTokens.accessToken,
                                     refreshToken = newTokens.refreshToken,
@@ -85,3 +103,5 @@ fun provideHttpClient(): HttpClient {
         }
     }
 }
+
+

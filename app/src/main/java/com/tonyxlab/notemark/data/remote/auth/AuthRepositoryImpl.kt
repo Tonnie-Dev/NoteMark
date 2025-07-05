@@ -1,8 +1,8 @@
-package com.tonyxlab.notemark.data.auth
+package com.tonyxlab.notemark.data.remote.auth
 
 
-import com.tonyxlab.notemark.data.datastore.TokenStorage
-import com.tonyxlab.notemark.data.dto.LoginResponse
+import com.tonyxlab.notemark.data.local.datastore.TokenStorage
+import com.tonyxlab.notemark.data.network.HttpClientFactoryThree
 import com.tonyxlab.notemark.domain.auth.AuthRepository
 import com.tonyxlab.notemark.domain.model.LoginRequest
 import com.tonyxlab.notemark.domain.model.RegisterRequest
@@ -10,7 +10,6 @@ import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.util.ApiEndpoints
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -24,7 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
+class AuthRepositoryImpl(private val client: HttpClientFactoryThree) : AuthRepository {
 
     override suspend fun register(registerRequest: RegisterRequest): Resource<Int> =
 
@@ -33,6 +32,7 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
             try {
                 val email = registerRequest.email.trim()
 
+                val client = client.provideMainHttpClient()
                 val result = client.post(ApiEndpoints.REGISTRATION_ENDPOINT) {
                     contentType(ContentType.Application.Json)
                     header("X-User-Email", email)
@@ -61,26 +61,26 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
 
                 val email = loginRequest.email.trim()
                 val password = loginRequest.password.trim()
-
+                val client = client.provideMainHttpClient()
                 val result = client.post {
                     url(ApiEndpoints.LOGIN_ENDPOINT)
                     contentType(ContentType.Application.Json)
                     header(HttpHeaders.Accept, ContentType.Application.Json)
                     header("X-User-Email", email)
                     setBody(LoginRequest(email = email, password = password))
-                }.body<LoginResponse>()
+                }
 
-                when(result.username){
+                when(result.status.value){
 
                     200 -> {
 
                         Timber.tag("AuthRepo").i("Success")
-                        val loginResponse = result.body<LoginResponse>()
+                        val accessTokenResponse = result.body<AccessTokenResponse>()
 
                         TokenStorage.saveTokens(
-                                accessToken = loginResponse.accessToken,
-                                refreshToken = loginResponse.refreshToken,
-                                username = loginResponse.username
+                                accessToken = accessTokenResponse.accessToken,
+                                refreshToken = accessTokenResponse.refreshToken,
+                                username = accessTokenResponse.username
                         )
 
                         Resource.Success(0)
@@ -88,7 +88,7 @@ class AuthRepositoryImpl(private val client: HttpClient) : AuthRepository {
 
                     in 400 ..499 -> {
 
-                        val errorBody = result.bodyAsText()
+                        //val errorBody = result.bodyAsText()
 
                         Timber.tag("AuthRepo").i("400 .. 499")
                         Resource.Error(Exception("Login failed: "))
