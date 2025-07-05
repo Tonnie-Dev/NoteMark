@@ -1,5 +1,6 @@
 package com.tonyxlab.notemark.presentation.core.components
 
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
@@ -13,7 +14,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import timber.log.Timber
-import java.lang.ProcessBuilder.Redirect.to
 
 @Composable
 fun AppSnackbarHost(
@@ -27,7 +27,9 @@ fun AppSnackbarHost(
 
     SnackbarHost(
             hostState = snackbarHostState,
-            modifier = modifier.padding(MaterialTheme.spacing.spaceSmall)
+            modifier = modifier
+                    .padding(MaterialTheme.spacing.spaceSmall)
+                    .navigationBarsPadding()
     ) { snackbarData ->
         Snackbar(
                 snackbarData = snackbarData,
