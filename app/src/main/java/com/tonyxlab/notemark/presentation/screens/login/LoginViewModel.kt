@@ -31,7 +31,7 @@ typealias LoginBaseViewModel = BaseViewModel<LoginUiState, LoginUiEvent, LoginAc
 class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseViewModel() {
 
     init {
-        Timber.tag("AuthRepo").i("Init Called")
+
         observeFieldsInput()
 
     }
@@ -57,7 +57,6 @@ class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseView
     private fun onRegister() {
         sendActionEvent(LoginActionEvent.NavigateToSignupScreen)
     }
-
 
     private fun observeFieldsInput() {
 
