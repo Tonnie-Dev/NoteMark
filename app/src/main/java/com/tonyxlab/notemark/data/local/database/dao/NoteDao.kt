@@ -11,6 +11,6 @@ interface NoteDao: BaseDao<NoteEntity> {
     suspend fun getNoteById(id: Long): NoteEntity?
 
     @Query("SELECT * FROM notes_table ORDER BY created_on DESC")
-    fun getAllNotes(): Flow<List<NoteEntity>>
+    fun getAllNotes(): Flow<List<NoteEntity>?>
 
 }
