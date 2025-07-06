@@ -1,9 +1,10 @@
 package com.tonyxlab.notemark.data.local.database.dao
 
+import androidx.room.Dao
 import androidx.room.Query
 import com.tonyxlab.notemark.data.local.database.entity.NoteEntity
 import kotlinx.coroutines.flow.Flow
-
+@Dao
 interface NoteDao: BaseDao<NoteEntity> {
 
     @Query("SELECT * FROM notes_table WHERE id =:id")

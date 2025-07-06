@@ -1,5 +1,8 @@
 package com.tonyxlab.notemark.di
 
+import androidx.room.Room
+import com.tonyxlab.notemark.data.local.database.NoteMarkDatabase
+import com.tonyxlab.notemark.data.local.database.dao.NoteDao
 import com.tonyxlab.notemark.data.local.datastore.TokenStorage
 import com.tonyxlab.notemark.data.network.HttpClientFactory
 import com.tonyxlab.notemark.data.remote.auth.AuthRepositoryImpl
@@ -8,6 +11,7 @@ import com.tonyxlab.notemark.presentation.screens.home.HomeViewModel
 import com.tonyxlab.notemark.presentation.screens.landing.LandingViewModel
 import com.tonyxlab.notemark.presentation.screens.login.LoginViewModel
 import com.tonyxlab.notemark.presentation.screens.signup.SignupViewModel
+import com.tonyxlab.notemark.util.Constants
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -32,4 +36,17 @@ val networkModule = module {
 val repositoryModule = module {
 
     single<AuthRepository> { AuthRepositoryImpl(get()) }
+}
+
+val databaseModule = module {
+
+    single <NoteMarkDatabase>{
+        Room.databaseBuilder(
+                context = androidContext(),
+                klass = NoteMarkDatabase::class.java,
+                name = Constants.DATABASE_NAME
+        ).build()
+    }
+
+    single<NoteDao> { get<NoteMarkDatabase>().dao }
 }
