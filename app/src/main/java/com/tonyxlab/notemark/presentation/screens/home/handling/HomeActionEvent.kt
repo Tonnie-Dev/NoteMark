@@ -4,5 +4,6 @@ import com.tonyxlab.notemark.presentation.core.base.handling.ActionEvent
 
 sealed interface HomeActionEvent : ActionEvent {
 
-    object NavigateToLoginScreen: HomeActionEvent
+    object NavigateToEditorScreen: HomeActionEvent
+    object  NavigateToLoginScreen: HomeActionEvent
 }
