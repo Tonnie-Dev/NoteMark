@@ -23,7 +23,6 @@ class NavOperations(val navHostController: NavHostController) {
         navHostController.navigate(Destinations.LoginScreenDestination)
     }
 
-
     fun navigateToSignupScreenDestination() {
 
         navHostController.navigate(Destinations.SignupScreenDestination)
@@ -32,7 +31,15 @@ class NavOperations(val navHostController: NavHostController) {
     fun navigateToHomeScreenDestination() {
 
         navHostController.navigate(Destinations.HomeScreenDestination)
+
     }
+
+    fun navigateToEditorScreenDestination() {
+
+        navHostController.navigate(Destinations.EditorScreenDestination)
+
+    }
+
     fun popBackStack() {
 
         navHostController.popBackStack()

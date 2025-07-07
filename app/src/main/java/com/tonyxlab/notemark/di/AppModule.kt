@@ -1,12 +1,16 @@
 package com.tonyxlab.notemark.di
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.Room
 import com.tonyxlab.notemark.data.local.database.NoteMarkDatabase
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
 import com.tonyxlab.notemark.data.local.datastore.TokenStorage
 import com.tonyxlab.notemark.data.network.HttpClientFactory
 import com.tonyxlab.notemark.data.remote.auth.AuthRepositoryImpl
+import com.tonyxlab.notemark.data.repository.NoteRepositoryImpl
 import com.tonyxlab.notemark.domain.auth.AuthRepository
+import com.tonyxlab.notemark.domain.repository.NoteRepository
 import com.tonyxlab.notemark.presentation.screens.home.HomeViewModel
 import com.tonyxlab.notemark.presentation.screens.landing.LandingViewModel
 import com.tonyxlab.notemark.presentation.screens.login.LoginViewModel
@@ -33,9 +37,11 @@ val networkModule = module {
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 val repositoryModule = module {
 
     single<AuthRepository> { AuthRepositoryImpl(get()) }
+    single<NoteRepository> { NoteRepositoryImpl(get()) }
 }
 
 val databaseModule = module {
