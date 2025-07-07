@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.domain.model.NoteItem
 import com.tonyxlab.notemark.presentation.core.utils.spacing
+import com.tonyxlab.notemark.presentation.screens.home.handling.HomeActionEvent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.util.DeviceType
 import com.tonyxlab.notemark.util.generateLoremIpsum
@@ -31,6 +32,7 @@ import java.time.LocalDateTime
 @Composable
 fun NotePreview(
     noteItem: NoteItem,
+     onClickNoteItem:(HomeActionEvent)-> Unit,
     modifier: Modifier = Modifier,
     deviceType: DeviceType = DeviceType.MOBILE_PORTRAIT
 ) {
@@ -83,12 +85,10 @@ private fun NotePreview_Preview() {
     val pastYearDate = LocalDateTime.now()
             .minusYears(1)
 
-    val note1 = NoteItem(
-            content = generateLoremIpsum(10),
-            createdOn = LocalDateTime.now()
-    )
 
-    val note2 = NoteItem(content = generateLoremIpsum(20), createdOn = pastYearDate)
+
+
+    val note = NoteItem(content = generateLoremIpsum(20), createdOn = pastYearDate)
 
     NoteMarkTheme {
 
@@ -103,16 +103,39 @@ private fun NotePreview_Preview() {
 
                 NotePreview(
                         modifier = Modifier.weight(1f),
-                        noteItem = note1
+                        noteItem = getNote(2),
+                        onClickNoteItem = {}
                 )
 
                 NotePreview(
                         modifier = Modifier.weight(1f),
-                        noteItem = note2
+                        noteItem = note,
+                        onClickNoteItem = {}
                 )
 
             }
 
+        }
+    }
+}
+
+
+fun getNote(id: Long): NoteItem{
+   return NoteItem(
+           id = id,
+           content = generateLoremIpsum(10),
+           createdOn = LocalDateTime.now()
+   )
+
+}
+
+fun getNotes(count:Int): List<NoteItem>{
+
+    return buildList {
+
+        repeat(count){ i ->
+
+            add(getNote(i.toLong()))
         }
     }
 }
