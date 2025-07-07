@@ -24,7 +24,7 @@ class HomeViewModel(
     override fun onEvent(event: HomeUiEvent) {
 
         when (event) {
-            HomeUiEvent.ClickNote -> editNote()
+            is HomeUiEvent.ClickNote -> editNote()
             HomeUiEvent.CreateNewNote -> createNote()
         }
     }
@@ -44,8 +44,8 @@ class HomeViewModel(
 
     }
 
-    private fun editNote() {
-        sendActionEvent(HomeActionEvent.NavigateToEditorScreen)
+    private fun editNote(noteId: Long) {
+        sendActionEvent(HomeActionEvent.NavigateToEditorScreen(noteId))
     }
 
 

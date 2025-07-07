@@ -9,11 +9,9 @@ import androidx.compose.ui.Modifier
 @Composable
 fun EditorScreen(modifier: Modifier = Modifier) {
 
-
     Box(modifier = modifier, contentAlignment = Alignment.Center){
 
-
         Text(text = "Editor Screen")
-
     }
 }
+

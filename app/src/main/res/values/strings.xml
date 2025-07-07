@@ -17,6 +17,7 @@
     <!--Text Button Texts-->
     <string name="txt_btn_no_account">Don’t have an account?</string>
     <string name="txt_btn_already_have_account">Already have an account?</string>
+    <string name="txt_btn_save_note">SAVE NOTE</string>
 
     <!--Label Texts-->
     <string name="lab_text_email_label">Email</string>
@@ -53,4 +54,5 @@
 
     <!--Content Description Texts-->
     <string name="cds_text_add">Add</string>
+    <string name="cds_text_cancel">Cancel</string>
 </resources>
