@@ -1,11 +1,17 @@
+@file:RequiresApi(Build.VERSION_CODES.O)
 package com.tonyxlab.notemark.presentation.screens.home
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.tonyxlab.notemark.domain.auth.AuthRepository
+import com.tonyxlab.notemark.domain.model.NoteItem
+import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.domain.repository.NoteRepository
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeActionEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiState
+import java.time.LocalDateTime
 
 typealias HomeViewModelBaseClass = BaseViewModel<HomeUiState, HomeUiEvent, HomeActionEvent>
 
@@ -21,10 +27,11 @@ class HomeViewModel(
 
     }
 
+
     override fun onEvent(event: HomeUiEvent) {
 
         when (event) {
-            is HomeUiEvent.ClickNote -> editNote()
+            is HomeUiEvent.ClickNote -> editNote(event.noteId)
             HomeUiEvent.CreateNewNote -> createNote()
         }
     }
@@ -49,8 +56,24 @@ class HomeViewModel(
     }
 
 
+
     private fun createNote() {
 
-        sendActionEvent(HomeActionEvent.NavigateToEditorScreen)
+        launch {
+            val newNote = NoteItem(
+                    title = "New Note",
+                    content = "",
+                    createdOn = LocalDateTime.now()
+            )
+
+            val result = noteRepository.upsertNote(newNote)
+
+            if (result is Resource.Success) {
+                val noteId = result.data
+                sendActionEvent(HomeActionEvent.NavigateToEditorScreen(noteId))
+            } else {
+                // Optional: show error snackbar or log
+            }
+        }
     }
 }

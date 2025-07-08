@@ -217,7 +217,6 @@ private fun AppTextFieldPreview() {
 
             )
 
-
             AppTextField(
                     label = "Username",
                     placeholderString = "John.doe",

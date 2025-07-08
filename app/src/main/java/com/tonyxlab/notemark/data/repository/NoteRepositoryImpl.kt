@@ -23,13 +23,13 @@ class NoteRepositoryImpl(private val dao: NoteDao) : NoteRepository {
                 .map { notes -> notes?.map { it.toModel() } ?: emptyList() }
     }
 
-    override suspend fun upsertNote(noteItem: NoteItem): Resource<Boolean> =
+    override suspend fun upsertNote(noteItem: NoteItem): Resource<Long> =
 
         withContext(Dispatchers.IO) {
 
             try {
-                dao.upsert(noteItem.toEntity())
-                Resource.Success(true)
+                val id = dao.insertAndReturnId(noteItem.toEntity())
+                Resource.Success(id)
             } catch (e: Exception) {
 
                 Resource.Error(e)
