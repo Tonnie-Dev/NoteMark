@@ -7,7 +7,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 
 
-sealed class AppTextFieldStyle() {
+sealed class FormTextFieldStyle() {
 
     @Composable
     abstract fun textColor(): Color
@@ -31,7 +31,7 @@ sealed class AppTextFieldStyle() {
     @Composable
     abstract fun borderWidth(): Dp
 
-    data object PlaceHolderStyle : AppTextFieldStyle() {
+    data object FormPlaceHolderStyle : FormTextFieldStyle() {
 
         @Composable
         override fun textColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -55,7 +55,7 @@ sealed class AppTextFieldStyle() {
         override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge.copy(color = this.textColor() )
     }
 
-    data object FocusedTextStyle : AppTextFieldStyle() {
+    data object FormFocusedTextStyle : FormTextFieldStyle() {
         @Composable
         override fun textColor(): Color = MaterialTheme.colorScheme.onSurface
 
@@ -80,7 +80,7 @@ sealed class AppTextFieldStyle() {
     }
 
 
-    data object ErrorTextStyle : AppTextFieldStyle() {
+    data object FormErrorTextStyle : FormTextFieldStyle() {
 
         @Composable
         override fun textColor(): Color = MaterialTheme.colorScheme.error
@@ -102,5 +102,70 @@ sealed class AppTextFieldStyle() {
 
         @Composable
         override fun textStyle(): TextStyle = MaterialTheme.typography.bodySmall.copy(color = this.textColor() )
+    }
+
+
+
+
+}
+
+
+sealed class EditorTextFieldStyle {
+
+    @Composable
+    abstract fun textColor(): Color
+
+    @Composable
+    abstract fun backgroundColor():Color
+
+    @Composable
+    abstract fun cursorColor(): Color
+
+    @Composable
+    abstract fun textStyle(): TextStyle
+
+    data object EditorTitleStyle: EditorTextFieldStyle(){
+
+        @Composable
+        override fun textColor(): Color = MaterialTheme.colorScheme.onSurface
+
+        @Composable
+        override fun backgroundColor(): Color = backgroundColor()
+
+        @Composable
+        override fun cursorColor(): Color = MaterialTheme.colorScheme.primary
+
+        @Composable
+        override fun textStyle(): TextStyle  = MaterialTheme.typography.titleLarge
+    }
+    data object EditorPlaceHolderNoteStyle: EditorTextFieldStyle(){
+
+        @Composable
+        override fun textColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
+
+        @Composable
+        override fun backgroundColor(): Color = MaterialTheme.colorScheme.surface
+
+        @Composable
+        override fun cursorColor(): Color = Color.Transparent
+
+        @Composable
+        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge.copy(color = this.textColor() )
+
+    }
+    data object EditorFocusedNoteStyle: EditorTextFieldStyle(){
+
+        @Composable
+        override fun textColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
+
+        @Composable
+        override fun backgroundColor(): Color = Color.White
+
+
+        @Composable
+        override fun cursorColor(): Color = MaterialTheme.colorScheme.primary
+
+        @Composable
+        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge.copy(color = this.textColor())
     }
 }
