@@ -35,7 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.tonyxlab.notemark.presentation.core.utils.AppTextFieldStyle
+import com.tonyxlab.notemark.presentation.core.utils.FormTextFieldStyle
 import com.tonyxlab.notemark.presentation.core.utils.SupportText
 import com.tonyxlab.notemark.presentation.core.utils.getDefaultText
 import com.tonyxlab.notemark.presentation.core.utils.getErrorText
@@ -54,7 +54,7 @@ fun AppTextField(
     textFieldState: TextFieldState,
     onIconClick: () -> Unit = {},
     isSecureText: Boolean = false,
-    textFieldStyle: AppTextFieldStyle = AppTextFieldStyle.PlaceHolderStyle,
+    textFieldStyle: FormTextFieldStyle = FormTextFieldStyle.FormPlaceHolderStyle,
     labelTextStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
 ) {
 
@@ -67,8 +67,8 @@ fun AppTextField(
 
     val currentStyle = remember(isError, isFocussed, textFieldStyle) {
         when {
-            isError && isFocussed.not() -> AppTextFieldStyle.ErrorTextStyle
-            isFocussed -> AppTextFieldStyle.FocusedTextStyle
+            isError && isFocussed.not() -> FormTextFieldStyle.FormErrorTextStyle
+            isFocussed -> FormTextFieldStyle.FormFocusedTextStyle
             else -> textFieldStyle
         }
     }
@@ -127,7 +127,7 @@ private fun TextFieldDecorator(
     innerTextField: @Composable () -> Unit,
     placeholderString: String,
     isTextEmpty: Boolean,
-    style: AppTextFieldStyle,
+    style: FormTextFieldStyle,
     onIconClick: () -> Unit,
     isFocussed: Boolean,
     icon: ImageVector? = null
@@ -154,7 +154,7 @@ private fun TextFieldDecorator(
             if (isTextEmpty && !isFocussed) {
                 Text(
                         text = placeholderString,
-                        style = AppTextFieldStyle.PlaceHolderStyle.textStyle()
+                        style = FormTextFieldStyle.FormPlaceHolderStyle.textStyle()
                 )
             } else {
                 innerTextField()
@@ -206,7 +206,7 @@ private fun AppTextFieldPreview() {
                     placeholderString = "John.doe",
                     supportText = SupportText.UsernameSupportText,
                     textFieldState = textFieldState2,
-                    textFieldStyle = AppTextFieldStyle.FocusedTextStyle
+                    textFieldStyle = FormTextFieldStyle.FormFocusedTextStyle
             )
             AppTextField(
                     label = "Username",

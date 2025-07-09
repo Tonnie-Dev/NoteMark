@@ -7,19 +7,66 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.tonyxlab.notemark.presentation.core.utils.EditorTextFieldStyle
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 
-
 @Composable
-fun EditorText(modifier: Modifier = Modifier) {
+fun EditorText(
+    textFieldState: TextFieldState,
+    placeHolderText: String,
+    modifier: Modifier = Modifier,
+    isEditing: Boolean = false,
+   style: EditorTextFieldStyle = EditorTextFieldStyle.EditorPlaceHolderNoteStyle,
+    isTitle: Boolean = true
+) {
+
+    var isFocused by remember { mutableStateOf(false) }
+    val isTextEmpty = textFieldState.text.isEmpty()
+
+
+   val currentStyle = remember (key1 = isFocused){
+
+       when{
+
+           isFocused && isTitle -> EditorTextFieldStyle.EditorTitleStyle
+           isFocused && isTitle.not()-> EditorTextFieldStyle.EditorFocusedNoteStyle
+           else -> style
+       }
+   }
+    if (isEditing) {
+
+        BasicTextField(state = textFieldState,
+               textStyle = currentStyle.textStyle(),
+                decorator = { innerTextField ->
+
+            EditorTextDecorator(
+                    modifier = modifier.onFocusChanged { isFocused = it.isFocused },
+                    innerDefaultText = innerTextField,
+                    placeHolderText = placeHolderText,
+                    isTextEmpty = isTextEmpty,
+                    isFocused = isFocused,
+                    editorTextFieldStyle = currentStyle
+            )
+        })
+    }else {
+        Text("Edit")
+
+    }
 
 }
 
@@ -30,18 +77,15 @@ private fun EditorTextDecorator(
     isTextEmpty: Boolean,
     isFocused: Boolean,
     modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.typography.bodyLarge,
+    editorTextFieldStyle: EditorTextFieldStyle = EditorTextFieldStyle.EditorPlaceHolderNoteStyle,
+
 ) {
 
 
-    val backgroundColor = if (isFocused)
-        MaterialTheme.colorScheme.surface
-    else
-        MaterialTheme.colorScheme.surfaceVariant
 
     Row(
             modifier = modifier
-                    .background(backgroundColor)
+                    .background(editorTextFieldStyle.backgroundColor())
                     .fillMaxWidth()
                     .padding(MaterialTheme.spacing.spaceMedium)
     ) {
@@ -73,20 +117,34 @@ private fun EditorText_Preview() {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium)
         ) {
-
-
-            EditorTextDecorator(
-                    innerDefaultText = {},
-                    placeHolderText = "Placeholder",
-                    isTextEmpty = true,
-                    isFocused = true
+            val textFieldState1 = remember { TextFieldState() }
+            val textFieldState2 = remember { TextFieldState(initialText = "Tonnie XIII") }
+            EditorText(
+                    textFieldState = textFieldState1,
+                    placeHolderText = "Tonnie XIII",
+                    isEditing = true,
+                    isTitle = true
             )
-            EditorTextDecorator(
-                    innerDefaultText = {},
-                    placeHolderText = "Placeholder",
-                    isTextEmpty = false,
-                    isFocused = false
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            EditorText(
+                    textFieldState = textFieldState2,
+                    placeHolderText = "Tonnie XIII",
+                    isEditing = true
             )
+            /* EditorTextDecorator(
+                     innerDefaultText = {},
+                     placeHolderText = "Placeholder",
+                     isTextEmpty = true,
+                     isFocused = true
+             )
+             EditorTextDecorator(
+                     innerDefaultText = {},
+                     placeHolderText = "Placeholder",
+                     isTextEmpty = true,
+                     isFocused = false
+             )*/
         }
     }
 }

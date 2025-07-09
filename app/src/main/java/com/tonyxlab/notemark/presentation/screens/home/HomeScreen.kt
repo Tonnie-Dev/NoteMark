@@ -49,7 +49,10 @@ fun HomeScreen(
                 AppTopBar(profileInitials = formatUserInitials(homeState.username))
             },
             floatingActionButton = {
-                AppFloatingActionButton(modifier = Modifier.navigationBarsPadding()) { }
+                AppFloatingActionButton(modifier = Modifier.navigationBarsPadding()) {
+
+                    
+                }
 
             }) {
 
