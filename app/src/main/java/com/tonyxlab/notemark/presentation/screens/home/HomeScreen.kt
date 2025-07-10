@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
 import com.tonyxlab.notemark.presentation.core.components.AppFloatingActionButton
 import com.tonyxlab.notemark.presentation.core.components.AppTopBar
@@ -37,7 +38,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = koinViewModel()
+    viewModel: HomeViewModel = koinViewModel(),
+    navOperations: NavOperations
 ) {
     SetStatusBarIconsColor(darkIcons = true)
     val homeState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -51,9 +53,18 @@ fun HomeScreen(
             floatingActionButton = {
                 AppFloatingActionButton(modifier = Modifier.navigationBarsPadding()) {
 
-                    
+                    navOperations.navigateToEditorScreenDestination()
+
                 }
 
+            },
+
+            actionEventHandler = { _, action ->
+
+                when(action){
+                    is HomeActionEvent.NavigateToEditorScreen -> navOperations.navigateToEditorScreenDestination()
+                    HomeActionEvent.NavigateToLoginScreen -> navOperations.navigateToLoginScreenDestination()
+                }
             }) {
 
         state ->

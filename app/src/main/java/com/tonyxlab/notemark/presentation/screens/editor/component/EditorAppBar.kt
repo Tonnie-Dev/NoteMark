@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
@@ -24,15 +26,19 @@ import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
+import com.tonyxlab.notemark.presentation.theme.textButtonStyle
 
 @Composable
-fun EditorAppBar(modifier: Modifier = Modifier, onEvent: (EditorUiEvent) -> Unit) {
+fun EditorAppBar(
+    modifier: Modifier = Modifier,
+    onEvent: (EditorUiEvent) -> Unit
+) {
 
     Row(
             modifier = modifier
                     .fillMaxWidth()
-                    .padding(horizontal = MaterialTheme.spacing.spaceMedium)
-                    .padding(vertical = MaterialTheme.spacing.spaceSmall),
+                    .padding(vertical = MaterialTheme.spacing.spaceSmall)
+                    .statusBarsPadding(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
     ) {
@@ -52,7 +58,7 @@ fun EditorAppBar(modifier: Modifier = Modifier, onEvent: (EditorUiEvent) -> Unit
             Text(
                     text = stringResource(id = R.string.txt_btn_save_note),
                     color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleSmall
+                    style = MaterialTheme.typography.textButtonStyle
             )
         }
 

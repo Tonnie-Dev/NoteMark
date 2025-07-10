@@ -31,39 +31,48 @@ fun EditorText(
     placeHolderText: String,
     modifier: Modifier = Modifier,
     isEditing: Boolean = false,
-   style: EditorTextFieldStyle = EditorTextFieldStyle.EditorPlaceHolderNoteStyle,
+    style: EditorTextFieldStyle = EditorTextFieldStyle.EditorPlaceHolderNoteStyle,
     isTitle: Boolean = true
 ) {
 
+    var canEdit by remember { mutableStateOf(false) }
     var isFocused by remember { mutableStateOf(false) }
     val isTextEmpty = textFieldState.text.isEmpty()
 
 
-   val currentStyle = remember (key1 = isFocused){
+    val currentStyle = remember(key1 = isFocused) {
 
-       when{
+        when {
 
-           isFocused && isTitle -> EditorTextFieldStyle.EditorTitleStyle
-           isFocused && isTitle.not()-> EditorTextFieldStyle.EditorFocusedNoteStyle
-           else -> style
-       }
-   }
-    if (isEditing) {
+            isFocused && isTitle -> EditorTextFieldStyle.EditorTitleStyle
+            isFocused && isTitle.not() -> EditorTextFieldStyle.EditorFocusedNoteStyle
+            else -> style
+        }
+    }
+    if (canEdit) {
 
-        BasicTextField(state = textFieldState,
-               textStyle = currentStyle.textStyle(),
+        BasicTextField(
+                state = textFieldState,
+                textStyle = currentStyle.textStyle(),
                 decorator = { innerTextField ->
 
-            EditorTextDecorator(
-                    modifier = modifier.onFocusChanged { isFocused = it.isFocused },
-                    innerDefaultText = innerTextField,
-                    placeHolderText = placeHolderText,
-                    isTextEmpty = isTextEmpty,
-                    isFocused = isFocused,
-                    editorTextFieldStyle = currentStyle
-            )
-        })
-    }else {
+                    EditorTextDecorator(
+                            modifier = modifier.onFocusChanged {
+                                isFocused = it.isFocused
+                                if (it.isFocused) {
+
+                                    canEdit = true
+                                }
+
+                            },
+                            innerDefaultText = innerTextField,
+                            placeHolderText = placeHolderText,
+                            isTextEmpty = isTextEmpty,
+                            isFocused = isFocused,
+                            editorTextFieldStyle = currentStyle
+                    )
+                })
+    } else {
         Text("Edit")
 
     }
@@ -79,8 +88,7 @@ private fun EditorTextDecorator(
     modifier: Modifier = Modifier,
     editorTextFieldStyle: EditorTextFieldStyle = EditorTextFieldStyle.EditorPlaceHolderNoteStyle,
 
-) {
-
+    ) {
 
 
     Row(

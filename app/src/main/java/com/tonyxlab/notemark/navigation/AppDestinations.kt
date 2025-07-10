@@ -1,5 +1,9 @@
+@file:RequiresApi(Build.VERSION_CODES.O)
+
 package com.tonyxlab.notemark.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -10,6 +14,7 @@ import com.tonyxlab.notemark.presentation.screens.landing.LandingScreen
 import com.tonyxlab.notemark.presentation.screens.login.LoginScreen
 import com.tonyxlab.notemark.presentation.screens.signup.SignupScreen
 import kotlinx.serialization.Serializable
+
 
 fun NavGraphBuilder.appDestinations(
     navOperations: NavOperations,
@@ -40,14 +45,17 @@ fun NavGraphBuilder.appDestinations(
         )
     }
 
-    composable< Destinations.HomeScreenDestination> {
+    composable<Destinations.HomeScreenDestination> {
 
-        HomeScreen()
+        HomeScreen(
+                modifier = modifier,
+                navOperations = navOperations
+        )
     }
 
-    composable< Destinations.EditorScreenDestination> {
+    composable<Destinations.EditorScreenDestination> {
 
-        EditorScreen()
+        EditorScreen(modifier = modifier)
     }
 }
 

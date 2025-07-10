@@ -1,26 +1,25 @@
+@file:RequiresApi(Build.VERSION_CODES.O)
+
 package com.tonyxlab.notemark.presentation
 
-import android.content.ContentValues.TAG
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.tonyxlab.notemark.BuildConfig
 import com.tonyxlab.notemark.navigation.AppNavHost
 import com.tonyxlab.notemark.navigation.rememberNavOperations
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.presentation.theme.SurfaceLowest
-
 
 
 class MainActivity : ComponentActivity() {
@@ -41,7 +40,7 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             NoteMarkTheme {
-                val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+
                 val padding = MaterialTheme.spacing.spaceDefault
 
                 AppNavHost(
