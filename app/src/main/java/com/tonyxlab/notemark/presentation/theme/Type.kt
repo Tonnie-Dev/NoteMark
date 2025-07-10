@@ -58,11 +58,23 @@ object ExtendedTypography {
             fontSize = 36.sp,
             lineHeight = 40.sp
     )
+
+
+    val TextButtonStyle = TextStyle(
+            fontFamily = SpaceGroteskFontFamily,
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            lineHeight = 24.sp
+    )
 }
 
 
 val Typography.titleXLarge: TextStyle
 @Composable
 get() = ExtendedTypography.TitleXLarge
+
+val Typography.textButtonStyle: TextStyle
+@Composable
+get() = ExtendedTypography.TextButtonStyle
 
 
