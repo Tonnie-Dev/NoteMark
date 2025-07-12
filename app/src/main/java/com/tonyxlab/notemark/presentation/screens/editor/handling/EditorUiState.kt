@@ -1,5 +1,25 @@
 package com.tonyxlab.notemark.presentation.screens.editor.handling
 
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.runtime.Stable
 import com.tonyxlab.notemark.presentation.core.base.handling.UiState
 
-data class EditorUiState(val title: String = "", val content: String = "") : UiState
+
+@Stable
+data class EditorUiState(
+    val titleNoteState: TitleNoteState = TitleNoteState(),
+    val contentNoteState: ContentNoteState = ContentNoteState()
+) : UiState {
+
+    @Stable
+    data class TitleNoteState(
+        val isEditingTitle: Boolean = false,
+        val titleTextFieldState: TextFieldState = TextFieldState()
+    )
+
+    @Stable
+    data class ContentNoteState(
+        val isEditingContent: Boolean = false,
+        val contentTextFieldState: TextFieldState = TextFieldState()
+    )
+}
