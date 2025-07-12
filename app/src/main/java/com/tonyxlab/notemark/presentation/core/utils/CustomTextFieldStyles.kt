@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import com.tonyxlab.notemark.presentation.theme.textButtonStyle
 
 
 sealed class FormTextFieldStyle() {
@@ -52,7 +53,8 @@ sealed class FormTextFieldStyle() {
         override fun supportingTextColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
         @Composable
-        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge.copy(color = this.textColor() )
+        override fun textStyle(): TextStyle =
+            MaterialTheme.typography.bodyLarge.copy(color = this.textColor())
     }
 
     data object FormFocusedTextStyle : FormTextFieldStyle() {
@@ -75,7 +77,8 @@ sealed class FormTextFieldStyle() {
         override fun supportingTextColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
         @Composable
-        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge.copy(color = this.textColor())
+        override fun textStyle(): TextStyle =
+            MaterialTheme.typography.bodyLarge.copy(color = this.textColor())
 
     }
 
@@ -101,10 +104,9 @@ sealed class FormTextFieldStyle() {
         override fun borderWidth(): Dp = MaterialTheme.spacing.spaceSingleDp
 
         @Composable
-        override fun textStyle(): TextStyle = MaterialTheme.typography.bodySmall.copy(color = this.textColor() )
+        override fun textStyle(): TextStyle =
+            MaterialTheme.typography.bodySmall.copy(color = this.textColor())
     }
-
-
 
 
 }
@@ -116,7 +118,7 @@ sealed class EditorTextFieldStyle {
     abstract fun textColor(): Color
 
     @Composable
-    abstract fun backgroundColor():Color
+    abstract fun backgroundColor(): Color
 
     @Composable
     abstract fun cursorColor(): Color
@@ -124,21 +126,31 @@ sealed class EditorTextFieldStyle {
     @Composable
     abstract fun textStyle(): TextStyle
 
-    data object EditorTitleStyle: EditorTextFieldStyle(){
+    @Composable
+    abstract fun textStateStyle(): TextStyle
+
+    data object EditorTitleStyle : EditorTextFieldStyle() {
 
         @Composable
         override fun textColor(): Color = MaterialTheme.colorScheme.onSurface
 
         @Composable
-        override fun backgroundColor(): Color = backgroundColor()
+        override fun backgroundColor(): Color = Color.Transparent
 
         @Composable
         override fun cursorColor(): Color = MaterialTheme.colorScheme.primary
 
         @Composable
-        override fun textStyle(): TextStyle  = MaterialTheme.typography.titleLarge
+        override fun textStyle(): TextStyle = MaterialTheme.typography.titleLarge
+
+        @Composable
+        override fun textStateStyle(): TextStyle =
+            MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+
     }
-    data object EditorPlaceHolderNoteStyle: EditorTextFieldStyle(){
+
+    data object EditorPlaceHolderNoteStyle : EditorTextFieldStyle() {
 
         @Composable
         override fun textColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -150,10 +162,15 @@ sealed class EditorTextFieldStyle {
         override fun cursorColor(): Color = Color.Transparent
 
         @Composable
-        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge.copy(color = this.textColor() )
+        override fun textStyle(): TextStyle =
+            MaterialTheme.typography.bodyLarge.copy(color = this.textColor())
 
+        @Composable
+        override fun textStateStyle(): TextStyle =
+            MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
-    data object EditorFocusedNoteStyle: EditorTextFieldStyle(){
+
+    data object EditorFocusedNoteStyle : EditorTextFieldStyle() {
 
         @Composable
         override fun textColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -166,6 +183,11 @@ sealed class EditorTextFieldStyle {
         override fun cursorColor(): Color = MaterialTheme.colorScheme.primary
 
         @Composable
-        override fun textStyle(): TextStyle = MaterialTheme.typography.bodyLarge.copy(color = this.textColor())
+        override fun textStyle(): TextStyle =
+            MaterialTheme.typography.bodyLarge.copy(color = this.textColor())
+
+        @Composable
+        override fun textStateStyle(): TextStyle =
+            MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.onSurface)
     }
 }
