@@ -1,6 +1,7 @@
 package com.tonyxlab.notemark.presentation.screens.editor.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,67 +24,94 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.presentation.core.utils.EditorTextFieldStyle
 import com.tonyxlab.notemark.presentation.core.utils.spacing
+import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
+import timber.log.Timber
 
 @Composable
 fun EditorText(
     textFieldState: TextFieldState,
     placeHolderText: String,
+    isEditing: Boolean,
+    onEvent: (EditorUiEvent) -> Unit,
     modifier: Modifier = Modifier,
-    isEditing: Boolean = false,
     style: EditorTextFieldStyle = EditorTextFieldStyle.EditorPlaceHolderNoteStyle,
-    isTitle: Boolean = true
-) {
+    isTitle: Boolean
 
-    var canEdit by remember { mutableStateOf(false) }
+) {
     var isFocused by remember { mutableStateOf(false) }
     val isTextEmpty = textFieldState.text.isEmpty()
 
-
-    val currentStyle = remember(key1 = isFocused) {
-
+    val currentStyle = remember (isFocused){
         when {
-
             isFocused && isTitle -> EditorTextFieldStyle.EditorTitleStyle
-            isFocused && isTitle.not() -> EditorTextFieldStyle.EditorFocusedNoteStyle
+            isFocused -> EditorTextFieldStyle.EditorFocusedNoteStyle
             else -> style
         }
     }
-    if (canEdit) {
+
+    if (isEditing) {
 
         BasicTextField(
+                modifier = Modifier.onFocusChanged {
+                    isFocused = it.isFocused
+                    Timber.tag("EditorText").i("Focus State: ${it.isFocused}")
+                },
                 state = textFieldState,
                 textStyle = currentStyle.textStyle(),
                 decorator = { innerTextField ->
-
                     EditorTextDecorator(
-                            modifier = modifier.onFocusChanged {
-                                isFocused = it.isFocused
-                                if (it.isFocused) {
 
-                                    canEdit = true
-                                }
-
-                            },
                             innerDefaultText = innerTextField,
                             placeHolderText = placeHolderText,
-                            isTextEmpty = isTextEmpty,
                             isFocused = isFocused,
                             editorTextFieldStyle = currentStyle
                     )
                 })
     } else {
-        Text("Edit")
+
+        val styleX = when(currentStyle) {
+
+            EditorTextFieldStyle.EditorTitleStyle -> "Title Style"
+            EditorTextFieldStyle.EditorFocusedNoteStyle -> "Content Style"
+            EditorTextFieldStyle.EditorPlaceHolderNoteStyle -> "PlaceHolder Style"
+        }
+
+        //Timber.tag("EditorText").i("Current style is: $styleX")
+        Text(
+
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+isFocused = true
+                            if (isTitle) {
+                                onEvent(EditorUiEvent.EditNoteTitle)
+
+                            } else {
+
+                                onEvent(EditorUiEvent.EditNoteContent)
+
+
+                            }
+
+                        },
+                text = "Edit",
+                style = currentStyle.textStateStyle()
+
+
+        )
+
 
     }
 
 }
 
+
 @Composable
 private fun EditorTextDecorator(
     innerDefaultText: @Composable () -> Unit,
     placeHolderText: String,
-    isTextEmpty: Boolean,
+
     isFocused: Boolean,
     modifier: Modifier = Modifier,
     editorTextFieldStyle: EditorTextFieldStyle = EditorTextFieldStyle.EditorPlaceHolderNoteStyle,
@@ -99,11 +127,13 @@ private fun EditorTextDecorator(
     ) {
 
 
-        if (isTextEmpty && !isFocused) {
-            Text(text = placeHolderText)
-        } else {
+        if (isFocused) {
 
             innerDefaultText()
+
+        } else {
+
+            Text(text = placeHolderText)
         }
     }
 
@@ -131,7 +161,8 @@ private fun EditorText_Preview() {
                     textFieldState = textFieldState1,
                     placeHolderText = "Tonnie XIII",
                     isEditing = true,
-                    isTitle = true
+                    isTitle = true,
+                    onEvent = {}
             )
 
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
@@ -139,7 +170,9 @@ private fun EditorText_Preview() {
             EditorText(
                     textFieldState = textFieldState2,
                     placeHolderText = "Tonnie XIII",
-                    isEditing = true
+                    isEditing = true,
+                    isTitle = false,
+                    onEvent = {}
             )
             /* EditorTextDecorator(
                      innerDefaultText = {},
