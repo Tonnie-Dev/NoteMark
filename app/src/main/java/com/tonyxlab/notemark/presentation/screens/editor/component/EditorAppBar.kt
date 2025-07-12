@@ -43,7 +43,7 @@ fun EditorAppBar(
             verticalAlignment = Alignment.CenterVertically
     ) {
 
-        IconButton(onClick = { onEvent(EditorUiEvent.CancelNote) }) {
+        IconButton(onClick = { onEvent(EditorUiEvent.CancelEditor) }) {
 
             Icon(
                     modifier = Modifier.size(MaterialTheme.spacing.spaceTen * 2),
