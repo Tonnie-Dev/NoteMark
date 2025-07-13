@@ -82,7 +82,6 @@ sealed class FormTextFieldStyle() {
 
     }
 
-
     data object FormErrorTextStyle : FormTextFieldStyle() {
 
         @Composable
@@ -107,18 +106,12 @@ sealed class FormTextFieldStyle() {
         override fun textStyle(): TextStyle =
             MaterialTheme.typography.bodySmall.copy(color = this.textColor())
     }
-
-
 }
-
 
 sealed class EditorTextFieldStyle {
 
     @Composable
     abstract fun textColor(): Color
-
-    @Composable
-    abstract fun backgroundColor(): Color
 
     @Composable
     abstract fun cursorColor(): Color
@@ -135,9 +128,6 @@ sealed class EditorTextFieldStyle {
         override fun textColor(): Color = MaterialTheme.colorScheme.onSurface
 
         @Composable
-        override fun backgroundColor(): Color = Color.Transparent
-
-        @Composable
         override fun cursorColor(): Color = MaterialTheme.colorScheme.primary
 
         @Composable
@@ -146,37 +136,13 @@ sealed class EditorTextFieldStyle {
         @Composable
         override fun textStateStyle(): TextStyle =
             MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
-
-
     }
 
-    data object EditorPlaceHolderNoteStyle : EditorTextFieldStyle() {
-
-        @Composable
-        override fun textColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
-
-        @Composable
-        override fun backgroundColor(): Color = MaterialTheme.colorScheme.surface
-
-        @Composable
-        override fun cursorColor(): Color = Color.Transparent
-
-        @Composable
-        override fun textStyle(): TextStyle =
-            MaterialTheme.typography.bodyLarge.copy(color = this.textColor())
-
-        @Composable
-        override fun textStateStyle(): TextStyle =
-            MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
 
     data object EditorFocusedNoteStyle : EditorTextFieldStyle() {
 
         @Composable
         override fun textColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
-
-        @Composable
-        override fun backgroundColor(): Color = Color.White
 
         @Composable
         override fun cursorColor(): Color = MaterialTheme.colorScheme.primary
