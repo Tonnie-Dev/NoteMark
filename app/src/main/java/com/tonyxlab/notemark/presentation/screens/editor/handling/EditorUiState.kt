@@ -7,6 +7,7 @@ import com.tonyxlab.notemark.presentation.core.base.handling.UiState
 
 @Stable
 data class EditorUiState(
+    val noteId: Long = -1L,
     val titleNoteState: TitleNoteState = TitleNoteState(),
     val contentNoteState: ContentNoteState = ContentNoteState()
 ) : UiState {

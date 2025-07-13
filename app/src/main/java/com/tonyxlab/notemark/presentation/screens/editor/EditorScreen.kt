@@ -41,6 +41,9 @@ fun EditorScreen(
                     EditorActionEvent.NavigateToHome -> {navOperations.navigateToHomeScreenDestination()}
                     EditorActionEvent.ShowDialogue -> {navOperations.navigateToHomeScreenDestination()}
                 }
+            },
+            onBackPressed = {
+                viewModel.onEvent(EditorUiEvent.PressBackButton)
             }) {
 
         EditorScreenContent(

@@ -54,7 +54,6 @@ fun HomeScreen(
             },
             floatingActionButton = {
                 AppFloatingActionButton(modifier = Modifier.navigationBarsPadding()) {event ->
-
                   viewModel.onEvent(event)
                 }
             },

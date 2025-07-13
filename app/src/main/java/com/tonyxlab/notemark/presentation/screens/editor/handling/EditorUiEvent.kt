@@ -8,5 +8,6 @@ sealed interface EditorUiEvent : UiEvent {
     data object SaveNote: EditorUiEvent
     data object EditNoteTitle: EditorUiEvent
     data object EditNoteContent: EditorUiEvent
+    data object PressBackButton: EditorUiEvent
 
 }

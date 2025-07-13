@@ -6,24 +6,38 @@ package com.tonyxlab.notemark.presentation.screens.editor
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.toRoute
+import com.tonyxlab.notemark.domain.exception.NoteNotFoundException
 import com.tonyxlab.notemark.domain.model.NoteItem
 import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.domain.repository.NoteRepository
+import com.tonyxlab.notemark.navigation.Destinations
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorActionEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, EditorActionEvent>
 
-class EditorViewModel(private val repository: NoteRepository) : EditorBaseViewModel() {
+class EditorViewModel(
+    private val repository: NoteRepository,
+    savedStateHandle: SavedStateHandle
+) : EditorBaseViewModel() {
+
     init {
+        val navigationId = savedStateHandle.toRoute<Destinations.EditorScreenDestination>().id
+        updateNoteId(noteId = navigationId)
         observeTextFieldsInput()
     }
 
@@ -37,8 +51,26 @@ class EditorViewModel(private val repository: NoteRepository) : EditorBaseViewMo
             EditorUiEvent.EditNoteContent -> editNoteContent()
             EditorUiEvent.SaveNote -> saveNote()
             EditorUiEvent.CancelEditor -> cancelNoteEdit()
+            EditorUiEvent.PressBackButton -> pressBackButton()
         }
     }
+
+
+    private fun updateNoteId(noteId: Long) {
+        updateState { it.copy(noteId = noteId) }
+    }
+
+    private suspend fun getNoteById(id: Long): NoteItem {
+        return repository.getNoteById(id)
+                .let { result ->
+                    when (result) {
+                        is Resource.Success<*> -> result.data as NoteItem
+                        is Resource.Error -> throw result.exception
+                        else -> throw NoteNotFoundException(id)
+                    }
+                }
+    }
+
 
     private fun observeTextFieldsInput() {
 
@@ -59,6 +91,7 @@ class EditorViewModel(private val repository: NoteRepository) : EditorBaseViewMo
                 if (!title.isBlank() && !content.isBlank()) {
                     updatePlaceholderTexts(title = title.toString(), content = content.toString())
                 }
+
             }.collect()
 
         }
@@ -95,7 +128,6 @@ class EditorViewModel(private val repository: NoteRepository) : EditorBaseViewMo
         }
     }
 
-
     private fun saveNote() {
 
         val noteItem = NoteItem(
@@ -106,11 +138,14 @@ class EditorViewModel(private val repository: NoteRepository) : EditorBaseViewMo
 
         launch {
             val result = repository.upsertNote(noteItem = noteItem)
-            when (result) {
 
-                is Resource.Error -> {}
+            when (result) {
                 is Resource.Success<*> -> {
                     sendActionEvent(EditorActionEvent.NavigateToHome)
+                }
+
+                is Resource.Error -> {
+                    TODO()
                 }
 
                 else -> Unit
@@ -119,7 +154,28 @@ class EditorViewModel(private val repository: NoteRepository) : EditorBaseViewMo
 
     }
 
-    private fun cancelNoteEdit() {
-        sendActionEvent(actionEvent = EditorActionEvent.NavigateToHome)
+    private fun deleteNote(noteItem: NoteItem) {
+        launch {
+
+            repository.deleteNote(noteItem = noteItem)
+        }
     }
+
+    private fun cancelNoteEdit() {
+        launch {
+
+            val currentNote = getNoteById(id = currentState.noteId)
+            deleteNote(currentNote)
+            sendActionEvent(actionEvent = EditorActionEvent.NavigateToHome)
+        }
+    }
+
+    private fun pressBackButton() {
+     launchCatching (onError = { sendActionEvent(EditorActionEvent.)}){  }
+    }
+
+
+
+
+
 }
