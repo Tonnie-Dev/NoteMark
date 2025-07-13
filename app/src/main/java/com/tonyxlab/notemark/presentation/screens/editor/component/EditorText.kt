@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.presentation.core.utils.EditorTextFieldStyle
 import com.tonyxlab.notemark.presentation.core.utils.spacing
@@ -67,6 +68,7 @@ fun EditorText(
                         },
                 state = textFieldState,
                 textStyle = currentStyle.textStyle(),
+                cursorBrush = SolidColor(currentStyle.cursorColor()),
                 decorator = { innerTextField ->
                     EditorTextDecorator(
                             innerDefaultText = innerTextField,
@@ -89,11 +91,9 @@ fun EditorText(
                 )
 
         Text(
-
                 modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-
                             if (isTitle) {
                                 onEvent(EditorUiEvent.EditNoteTitle)
                             } else {
@@ -111,21 +111,17 @@ fun EditorText(
 private fun EditorTextDecorator(
     innerDefaultText: @Composable () -> Unit,
     placeHolderText: String,
-
     isFocused: Boolean,
     modifier: Modifier = Modifier,
     editorTextFieldStyle: EditorTextFieldStyle = EditorTextFieldStyle.EditorPlaceHolderNoteStyle,
 
     ) {
-
-
     Row(
             modifier = modifier
                     .background(editorTextFieldStyle.backgroundColor())
                     .fillMaxWidth()
                     .padding(MaterialTheme.spacing.spaceMedium)
     ) {
-
 
         if (isFocused) {
 
@@ -136,7 +132,6 @@ private fun EditorTextDecorator(
             Text(text = placeHolderText)
         }
     }
-
 }
 
 

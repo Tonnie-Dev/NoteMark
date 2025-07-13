@@ -178,7 +178,6 @@ sealed class EditorTextFieldStyle {
         @Composable
         override fun backgroundColor(): Color = Color.White
 
-
         @Composable
         override fun cursorColor(): Color = MaterialTheme.colorScheme.primary
 
