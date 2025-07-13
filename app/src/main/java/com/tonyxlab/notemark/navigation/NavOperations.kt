@@ -37,9 +37,9 @@ class NavOperations(val navHostController: NavHostController) {
 
     }
 
-    fun navigateToEditorScreenDestination() {
+    fun navigateToEditorScreenDestination(id: Long) {
 
-        navHostController.navigate(Destinations.EditorScreenDestination)
+        navHostController.navigate(Destinations.EditorScreenDestination(id = id))
 
     }
 

@@ -2,7 +2,9 @@
 
 package com.tonyxlab.notemark.presentation.screens.home
 
+import android.app.ProgressDialog.show
 import android.os.Build
+import android.service.autofill.Validators.or
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.viewModelScope
 import com.tonyxlab.notemark.domain.auth.AuthRepository
@@ -72,7 +74,6 @@ class HomeViewModel(
         sendActionEvent(HomeActionEvent.NavigateToEditorScreen(noteId))
     }
 
-
     private fun createNote() {
 
         launch {
@@ -88,7 +89,7 @@ class HomeViewModel(
                 val noteId = result.data
                 sendActionEvent(HomeActionEvent.NavigateToEditorScreen(noteId))
             } else {
-                // Optional: show error snackbar or log
+                // TODO: show error snackbar or log
             }
         }
     }

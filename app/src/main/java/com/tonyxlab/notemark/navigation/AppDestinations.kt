@@ -81,5 +81,5 @@ sealed class Destinations {
 
 
     @Serializable
-    data object EditorScreenDestination : Destinations()
+    data class EditorScreenDestination(val id: Long) : Destinations()
 }

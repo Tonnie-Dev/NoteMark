@@ -53,14 +53,14 @@ fun HomeScreen(
                 AppTopBar(profileInitials = formatUserInitials(homeState.username))
             },
             floatingActionButton = {
-                AppFloatingActionButton(modifier = Modifier.navigationBarsPadding()) {
+                AppFloatingActionButton(modifier = Modifier.navigationBarsPadding()) {event ->
 
-                    navOperations.navigateToEditorScreenDestination()
+                  viewModel.onEvent(event)
                 }
             },
             actionEventHandler = { _, action ->
                 when (action) {
-                    is HomeActionEvent.NavigateToEditorScreen -> navOperations.navigateToEditorScreenDestination()
+                    is HomeActionEvent.NavigateToEditorScreen -> navOperations.navigateToEditorScreenDestination(action.noteId)
                     HomeActionEvent.NavigateToLoginScreen -> navOperations.navigateToLoginScreenDestination()
                 }
             }

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -23,10 +22,14 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.presentation.core.utils.gradient
 import com.tonyxlab.notemark.presentation.core.utils.spacing
+import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiEvent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 
 @Composable
-fun AppFloatingActionButton(modifier: Modifier = Modifier, onClickFab: () -> Unit) {
+fun AppFloatingActionButton(
+    modifier: Modifier = Modifier,
+    onClickFab: (HomeUiEvent) -> Unit
+) {
     Box(
             modifier = modifier
                     .clip(MaterialTheme.shapes.extraLarge)
@@ -39,7 +42,7 @@ fun AppFloatingActionButton(modifier: Modifier = Modifier, onClickFab: () -> Uni
                     .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
-                            onClick = onClickFab
+                            onClick = { onClickFab(HomeUiEvent.CreateNewNote)}
                     ),
             contentAlignment = Alignment.Center
     ) {

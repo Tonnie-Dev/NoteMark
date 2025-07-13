@@ -15,7 +15,7 @@ data class EditorUiState(
     data class TitleNoteState(
         val titlePlaceholderText: String = "Note Title",
         val isEditingTitle: Boolean = true,
-        val titleTextFieldState: TextFieldState = TextFieldState()
+        val titleTextFieldState: TextFieldState = TextFieldState("New Note")
     )
 
     @Stable

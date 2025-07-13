@@ -6,7 +6,6 @@ package com.tonyxlab.notemark.presentation.screens.editor
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.snapshotFlow
-import androidx.lifecycle.viewModelScope
 import com.tonyxlab.notemark.domain.model.NoteItem
 import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.domain.repository.NoteRepository
@@ -15,12 +14,10 @@ import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorActionEv
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDateTime
 
 typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, EditorActionEvent>
