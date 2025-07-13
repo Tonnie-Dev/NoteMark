@@ -14,19 +14,21 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.presentation.core.utils.EditorTextFieldStyle
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
-import timber.log.Timber
 
 @Composable
 fun EditorText(
@@ -39,10 +41,10 @@ fun EditorText(
     isTitle: Boolean
 
 ) {
+    val focusRequester = remember { FocusRequester() }
     var isFocused by remember { mutableStateOf(false) }
-    val isTextEmpty = textFieldState.text.isEmpty()
 
-    val currentStyle = remember (isFocused){
+    val currentStyle = remember(isFocused) {
         when {
             isFocused && isTitle -> EditorTextFieldStyle.EditorTitleStyle
             isFocused -> EditorTextFieldStyle.EditorFocusedNoteStyle
@@ -50,60 +52,58 @@ fun EditorText(
         }
     }
 
-    if (isEditing) {
+    LaunchedEffect(isEditing) {
+        if (isEditing) {
+            focusRequester.requestFocus()
+        }
+    }
 
+    if (isEditing) {
         BasicTextField(
-                modifier = Modifier.onFocusChanged {
-                    isFocused = it.isFocused
-                    Timber.tag("EditorText").i("Focus State: ${it.isFocused}")
-                },
+                modifier = modifier
+                        .focusRequester(focusRequester)
+                        .onFocusChanged {
+                            isFocused = it.isFocused
+                        },
                 state = textFieldState,
                 textStyle = currentStyle.textStyle(),
                 decorator = { innerTextField ->
                     EditorTextDecorator(
-
                             innerDefaultText = innerTextField,
                             placeHolderText = placeHolderText,
                             isFocused = isFocused,
                             editorTextFieldStyle = currentStyle
                     )
-                })
+                }
+        )
     } else {
 
-        val styleX = when(currentStyle) {
+        val textStyle =
+            if (isTitle)
+                MaterialTheme.typography.titleLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                )
+            else
+                MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
-            EditorTextFieldStyle.EditorTitleStyle -> "Title Style"
-            EditorTextFieldStyle.EditorFocusedNoteStyle -> "Content Style"
-            EditorTextFieldStyle.EditorPlaceHolderNoteStyle -> "PlaceHolder Style"
-        }
-
-        //Timber.tag("EditorText").i("Current style is: $styleX")
         Text(
 
                 modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-isFocused = true
+
                             if (isTitle) {
                                 onEvent(EditorUiEvent.EditNoteTitle)
-
                             } else {
-
                                 onEvent(EditorUiEvent.EditNoteContent)
-
-
                             }
-
                         },
                 text = "Edit",
-                style = currentStyle.textStateStyle()
-
-
+                style = textStyle
         )
-
-
     }
-
 }
 
 
@@ -174,18 +174,7 @@ private fun EditorText_Preview() {
                     isTitle = false,
                     onEvent = {}
             )
-            /* EditorTextDecorator(
-                     innerDefaultText = {},
-                     placeHolderText = "Placeholder",
-                     isTextEmpty = true,
-                     isFocused = true
-             )
-             EditorTextDecorator(
-                     innerDefaultText = {},
-                     placeHolderText = "Placeholder",
-                     isTextEmpty = true,
-                     isFocused = false
-             )*/
+
         }
     }
 }

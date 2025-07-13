@@ -13,7 +13,7 @@ data class EditorUiState(
 
     @Stable
     data class TitleNoteState(
-        val isEditingTitle: Boolean = false,
+        val isEditingTitle: Boolean = true,
         val titleTextFieldState: TextFieldState = TextFieldState()
     )
 
