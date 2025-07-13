@@ -61,7 +61,7 @@ class SignupViewModel(private val authRepository: AuthRepository) : SignupBaseVi
                 val response = authRepository.register(
                         credentials = Credentials(
                                 currentState.fieldTextState.username.toText,
-                                currentState.fieldTextState.email.toText,
+                                currentState.fieldTextState.email.toText.lowercase(),
                                 currentState.fieldTextState.passwordOne.toText
                         )
                 )) {

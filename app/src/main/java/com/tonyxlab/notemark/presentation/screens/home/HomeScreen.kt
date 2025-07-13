@@ -26,6 +26,7 @@ import com.tonyxlab.notemark.presentation.core.components.AppTopBar
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.home.components.EmptyBoard
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeActionEvent
+import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiState
 import com.tonyxlab.notemark.presentation.screens.login.components.NotePreview
 import com.tonyxlab.notemark.presentation.screens.login.components.getNotes
@@ -42,6 +43,7 @@ fun HomeScreen(
     navOperations: NavOperations
 ) {
     SetStatusBarIconsColor(darkIcons = true)
+
     val homeState by viewModel.uiState.collectAsStateWithLifecycle()
 
     BaseContentLayout(
@@ -54,21 +56,22 @@ fun HomeScreen(
                 AppFloatingActionButton(modifier = Modifier.navigationBarsPadding()) {
 
                     navOperations.navigateToEditorScreenDestination()
-
                 }
-
             },
-
             actionEventHandler = { _, action ->
-
-                when(action){
+                when (action) {
                     is HomeActionEvent.NavigateToEditorScreen -> navOperations.navigateToEditorScreenDestination()
                     HomeActionEvent.NavigateToLoginScreen -> navOperations.navigateToLoginScreenDestination()
                 }
-            }) {
-
-        state ->
+            }
+    ) { state ->
         state.notes.ifEmpty { EmptyBoard() }
+        HomeScreenContent(
+                modifier = modifier,
+                state = state,
+               onEvent = viewModel::onEvent,
+                deviceType = DeviceType.MOBILE_PORTRAIT
+        )
 
     }
 }
@@ -77,7 +80,7 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     state: HomeUiState,
-    onClickNote: (HomeActionEvent) -> Unit,
+    onEvent: (HomeUiEvent) -> Unit,
     modifier: Modifier = Modifier,
     deviceType: DeviceType = DeviceType.MOBILE_PORTRAIT
 ) {
@@ -99,7 +102,7 @@ fun HomeScreenContent(
     ) {
         items(state.notes) { note ->
 
-            NotePreview(noteItem = note, onClickNoteItem = onClickNote)
+            NotePreview(noteItem = note, onClickNoteItem = onEvent)
         }
 
     }
@@ -121,7 +124,8 @@ private fun HomeScreenContent_Preview() {
         ) {
             HomeScreenContent(
                     state = HomeUiState(notes = getNotes(20)),
-                    onClickNote = {}
+                    onEvent = {}
+
             )
 
         }

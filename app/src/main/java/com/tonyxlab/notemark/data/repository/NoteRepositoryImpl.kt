@@ -13,6 +13,7 @@ import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.domain.repository.NoteRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
@@ -20,7 +21,8 @@ class NoteRepositoryImpl(private val dao: NoteDao) : NoteRepository {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun getAllNotes(): Flow<List<NoteItem>> {
         return dao.getAllNotes()
-                .map { notes -> notes?.map { it.toModel() } ?: emptyList() }
+                .filterNotNull()
+                .map { notes -> notes.map { it.toModel() } }
     }
 
     override suspend fun upsertNote(noteItem: NoteItem): Resource<Long> =

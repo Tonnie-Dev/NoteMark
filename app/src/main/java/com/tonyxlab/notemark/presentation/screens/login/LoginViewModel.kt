@@ -4,6 +4,7 @@ package com.tonyxlab.notemark.presentation.screens.login
 
 import android.R.attr.password
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.text.toLowerCase
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.domain.auth.AuthRepository
 import com.tonyxlab.notemark.domain.model.Credentials
@@ -86,7 +87,7 @@ class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseView
 
             val credentials = Credentials(
 
-                    email = currentState.fieldTextState.emailTextFieldState.toText,
+                    email = currentState.fieldTextState.emailTextFieldState.toText.lowercase(),
                     password = currentState.fieldTextState.passwordTextFieldState.toText
             )
             val response = authRepository.login(credentials = credentials)

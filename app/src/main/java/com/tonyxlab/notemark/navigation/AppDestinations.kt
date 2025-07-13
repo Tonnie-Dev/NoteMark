@@ -55,7 +55,10 @@ fun NavGraphBuilder.appDestinations(
 
     composable<Destinations.EditorScreenDestination> {
 
-        EditorScreen(modifier = modifier)
+        EditorScreen(
+                modifier = modifier,
+                navOperations = navOperations
+        )
     }
 }
 

@@ -1,8 +1,10 @@
 @file:RequiresApi(Build.VERSION_CODES.O)
+
 package com.tonyxlab.notemark.presentation.screens.home
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.viewModelScope
 import com.tonyxlab.notemark.domain.auth.AuthRepository
 import com.tonyxlab.notemark.domain.model.NoteItem
 import com.tonyxlab.notemark.domain.model.Resource
@@ -11,12 +13,17 @@ import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeActionEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiState
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDateTime
 
 typealias HomeViewModelBaseClass = BaseViewModel<HomeUiState, HomeUiEvent, HomeActionEvent>
 
 class HomeViewModel(
-    private val authRepository: AuthRepository, private val noteRepository: NoteRepository
+    private val authRepository: AuthRepository,
+    private val noteRepository: NoteRepository
 ) : HomeViewModelBaseClass() {
 
     override val initialState: HomeUiState
@@ -24,6 +31,7 @@ class HomeViewModel(
 
     init {
         updateUsername()
+        retrieveSavedNotes()
 
     }
 
@@ -35,6 +43,15 @@ class HomeViewModel(
             HomeUiEvent.CreateNewNote -> createNote()
         }
     }
+
+    private fun retrieveSavedNotes() {
+
+        noteRepository.getAllNotes().onEach {notes ->
+
+           updateState { it.copy(notes = notes) }
+        }.launchIn(viewModelScope)
+    }
+
 
     private fun updateUsername() {
 
@@ -54,7 +71,6 @@ class HomeViewModel(
     private fun editNote(noteId: Long) {
         sendActionEvent(HomeActionEvent.NavigateToEditorScreen(noteId))
     }
-
 
 
     private fun createNote() {

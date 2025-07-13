@@ -5,6 +5,7 @@ package com.tonyxlab.notemark.presentation.screens.login.components
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,7 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.domain.model.NoteItem
 import com.tonyxlab.notemark.presentation.core.utils.spacing
-import com.tonyxlab.notemark.presentation.screens.home.handling.HomeActionEvent
+import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiEvent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.util.DeviceType
 import com.tonyxlab.notemark.util.generateLoremIpsum
@@ -32,7 +33,7 @@ import java.time.LocalDateTime
 @Composable
 fun NotePreview(
     noteItem: NoteItem,
-     onClickNoteItem:(HomeActionEvent)-> Unit,
+    onClickNoteItem:(HomeUiEvent)-> Unit,
     modifier: Modifier = Modifier,
     deviceType: DeviceType = DeviceType.MOBILE_PORTRAIT
 ) {
@@ -41,6 +42,9 @@ fun NotePreview(
             modifier = modifier
                     .clip(MaterialTheme.shapes.medium)
                     .fillMaxSize()
+                    .clickable{
+                        onClickNoteItem(HomeUiEvent.ClickNote(noteItem.id))
+                    }
     ) {
 
         Surface(color = MaterialTheme.colorScheme.background) {
