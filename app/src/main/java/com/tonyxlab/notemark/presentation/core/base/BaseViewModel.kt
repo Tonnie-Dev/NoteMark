@@ -49,4 +49,20 @@ abstract class BaseViewModel<S : UiState, E : UiEvent, A : ActionEvent> : ViewMo
     ) = viewModelScope.launch(block = block)
 
     abstract fun onEvent(event: E)
+
+
+    inline fun launchCatching(
+        crossinline onError: (Throwable) -> Unit = {},
+        crossinline block: suspend CoroutineScope.() -> Unit
+    ) {
+        viewModelScope.launch {
+
+            try {
+                block()
+            }catch (e: Throwable){
+                onError(e)
+            }
+        }
+
+    }
 }
