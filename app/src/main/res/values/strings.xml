@@ -38,6 +38,9 @@
     <string name="snack_text_retry">Retry</string>
     <string name="snack_text_login">Login</string>
 
+    <string name="snack_text_note_not_found">Note Not Found</string>
+    <string name="snack_text_go_back">Go Back</string>
+
     <!--Supporting Texts-->
     <string name="sup_text_blank"/>
 

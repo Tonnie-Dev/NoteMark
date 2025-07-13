@@ -101,7 +101,7 @@ class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseView
                 }
 
                 is Resource.Error -> {
-                    Timber.i("The Login Error is:${response.exception}")
+
                     updateState { it.copy(loginStatus = Resource.Error(response.exception)) }
                     sendActionEvent(
                             LoginActionEvent.ShowSnackbar(

@@ -1,5 +1,9 @@
+@file:RequiresApi(Build.VERSION_CODES.O)
+
 package com.tonyxlab.notemark.presentation.screens.login
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

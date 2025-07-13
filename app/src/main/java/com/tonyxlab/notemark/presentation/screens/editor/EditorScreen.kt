@@ -12,11 +12,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
+import com.tonyxlab.notemark.presentation.core.components.ShowAppSnackbar
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.editor.component.EditableText
 import com.tonyxlab.notemark.presentation.screens.editor.component.EditorAppBar
@@ -32,14 +40,46 @@ fun EditorScreen(
     modifier: Modifier = Modifier,
     viewModel: EditorViewModel = koinViewModel()
 ) {
+    val context = LocalContext.current
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    var snackbarTriggerId by remember { mutableIntStateOf(0) }
+    var snackbarMessage by remember { mutableStateOf("") }
+    var snackbarActionLabel by remember { mutableStateOf("") }
+    var snackbarActionEvent by remember { mutableStateOf<EditorUiEvent?>(null) }
+
+    ShowAppSnackbar(
+            triggerId = snackbarTriggerId,
+            snackbarHostState = snackbarHostState,
+            message = snackbarMessage,
+            actionLabel = snackbarActionLabel,
+            onActionClick = { snackbarActionEvent?.let { viewModel.onEvent(it) } },
+            onDismiss = {
+                snackbarTriggerId = 0
+                snackbarActionEvent = null
+            }
+
+    )
     BaseContentLayout(
             viewModel = viewModel,
             actionEventHandler = { _, action ->
 
                 when (action) {
-                    EditorActionEvent.NavigateToHome -> {navOperations.navigateToHomeScreenDestination()}
-                    EditorActionEvent.ShowDialogue -> {navOperations.navigateToHomeScreenDestination()}
+                    EditorActionEvent.NavigateToHome -> {
+                        navOperations.navigateToHomeScreenDestination()
+                    }
+
+                    EditorActionEvent.ShowDialogue -> {
+                        navOperations.navigateToHomeScreenDestination()
+                    }
+
+                    is EditorActionEvent.ShowSnackbar -> {
+                        snackbarMessage = context.getString(action.messageRes)
+                        snackbarActionLabel = context.getString(action.actionLabelRes)
+                        snackbarActionEvent = action.onActionClick
+                        snackbarTriggerId++
+
+                    }
                 }
             },
             onBackPressed = {
@@ -67,7 +107,7 @@ fun EditorScreenContent(
 
     Column {
 
-        EditorAppBar(onEvent =onEvent)
+        EditorAppBar(onEvent = onEvent)
 
         Column(modifier = modifier.animateContentSize()) {
 

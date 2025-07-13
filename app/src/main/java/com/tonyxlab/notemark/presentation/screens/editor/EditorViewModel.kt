@@ -7,25 +7,23 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.toRoute
+import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.domain.exception.NoteNotFoundException
 import com.tonyxlab.notemark.domain.model.NoteItem
 import com.tonyxlab.notemark.domain.model.Resource
+import com.tonyxlab.notemark.domain.model.isBlankNote
 import com.tonyxlab.notemark.domain.repository.NoteRepository
 import com.tonyxlab.notemark.navigation.Destinations
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorActionEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, EditorActionEvent>
@@ -162,6 +160,7 @@ class EditorViewModel(
     }
 
     private fun cancelNoteEdit() {
+
         launch {
 
             val currentNote = getNoteById(id = currentState.noteId)
@@ -171,11 +170,24 @@ class EditorViewModel(
     }
 
     private fun pressBackButton() {
-     launchCatching (onError = { sendActionEvent(EditorActionEvent.)}){  }
+
+        launchCatching(
+                onError = {
+                    sendActionEvent(
+                            EditorActionEvent.ShowSnackbar(
+                                    messageRes = R.string.snack_text_note_not_found,
+                                    actionLabelRes = R.string.snack_text_go_back
+                            )
+                    )
+                }
+        ) {
+            val currentNote = getNoteById(id = currentState.noteId)
+
+            if (currentNote.isBlankNote()) {
+                deleteNote(noteItem = currentNote)
+            }
+            sendActionEvent(EditorActionEvent.NavigateToHome)
+
+        }
     }
-
-
-
-
-
 }
