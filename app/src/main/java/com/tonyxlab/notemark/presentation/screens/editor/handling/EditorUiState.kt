@@ -13,12 +13,14 @@ data class EditorUiState(
 
     @Stable
     data class TitleNoteState(
+        val titlePlaceholderText: String = "Note Title",
         val isEditingTitle: Boolean = true,
         val titleTextFieldState: TextFieldState = TextFieldState()
     )
 
     @Stable
     data class ContentNoteState(
+        val contentPlaceholderText: String = "Tap to enter note content",
         val isEditingContent: Boolean = false,
         val contentTextFieldState: TextFieldState = TextFieldState()
     )

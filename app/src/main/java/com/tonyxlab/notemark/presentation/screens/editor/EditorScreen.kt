@@ -18,7 +18,6 @@ import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.definition.OnCloseCallback
 
 @Composable
 fun EditorScreen(modifier: Modifier = Modifier, viewModel: EditorViewModel = koinViewModel()) {
@@ -52,7 +51,7 @@ fun EditorScreenContent(
 
             EditorText(
                     textFieldState = uiState.titleNoteState.titleTextFieldState,
-                    placeHolderText = "Tonnie XII",
+                    placeHolderText = uiState.titleNoteState.titlePlaceholderText,
                     isEditing = uiState.titleNoteState.isEditingTitle,
                     isTitle = true,
                     onEvent = onEvent
@@ -62,7 +61,7 @@ fun EditorScreenContent(
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
             EditorText(
                     textFieldState = uiState.contentNoteState.contentTextFieldState,
-                    placeHolderText = "Tonnie XII",
+                    placeHolderText = uiState.contentNoteState.contentPlaceholderText,
                     isEditing = uiState.contentNoteState.isEditingContent,
                     isTitle = false,
                     onEvent = onEvent

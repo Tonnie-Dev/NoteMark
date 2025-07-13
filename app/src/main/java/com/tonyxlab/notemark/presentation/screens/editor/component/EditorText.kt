@@ -30,6 +30,7 @@ import com.tonyxlab.notemark.presentation.core.utils.EditorTextFieldStyle
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
+import timber.log.Timber
 
 @Composable
 fun EditorText(
@@ -100,7 +101,7 @@ fun EditorText(
                                 onEvent(EditorUiEvent.EditNoteContent)
                             }
                         },
-                text = "Edit",
+                text = textFieldState.text.toString().ifBlank { placeHolderText },
                 style = textStyle
         )
     }
