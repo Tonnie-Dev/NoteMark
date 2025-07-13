@@ -1,5 +1,6 @@
 package com.tonyxlab.notemark.presentation.screens.editor
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +14,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.editor.component.EditorAppBar
-import com.tonyxlab.notemark.presentation.screens.editor.component.EditorText
+import com.tonyxlab.notemark.presentation.screens.editor.component.EditableText
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
@@ -47,9 +48,9 @@ fun EditorScreenContent(
 
         EditorAppBar(onEvent = {})
 
-        Column(modifier = modifier) {
+        Column(modifier = modifier.animateContentSize()) {
 
-            EditorText(
+            EditableText(
                     textFieldState = uiState.titleNoteState.titleTextFieldState,
                     placeHolderText = uiState.titleNoteState.titlePlaceholderText,
                     isEditing = uiState.titleNoteState.isEditingTitle,
@@ -59,7 +60,7 @@ fun EditorScreenContent(
 
                     )
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
-            EditorText(
+            EditableText(
                     textFieldState = uiState.contentNoteState.contentTextFieldState,
                     placeHolderText = uiState.contentNoteState.contentPlaceholderText,
                     isEditing = uiState.contentNoteState.isEditingContent,
