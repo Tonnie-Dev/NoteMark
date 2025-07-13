@@ -5,6 +5,7 @@ package com.tonyxlab.notemark.presentation.screens.editor
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
@@ -37,6 +38,7 @@ class EditorViewModel(
         val navigationId = savedStateHandle.toRoute<Destinations.EditorScreenDestination>().id
         updateNoteId(noteId = navigationId)
         observeTextFieldsInput()
+        loadNote(navigationId)
     }
 
     override val initialState: EditorUiState
@@ -53,9 +55,40 @@ class EditorViewModel(
         }
     }
 
-
     private fun updateNoteId(noteId: Long) {
         updateState { it.copy(noteId = noteId) }
+    }
+
+    private fun loadNote(noteId: Long) {
+
+        launchCatching(onError = {
+
+            sendActionEvent(
+                    EditorActionEvent.ShowSnackbar(
+                            messageRes = R.string.snack_text_note_not_found,
+                            actionLabelRes = R.string.snack_text_go_back
+                    )
+            )
+        }
+        ) {
+
+            val currentNoteItem = getNoteById(id = noteId)
+
+            updateState {
+                it.copy(
+                        titleNoteState = currentState.titleNoteState.copy(
+                                titleTextFieldState = editTextField(
+                                        currentNoteItem.title
+                                )
+                        ),
+                        contentNoteState = currentState.contentNoteState.copy(
+                                contentTextFieldState = editTextField(
+                                        currentNoteItem.content
+                                )
+                        )
+                )
+            }
+        }
     }
 
     private suspend fun getNoteById(id: Long): NoteItem {
@@ -68,7 +101,6 @@ class EditorViewModel(
                     }
                 }
     }
-
 
     private fun observeTextFieldsInput() {
 
@@ -93,7 +125,6 @@ class EditorViewModel(
             }.collect()
 
         }
-
     }
 
     private fun updatePlaceholderTexts(title: String, content: String) {
@@ -164,7 +195,10 @@ class EditorViewModel(
         launch {
 
             val currentNote = getNoteById(id = currentState.noteId)
-            deleteNote(currentNote)
+
+            if (currentNote.isBlankNote()) {
+                deleteNote(noteItem = currentNote)
+            }
             sendActionEvent(actionEvent = EditorActionEvent.NavigateToHome)
         }
     }
@@ -189,5 +223,9 @@ class EditorViewModel(
             sendActionEvent(EditorActionEvent.NavigateToHome)
 
         }
+    }
+
+    private fun editTextField(value: String): TextFieldState {
+        return TextFieldState(initialText = value)
     }
 }

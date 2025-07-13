@@ -4,7 +4,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Stable
 import com.tonyxlab.notemark.presentation.core.base.handling.UiState
 
-
 @Stable
 data class EditorUiState(
     val noteId: Long = -1L,
@@ -16,7 +15,7 @@ data class EditorUiState(
     data class TitleNoteState(
         val titlePlaceholderText: String = "Note Title",
         val isEditingTitle: Boolean = true,
-        val titleTextFieldState: TextFieldState = TextFieldState("New Note")
+        val titleTextFieldState: TextFieldState = TextFieldState(initialText = "New Note")
     )
 
     @Stable
