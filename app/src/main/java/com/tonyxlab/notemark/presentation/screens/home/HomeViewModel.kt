@@ -43,6 +43,7 @@ class HomeViewModel(
         when (event) {
             is HomeUiEvent.ClickNote -> editNote(event.noteId)
             HomeUiEvent.CreateNewNote -> createNote()
+            is HomeUiEvent.LongPressNote -> TODO()
         }
     }
 

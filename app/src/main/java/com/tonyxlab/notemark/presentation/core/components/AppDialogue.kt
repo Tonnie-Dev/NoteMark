@@ -22,9 +22,7 @@ fun AppDialog(
     dialogText: String,
     positiveButtonText: String,
     negativeButtonText: String? = null
-
 ) {
-
     AlertDialog(
             title = { Text(modifier = Modifier.fillMaxWidth(), text = dialogTitle) },
             text = { Text(text = dialogText) },
@@ -35,7 +33,6 @@ fun AppDialog(
                 }
             },
             dismissButton = {
-
                 if (negativeButtonText?.isNotBlank() == true) {
                     TextButton(onClick = { onDismissRequest() }) {
                         Text(text = negativeButtonText)
@@ -43,16 +40,12 @@ fun AppDialog(
                 }
             }
     )
-
 }
-
 
 @PreviewLightDark
 @Composable
 private fun AppDialog_Preview() {
-
     NoteMarkTheme {
-
         Box(
                 modifier = Modifier
                         .fillMaxSize()
@@ -60,8 +53,6 @@ private fun AppDialog_Preview() {
 
                 contentAlignment = Alignment.Center
         ) {
-
-
             AppDialog(
                     onDismissRequest = {},
                     onConfirm = {},
@@ -70,8 +61,6 @@ private fun AppDialog_Preview() {
                     positiveButtonText = "OK",
                     negativeButtonText = "Cancel"
             )
-
         }
     }
-
 }

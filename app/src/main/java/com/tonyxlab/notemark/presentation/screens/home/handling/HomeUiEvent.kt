@@ -6,4 +6,5 @@ sealed interface HomeUiEvent: UiEvent{
 
     data class ClickNote(val noteId:Long): HomeUiEvent
     data object CreateNewNote: HomeUiEvent
+    data class LongPressNote(val noteId:Long): HomeUiEvent
 }

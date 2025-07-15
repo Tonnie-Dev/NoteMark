@@ -15,6 +15,8 @@ import com.tonyxlab.notemark.domain.model.NoteItem
 import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.domain.model.isBlankNote
 import com.tonyxlab.notemark.domain.repository.NoteRepository
+import com.tonyxlab.notemark.domain.usecase.DeleteNoteUseCase
+import com.tonyxlab.notemark.domain.usecase.GetNoteByIdUseCase
 import com.tonyxlab.notemark.navigation.Destinations
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorActionEvent
@@ -31,6 +33,8 @@ typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, Edit
 
 class EditorViewModel(
     private val repository: NoteRepository,
+    private val deleteNoteUseCase: DeleteNoteUseCase,
+    private val getNoteByIdUseCase: GetNoteByIdUseCase,
     savedStateHandle: SavedStateHandle
 ) : EditorBaseViewModel() {
 
@@ -72,7 +76,9 @@ class EditorViewModel(
         }
         ) {
 
-            val currentNoteItem = getNoteById(id = noteId)
+
+
+            val currentNoteItem = getNoteByIdUseCase(id = noteId)
 
             updateState {
                 it.copy(
@@ -91,7 +97,7 @@ class EditorViewModel(
         }
     }
 
-    private suspend fun getNoteById(id: Long): NoteItem {
+/*    private suspend fun getNoteById(id: Long): NoteItem {
         return repository.getNoteById(id)
                 .let { result ->
                     when (result) {
@@ -100,7 +106,7 @@ class EditorViewModel(
                         else -> throw NoteNotFoundException(id)
                     }
                 }
-    }
+    }*/
 
     private fun observeTextFieldsInput() {
 
