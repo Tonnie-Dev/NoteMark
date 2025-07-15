@@ -16,7 +16,9 @@ import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.domain.model.isBlankNote
 import com.tonyxlab.notemark.domain.repository.NoteRepository
 import com.tonyxlab.notemark.domain.usecase.DeleteNoteUseCase
+import com.tonyxlab.notemark.domain.usecase.GetAllNotesUseCase
 import com.tonyxlab.notemark.domain.usecase.GetNoteByIdUseCase
+import com.tonyxlab.notemark.domain.usecase.UpsertNoteUseCase
 import com.tonyxlab.notemark.navigation.Destinations
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorActionEvent
@@ -32,9 +34,10 @@ import java.time.LocalDateTime
 typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, EditorActionEvent>
 
 class EditorViewModel(
-    private val repository: NoteRepository,
-    private val deleteNoteUseCase: DeleteNoteUseCase,
+    private val getAllNotesUseCase: GetAllNotesUseCase,
     private val getNoteByIdUseCase: GetNoteByIdUseCase,
+    private  val upsertNoteUseCase: UpsertNoteUseCase,
+    private val deleteNoteUseCase: DeleteNoteUseCase,
     savedStateHandle: SavedStateHandle
 ) : EditorBaseViewModel() {
 

@@ -13,6 +13,10 @@ import com.tonyxlab.notemark.data.remote.auth.AuthRepositoryImpl
 import com.tonyxlab.notemark.data.repository.NoteRepositoryImpl
 import com.tonyxlab.notemark.domain.auth.AuthRepository
 import com.tonyxlab.notemark.domain.repository.NoteRepository
+import com.tonyxlab.notemark.domain.usecase.DeleteNoteUseCase
+import com.tonyxlab.notemark.domain.usecase.GetAllNotesUseCase
+import com.tonyxlab.notemark.domain.usecase.GetNoteByIdUseCase
+import com.tonyxlab.notemark.domain.usecase.UpsertNoteUseCase
 import com.tonyxlab.notemark.presentation.screens.editor.EditorViewModel
 import com.tonyxlab.notemark.presentation.screens.home.HomeViewModel
 import com.tonyxlab.notemark.presentation.screens.landing.LandingViewModel
@@ -24,7 +28,6 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 
-
 val viewModelModule = module {
     viewModelOf(::LoginViewModel)
     viewModelOf(::SignupViewModel)
@@ -34,30 +37,35 @@ val viewModelModule = module {
 }
 
 val networkModule = module {
-
     single {
         TokenStorage.init(androidContext())
         HttpClientFactory()
     }
-
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 val repositoryModule = module {
-
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<NoteRepository> { NoteRepositoryImpl(get()) }
 }
 
 val databaseModule = module {
 
-    single <NoteMarkDatabase>{
+    single<NoteMarkDatabase> {
         Room.databaseBuilder(
                 context = androidContext(),
                 klass = NoteMarkDatabase::class.java,
                 name = Constants.DATABASE_NAME
-        ).build()
+        )
+                .build()
     }
-
     single<NoteDao> { get<NoteMarkDatabase>().dao }
 }
+
+val useCasesModule = module {
+
+    single { GetAllNotesUseCase(get()) }
+    single { GetNoteByIdUseCase(get()) }
+    single { UpsertNoteUseCase(get()) }
+    single { DeleteNoteUseCase(get()) }
+}
+
