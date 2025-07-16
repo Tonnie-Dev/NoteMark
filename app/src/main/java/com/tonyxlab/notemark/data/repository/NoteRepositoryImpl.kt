@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class NoteRepositoryImpl(private val dao: NoteDao) : NoteRepository {
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun getAllNotes(): Flow<List<NoteItem>> {
         return dao.getAllNotes()
                 .filterNotNull()
@@ -26,45 +25,29 @@ class NoteRepositoryImpl(private val dao: NoteDao) : NoteRepository {
     }
 
     override suspend fun upsertNote(noteItem: NoteItem): Resource<Long> =
-
-        withContext(Dispatchers.IO) {
-
-            try {
-                val id = dao.insertAndReturnId(noteItem.toEntity())
-                Resource.Success(id)
-            } catch (e: Exception) {
-
-                Resource.Error(e)
-            }
-        }
+        safeIoCall { dao.insertAndReturnId(noteItem.toEntity()) }
 
     override suspend fun getNoteById(id: Long): Resource<NoteItem> =
-        withContext(Dispatchers.IO) {
 
-            try {
-                val note = dao.getNoteById(id)
-
-                if (note != null) {
-                    Resource.Success(note.toModel())
-                } else {
-                    Resource.Error(exception = NoteNotFoundException(id))
-                }
-            } catch (e: Exception) {
-
-                Resource.Error(exception = e)
-            }
+        safeIoCall {
+            val note = dao.getNoteById(id)
+            note?.toModel() ?: throw NoteNotFoundException(id)
         }
-
 
     override suspend fun deleteNote(noteItem: NoteItem): Resource<Boolean> =
-        withContext(Dispatchers.IO) {
 
-            try {
-                val result = dao.delete(noteItem.toEntity())
-                Resource.Success(result > 0)
-            } catch (e: Exception) {
-
-                Resource.Error(exception = e)
-            }
+        safeIoCall {
+            val result = dao.delete(noteItem.toEntity())
+            result > 0
         }
+
+    suspend fun <T> safeIoCall(block: suspend () -> T): Resource<T> {
+        return try {
+            withContext(Dispatchers.IO) {
+                Resource.Success(block())
+            }
+        } catch (e: Exception) {
+            Resource.Error(e)
+        }
+    }
 }
