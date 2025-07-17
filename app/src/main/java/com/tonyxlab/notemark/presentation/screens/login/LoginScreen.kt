@@ -69,12 +69,11 @@ fun LoginScreen(
             snackbarHostState = snackbarHostState,
             message = snackbarMessage,
             actionLabel = snackbarActionLabel,
-            onActionClick = { snackbarActionEvent?.let { viewModel.onEvent(it) }},
+            onActionClick = { snackbarActionEvent?.let { viewModel.onEvent(it) } },
             onDismiss = {
                 snackbarTriggerId = 0
                 snackbarActionEvent = null
             }
-
     )
 
     BaseContentLayout(
@@ -87,16 +86,20 @@ fun LoginScreen(
                 )
             },
 
-            actionEventHandler = { _, actionEvent ->
-                when (actionEvent) {
-                    LoginActionEvent.NavigateToHomeScreen -> { navOperations.navigateToHomeScreenDestination()}
+            actionEventHandler = { _, action ->
+                when (action) {
+                    LoginActionEvent.NavigateToHomeScreen -> {
+                        navOperations.navigateToHomeScreenDestination()
+                    }
+
                     LoginActionEvent.NavigateToSignupScreen -> {
                         navOperations.navigateToSignupScreenDestination()
                     }
+
                     is LoginActionEvent.ShowSnackbar -> {
-                        snackbarMessage = context.getString(actionEvent.messageRes)
-                        snackbarActionLabel = context.getString(actionEvent.actionLabelRes)
-                        snackbarActionEvent = actionEvent.onActionClick
+                        snackbarMessage = context.getString(action.messageRes)
+                        snackbarActionLabel = context.getString(action.actionLabelRes)
+                        snackbarActionEvent = action.onActionClick
                         snackbarTriggerId++
                     }
                 }
