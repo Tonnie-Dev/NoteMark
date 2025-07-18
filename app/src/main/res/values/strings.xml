@@ -30,16 +30,24 @@
     <string name="placeholder_text_username">John.doe</string>
     <string name="placeholder_text_password">Password</string>
 
-
     <!--Snackbar Texts-->
     <string name="snack_text_signup_failed">Signup failed</string>
     <string name="snack_text_signup_success">Account created successfully!</string>
-    <string name="snack_text_login_failed">Login failed</string>
-    <string name="snack_text_retry">Retry</string>
+    <string name="snack_text_login_failed">Login failed</string>a
+
     <string name="snack_text_login">Login</string>
+    <string name="snack_text_retry">Retry</string>
+    <string name="snack_text_ok">OK</string>
 
     <string name="snack_text_note_not_found">Note Not Found</string>
-    <string name="snack_text_go_back">Go Back</string>
+    <string name="snack_text_note_not_saved">Note Not Saved</string>
+    <string name="snack_text_exit">Exit</string>
+
+    <!--Dialog Texts-->
+    <string name="dialog_text_delete_title">Delete this Note?</string>
+    <string name="dialog_text_delete_message">Are you sure want to delete this note?</string>j
+    <string name="dialog_text_delete">Delete</string>j
+    <string name="dialog_text_cancel">Cancel</string>j
 
     <!--Supporting Texts-->
     <string name="sup_text_blank"/>
@@ -53,7 +61,6 @@
     <string name="sup_text_error_password_one">Password must be at least 8 characters and include a number or symbol</string>
 
     <string name="sup_text_error_password_two">Password do not match</string>
-
 
     <!--Content Description Texts-->
     <string name="cds_text_add">Add</string>

@@ -2,7 +2,6 @@ package com.tonyxlab.notemark.presentation.screens.editor.handling
 
 import androidx.annotation.StringRes
 import com.tonyxlab.notemark.presentation.core.base.handling.ActionEvent
-import com.tonyxlab.notemark.presentation.screens.login.handling.LoginUiEvent
 
 sealed interface EditorActionEvent : ActionEvent {
 

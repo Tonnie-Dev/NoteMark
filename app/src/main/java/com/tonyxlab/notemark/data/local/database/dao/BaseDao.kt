@@ -8,8 +8,8 @@ import androidx.room.Upsert
 
 @Dao
 interface BaseDao<T> {
-    @Upsert
-    suspend fun upsert(value:T)
+   /* @Upsert
+    suspend fun upsert(value:T)*/
 
     @Delete
     suspend fun delete(value: T):Int

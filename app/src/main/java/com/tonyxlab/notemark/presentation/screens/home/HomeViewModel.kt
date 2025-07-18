@@ -2,30 +2,32 @@
 
 package com.tonyxlab.notemark.presentation.screens.home
 
-import android.app.ProgressDialog.show
 import android.os.Build
-import android.service.autofill.Validators.or
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.viewModelScope
+import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.domain.auth.AuthRepository
 import com.tonyxlab.notemark.domain.model.NoteItem
-import com.tonyxlab.notemark.domain.model.Resource
-import com.tonyxlab.notemark.domain.repository.NoteRepository
+import com.tonyxlab.notemark.domain.usecase.DeleteNoteUseCase
+import com.tonyxlab.notemark.domain.usecase.GetAllNotesUseCase
+import com.tonyxlab.notemark.domain.usecase.GetNoteByIdUseCase
+import com.tonyxlab.notemark.domain.usecase.UpsertNoteUseCase
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeActionEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiState
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDateTime
 
 typealias HomeViewModelBaseClass = BaseViewModel<HomeUiState, HomeUiEvent, HomeActionEvent>
 
 class HomeViewModel(
     private val authRepository: AuthRepository,
-    private val noteRepository: NoteRepository
+    private val getAllNotesUseCase: GetAllNotesUseCase,
+    private val getNoteByIdUseCase: GetNoteByIdUseCase,
+    private val upsertNoteUseCase: UpsertNoteUseCase,
+    private val deleteNoteUseCase: DeleteNoteUseCase
 ) : HomeViewModelBaseClass() {
 
     override val initialState: HomeUiState
@@ -34,41 +36,55 @@ class HomeViewModel(
     init {
         updateUsername()
         retrieveSavedNotes()
-
     }
-
 
     override fun onEvent(event: HomeUiEvent) {
 
         when (event) {
-            is HomeUiEvent.ClickNote -> editNote(event.noteId)
             HomeUiEvent.CreateNewNote -> createNote()
-            is HomeUiEvent.LongPressNote -> TODO()
+            is HomeUiEvent.ClickNote -> editNote(event.noteId)
+            is HomeUiEvent.LongPressNote -> showDialog(noteId = event.noteId)
+            is HomeUiEvent.ConfirmDeleteNote -> confirmDelete(event.notedId)
+            HomeUiEvent.DismissDialog -> dismissDialog()
         }
+    }
+
+    private fun dismissDialog() {
+        updateState { it.copy(showDialog = false) }
+    }
+
+    private fun showDialog(noteId: Long) {
+        updateState { it.copy(showDialog = true) }
+        sendActionEvent(HomeActionEvent.ShowDialog(noteId = noteId))
+    }
+
+    private fun confirmDelete(noteId: Long) {
+
+        deleteNote(noteId = noteId)
+        updateState { it.copy(showDialog = false) }
     }
 
     private fun retrieveSavedNotes() {
 
-        noteRepository.getAllNotes().onEach {notes ->
+        getAllNotesUseCase()
+                .onEach { notes ->
 
-           updateState { it.copy(notes = notes) }
-        }.launchIn(viewModelScope)
+                    updateState { it.copy(notes = notes) }
+                }
+                .launchIn(viewModelScope)
     }
-
 
     private fun updateUsername() {
 
         launch {
             if (authRepository.isSignedIn()) {
-
                 val username = authRepository.getUserName() ?: return@launch
                 updateState { it.copy(username = username) }
+
             } else {
                 sendActionEvent(HomeActionEvent.NavigateToLoginScreen)
             }
-
         }
-
     }
 
     private fun editNote(noteId: Long) {
@@ -77,21 +93,39 @@ class HomeViewModel(
 
     private fun createNote() {
 
-        launch {
+        launchCatching(
+                onError = {
+                    sendActionEvent(
+                            HomeActionEvent.ShowToast(
+                                    messageRes = R.string.snack_text_note_not_saved
+                            )
+                    )
+                }
+        ) {
             val newNote = NoteItem(
                     title = "New Note",
                     content = "",
                     createdOn = LocalDateTime.now()
             )
+            val result = upsertNoteUseCase(noteItem = newNote)
+            val noteId = result
+            sendActionEvent(HomeActionEvent.NavigateToEditorScreen(noteId))
+        }
+    }
 
-            val result = noteRepository.upsertNote(newNote)
+    private fun deleteNote(noteId: Long) {
+        launchCatching(
+                onError = {
+                    sendActionEvent(
+                            HomeActionEvent.ShowToast(
+                                    messageRes = R.string.snack_text_note_not_saved
+                            )
+                    )
 
-            if (result is Resource.Success) {
-                val noteId = result.data
-                sendActionEvent(HomeActionEvent.NavigateToEditorScreen(noteId))
-            } else {
-                // TODO: show error snackbar or log
-            }
+                }
+        ) {
+            val noteItem = getNoteByIdUseCase(id = noteId)
+            deleteNoteUseCase(noteItem = noteItem)
         }
     }
 }

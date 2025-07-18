@@ -3,6 +3,7 @@
 package com.tonyxlab.notemark.presentation.screens.home
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,11 +17,19 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
+import com.tonyxlab.notemark.presentation.core.components.AppDialog
 import com.tonyxlab.notemark.presentation.core.components.AppFloatingActionButton
 import com.tonyxlab.notemark.presentation.core.components.AppTopBar
 import com.tonyxlab.notemark.presentation.core.utils.spacing
@@ -42,9 +51,14 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
     navOperations: NavOperations
 ) {
+
     SetStatusBarIconsColor(darkIcons = true)
 
     val homeState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    var toastMessage by remember { mutableStateOf("") }
+    var longPressedNoteId by remember { mutableLongStateOf(-1L) }
 
     BaseContentLayout(
             modifier = modifier,
@@ -53,14 +67,32 @@ fun HomeScreen(
                 AppTopBar(profileInitials = formatUserInitials(homeState.username))
             },
             floatingActionButton = {
-                AppFloatingActionButton(modifier = Modifier.navigationBarsPadding()) {event ->
-                  viewModel.onEvent(event)
+                AppFloatingActionButton(modifier = Modifier.navigationBarsPadding()) { event ->
+                    viewModel.onEvent(event)
                 }
             },
             actionEventHandler = { _, action ->
                 when (action) {
-                    is HomeActionEvent.NavigateToEditorScreen -> navOperations.navigateToEditorScreenDestination(action.noteId)
-                    HomeActionEvent.NavigateToLoginScreen -> navOperations.navigateToLoginScreenDestination()
+
+                    is HomeActionEvent.NavigateToEditorScreen -> {
+
+                        navOperations.navigateToEditorScreenDestination(action.noteId)
+                    }
+
+                    HomeActionEvent.NavigateToLoginScreen -> {
+                        navOperations.navigateToLoginScreenDestination()
+                    }
+
+                    is HomeActionEvent.ShowToast -> {
+
+                        toastMessage = context.getString(action.messageRes)
+                        Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT)
+                                .show()
+                    }
+
+                    is HomeActionEvent.ShowDialog -> {
+                        longPressedNoteId = action.noteId
+                    }
                 }
             }
     ) { state ->
@@ -68,13 +100,27 @@ fun HomeScreen(
         HomeScreenContent(
                 modifier = modifier,
                 state = state,
-               onEvent = viewModel::onEvent,
+                onEvent = viewModel::onEvent,
                 deviceType = DeviceType.MOBILE_PORTRAIT
         )
 
+        if (state.showDialog) {
+
+            AppDialog(
+                    dialogTitle = stringResource(id = R.string.dialog_text_delete_title),
+                    dialogText = stringResource(id = R.string.dialog_text_delete_message),
+                    positiveButtonText = stringResource(id = R.string.dialog_text_delete),
+                    negativeButtonText = stringResource(id = R.string.dialog_text_cancel),
+                    onDismissRequest = {
+                        viewModel.onEvent(HomeUiEvent.DismissDialog)
+                    },
+                    onConfirm = {
+                        viewModel.onEvent(HomeUiEvent.ConfirmDeleteNote(notedId = longPressedNoteId))
+                    }
+            )
+        }
     }
 }
-
 
 @Composable
 fun HomeScreenContent(
@@ -83,10 +129,7 @@ fun HomeScreenContent(
     modifier: Modifier = Modifier,
     deviceType: DeviceType = DeviceType.MOBILE_PORTRAIT
 ) {
-
     val columns = when (deviceType) {
-
-
         DeviceType.MOBILE_PORTRAIT, DeviceType.TABLET_PORTRAIT -> 2
         DeviceType.MOBILE_LANDSCAPE, DeviceType.TABLET_LANDSCAPE -> 3
         else -> 3
@@ -100,12 +143,12 @@ fun HomeScreenContent(
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium),
     ) {
         items(state.notes) { note ->
-
-            NotePreview(noteItem = note, onClickNoteItem = onEvent)
+            NotePreview(
+                    noteItem = note,
+                    onEvent = onEvent
+            )
         }
-
     }
-
 }
 
 
@@ -114,21 +157,15 @@ fun HomeScreenContent(
 private fun HomeScreenContent_Preview() {
 
     NoteMarkTheme {
-
         Column(
                 modifier = Modifier
                         .background(MaterialTheme.colorScheme.surface)
                         .fillMaxSize()
-
         ) {
             HomeScreenContent(
                     state = HomeUiState(notes = getNotes(20)),
                     onEvent = {}
-
             )
-
         }
     }
-
-
 }

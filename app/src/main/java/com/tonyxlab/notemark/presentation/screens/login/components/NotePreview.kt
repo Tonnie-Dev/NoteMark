@@ -5,7 +5,7 @@ package com.tonyxlab.notemark.presentation.screens.login.components
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.domain.model.NoteItem
@@ -33,17 +34,19 @@ import java.time.LocalDateTime
 @Composable
 fun NotePreview(
     noteItem: NoteItem,
-    onClickNoteItem:(HomeUiEvent)-> Unit,
+    onEvent: (HomeUiEvent) -> Unit,
     modifier: Modifier = Modifier,
     deviceType: DeviceType = DeviceType.MOBILE_PORTRAIT
 ) {
-
     Box(
             modifier = modifier
                     .clip(MaterialTheme.shapes.medium)
                     .fillMaxSize()
-                    .clickable{
-                        onClickNoteItem(HomeUiEvent.ClickNote(noteItem.id))
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                                onTap = { onEvent(HomeUiEvent.ClickNote(noteItem.id)) },
+                                onLongPress = { onEvent(HomeUiEvent.LongPressNote(noteItem.id)) }
+                        )
                     }
     ) {
 
@@ -73,7 +76,7 @@ fun NotePreview(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         overflow = TextOverflow.Ellipsis
-                        )
+                )
 
             }
         }
@@ -81,16 +84,12 @@ fun NotePreview(
 
 }
 
-
 @PreviewLightDark
 @Composable
 private fun NotePreview_Preview() {
 
     val pastYearDate = LocalDateTime.now()
             .minusYears(1)
-
-
-
 
     val note = NoteItem(content = generateLoremIpsum(20), createdOn = pastYearDate)
 
@@ -104,40 +103,36 @@ private fun NotePreview_Preview() {
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium)) {
 
-
                 NotePreview(
                         modifier = Modifier.weight(1f),
                         noteItem = getNote(2),
-                        onClickNoteItem = {}
+                        onEvent = {}
                 )
 
                 NotePreview(
                         modifier = Modifier.weight(1f),
                         noteItem = note,
-                        onClickNoteItem = {}
+                        onEvent = {}
                 )
-
             }
-
         }
     }
 }
 
 
-fun getNote(id: Long): NoteItem{
-   return NoteItem(
-           id = id,
-           content = generateLoremIpsum(10),
-           createdOn = LocalDateTime.now()
-   )
-
+fun getNote(id: Long): NoteItem {
+    return NoteItem(
+            id = id,
+            content = generateLoremIpsum(10),
+            createdOn = LocalDateTime.now()
+    )
 }
 
-fun getNotes(count:Int): List<NoteItem>{
+fun getNotes(count: Int): List<NoteItem> {
 
     return buildList {
 
-        repeat(count){ i ->
+        repeat(count) { i ->
 
             add(getNote(i.toLong()))
         }

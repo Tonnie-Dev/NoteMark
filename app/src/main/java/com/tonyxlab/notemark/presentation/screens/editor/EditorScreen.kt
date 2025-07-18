@@ -83,7 +83,7 @@ fun EditorScreen(
                 }
             },
             onBackPressed = {
-                viewModel.onEvent(EditorUiEvent.PressBackButton)
+                viewModel.onEvent(EditorUiEvent.ExitEditor)
             }) {
 
         EditorScreenContent(

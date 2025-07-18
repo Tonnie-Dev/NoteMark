@@ -10,16 +10,11 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
 import com.tonyxlab.notemark.R
-import com.tonyxlab.notemark.domain.exception.NoteNotFoundException
 import com.tonyxlab.notemark.domain.model.NoteItem
-import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.domain.model.isBlankNote
-import com.tonyxlab.notemark.domain.repository.NoteRepository
-import com.tonyxlab.notemark.domain.usecase.DeleteNoteUseCase
-import com.tonyxlab.notemark.domain.usecase.GetAllNotesUseCase
 import com.tonyxlab.notemark.domain.usecase.GetNoteByIdUseCase
 import com.tonyxlab.notemark.domain.usecase.UpsertNoteUseCase
-import com.tonyxlab.notemark.navigation.Destinations
+import com.tonyxlab.notemark.navigation.Destinations.EditorScreenDestination
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorActionEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
@@ -34,16 +29,16 @@ import java.time.LocalDateTime
 typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, EditorActionEvent>
 
 class EditorViewModel(
-    private val getAllNotesUseCase: GetAllNotesUseCase,
     private val getNoteByIdUseCase: GetNoteByIdUseCase,
-    private  val upsertNoteUseCase: UpsertNoteUseCase,
-    private val deleteNoteUseCase: DeleteNoteUseCase,
+    private val upsertNoteUseCase: UpsertNoteUseCase,
     savedStateHandle: SavedStateHandle
 ) : EditorBaseViewModel() {
 
     init {
-        val navigationId = savedStateHandle.toRoute<Destinations.EditorScreenDestination>().id
+
+        val navigationId = savedStateHandle.toRoute<EditorScreenDestination>().id
         updateNoteId(noteId = navigationId)
+
         observeTextFieldsInput()
         loadNote(navigationId)
     }
@@ -57,8 +52,7 @@ class EditorViewModel(
             EditorUiEvent.EditNoteTitle -> editNoteTitle()
             EditorUiEvent.EditNoteContent -> editNoteContent()
             EditorUiEvent.SaveNote -> saveNote()
-            EditorUiEvent.CancelEditor -> cancelNoteEdit()
-            EditorUiEvent.PressBackButton -> pressBackButton()
+            EditorUiEvent.ExitEditor -> handleEditorExit()
         }
     }
 
@@ -73,13 +67,11 @@ class EditorViewModel(
             sendActionEvent(
                     EditorActionEvent.ShowSnackbar(
                             messageRes = R.string.snack_text_note_not_found,
-                            actionLabelRes = R.string.snack_text_go_back
+                            actionLabelRes = R.string.snack_text_exit
                     )
             )
         }
         ) {
-
-
 
             val currentNoteItem = getNoteByIdUseCase(id = noteId)
 
@@ -100,16 +92,6 @@ class EditorViewModel(
         }
     }
 
-/*    private suspend fun getNoteById(id: Long): NoteItem {
-        return repository.getNoteById(id)
-                .let { result ->
-                    when (result) {
-                        is Resource.Success<*> -> result.data as NoteItem
-                        is Resource.Error -> throw result.exception
-                        else -> throw NoteNotFoundException(id)
-                    }
-                }
-    }*/
 
     private fun observeTextFieldsInput() {
 
@@ -174,57 +156,60 @@ class EditorViewModel(
                 createdOn = LocalDateTime.now()
         )
 
-        launch {
-            val result = repository.upsertNote(noteItem = noteItem)
+        upsertNote(noteItem = noteItem)
+        sendActionEvent(EditorActionEvent.NavigateToHome)
 
-            when (result) {
-                is Resource.Success<*> -> {
-                    sendActionEvent(EditorActionEvent.NavigateToHome)
+    }
+
+
+    private fun upsertNote(noteItem: NoteItem) {
+
+        launchCatching(
+                onError = {
+                    sendActionEvent(
+                            EditorActionEvent.ShowSnackbar(
+                                    messageRes = R.string.snack_text_note_not_saved,
+                                    actionLabelRes = R.string.snack_text_exit
+                            )
+                    )
                 }
-
-                is Resource.Error -> {
-                    TODO()
-                }
-
-                else -> Unit
-            }
+        ) {
+            upsertNoteUseCase(noteItem = noteItem)
         }
-
     }
 
     private fun deleteNote(noteItem: NoteItem) {
-        launch {
-
-            repository.deleteNote(noteItem = noteItem)
-        }
-    }
-
-    private fun cancelNoteEdit() {
-
-        launch {
-
-            val currentNote = getNoteById(id = currentState.noteId)
-
-            if (currentNote.isBlankNote()) {
-                deleteNote(noteItem = currentNote)
-            }
-            sendActionEvent(actionEvent = EditorActionEvent.NavigateToHome)
-        }
-    }
-
-    private fun pressBackButton() {
 
         launchCatching(
                 onError = {
                     sendActionEvent(
                             EditorActionEvent.ShowSnackbar(
                                     messageRes = R.string.snack_text_note_not_found,
-                                    actionLabelRes = R.string.snack_text_go_back
+                                    actionLabelRes = R.string.snack_text_exit
                             )
                     )
                 }
         ) {
-            val currentNote = getNoteById(id = currentState.noteId)
+            deleteNote(noteItem = noteItem)
+        }
+    }
+
+
+
+
+    private fun handleEditorExit() {
+
+        launchCatching(
+                onError = {
+                    sendActionEvent(
+                            EditorActionEvent.ShowSnackbar(
+                                    messageRes = R.string.snack_text_note_not_found,
+                                    actionLabelRes = R.string.snack_text_exit
+                            )
+                    )
+                }
+        ) {
+            val currentNote = getNoteByIdUseCase(id = currentState.noteId)
 
             if (currentNote.isBlankNote()) {
                 deleteNote(noteItem = currentNote)

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -43,7 +42,7 @@ fun EditorAppBar(
             verticalAlignment = Alignment.CenterVertically
     ) {
 
-        IconButton(onClick = { onEvent(EditorUiEvent.CancelEditor) }) {
+        IconButton(onClick = { onEvent(EditorUiEvent.ExitEditor) }) {
 
             Icon(
                     modifier = Modifier.size(MaterialTheme.spacing.spaceTen * 2),

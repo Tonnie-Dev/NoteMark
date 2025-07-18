@@ -62,7 +62,6 @@ val databaseModule = module {
 }
 
 val useCasesModule = module {
-
     single { GetAllNotesUseCase(get()) }
     single { GetNoteByIdUseCase(get()) }
     single { UpsertNoteUseCase(get()) }
