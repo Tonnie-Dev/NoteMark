@@ -39,7 +39,6 @@ class HomeViewModel(
     }
 
     override fun onEvent(event: HomeUiEvent) {
-
         when (event) {
             HomeUiEvent.CreateNewNote -> createNote()
             is HomeUiEvent.ClickNote -> editNote(event.noteId)
@@ -49,17 +48,16 @@ class HomeViewModel(
         }
     }
 
-    private fun dismissDialog() {
-        updateState { it.copy(showDialog = false) }
-    }
-
     private fun showDialog(noteId: Long) {
         updateState { it.copy(showDialog = true) }
         sendActionEvent(HomeActionEvent.ShowDialog(noteId = noteId))
     }
 
-    private fun confirmDelete(noteId: Long) {
+    private fun dismissDialog() {
+        updateState { it.copy(showDialog = false) }
+    }
 
+    private fun confirmDelete(noteId: Long) {
         deleteNote(noteId = noteId)
         updateState { it.copy(showDialog = false) }
     }
@@ -118,7 +116,7 @@ class HomeViewModel(
                 onError = {
                     sendActionEvent(
                             HomeActionEvent.ShowToast(
-                                    messageRes = R.string.snack_text_note_not_saved
+                                    messageRes = R.string.snack_text_note_not_found
                             )
                     )
 
