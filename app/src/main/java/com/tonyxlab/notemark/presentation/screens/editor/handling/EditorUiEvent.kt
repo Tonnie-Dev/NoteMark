@@ -8,6 +8,7 @@ sealed interface EditorUiEvent : UiEvent {
     data object EditNoteTitle: EditorUiEvent
     data object EditNoteContent: EditorUiEvent
     data object ExitEditor: EditorUiEvent
+    data object ExitWithSnackbar : EditorUiEvent
 
     data object KeepEditing : EditorUiEvent
     data object DismissDialog : EditorUiEvent

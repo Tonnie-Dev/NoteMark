@@ -68,9 +68,12 @@ class EditorViewModel(
 
             EditorUiEvent.KeepEditing,
             EditorUiEvent.DismissDialog -> updateState { it.copy(showDialog = false) }
+
+            EditorUiEvent.ExitWithSnackbar -> {
+                sendActionEvent(EditorActionEvent.NavigateToHome)
+            }
         }
     }
-
 
 
     private fun updateNoteId(noteId: Long) {
@@ -223,40 +226,28 @@ class EditorViewModel(
         }
     }
 
-
     private fun handleEditorExit() {
-
         launchCatching(
                 onError = {
                     sendActionEvent(
                             EditorActionEvent.ShowSnackbar(
                                     messageRes = R.string.snack_text_note_not_found,
-                                    actionLabelRes = R.string.snack_text_exit
+                                    actionLabelRes = R.string.snack_text_exit,
+                                    onActionClick = EditorUiEvent.ExitWithSnackbar
                             )
                     )
                 }
         ) {
             val currentNote = getNoteByIdUseCase(id = currentState.noteId)
 
-            if (isNoteEdited()) {
-
-                Timber.tag("EditorScreen")
-                        .i("note edited - true")
-                sendActionEvent(EditorActionEvent.ShowDialogue)
-            } else if (currentNote.isBlankNote()) {
-
-                Timber.tag("EditorScreen")
-                        .i("blank note")
+            if (currentNote.isBlankNote()) {
                 deleteNote(noteItem = currentNote)
-                sendActionEvent(EditorActionEvent.NavigateToHome)
-            } else {
-
-                Timber.tag("EditorScreen")
-                        .i("jumped to else")
-                sendActionEvent(EditorActionEvent.NavigateToHome)
+            } else if (isNoteEdited()) {
+                sendActionEvent(EditorActionEvent.ShowDialogue)
+                return@launchCatching
             }
 
-
+            sendActionEvent(EditorActionEvent.NavigateToHome)
         }
     }
 
