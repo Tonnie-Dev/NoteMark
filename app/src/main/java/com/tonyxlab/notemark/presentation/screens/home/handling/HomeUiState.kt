@@ -7,5 +7,4 @@ data class HomeUiState(
     val username: String = "",
     val notes: List<NoteItem> = emptyList(),
     val showDialog: Boolean = false,
-        val longPressedNoteId: Long = -1L
 ) : UiState

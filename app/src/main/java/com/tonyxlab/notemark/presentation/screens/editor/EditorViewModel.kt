@@ -71,15 +71,7 @@ class EditorViewModel(
         }
     }
 
-    private fun exitDialog() {
-        updateState { it.copy(showDialog = false) }
-        sendActionEvent(EditorActionEvent.NavigateToHome)
-    }
 
-    private fun continueEditing() {
-
-        updateState { it.copy(showDialog = false) }
-    }
 
     private fun updateNoteId(noteId: Long) {
         updateState { it.copy(noteId = noteId) }
@@ -187,6 +179,7 @@ class EditorViewModel(
     private fun saveNote() {
 
         val noteItem = NoteItem(
+                id = currentState.noteId,
                 title = currentState.titleNoteState.titleTextFieldState.text.toString(),
                 content = currentState.contentNoteState.contentTextFieldState.text.toString(),
                 createdOn = LocalDateTime.now()
@@ -280,4 +273,13 @@ class EditorViewModel(
                 oldNotePair != newNotePair
 
     }
+    /*  private fun exitDialog() {
+        updateState { it.copy(showDialog = false) }
+        sendActionEvent(EditorActionEvent.NavigateToHome)
+    }
+
+    private fun continueEditing() {
+
+        updateState { it.copy(showDialog = false) }
+    }*/
 }

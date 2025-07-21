@@ -21,9 +21,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
+import com.tonyxlab.notemark.presentation.core.components.AppDialog
+import com.tonyxlab.notemark.presentation.core.components.AppSnackbarHost
 import com.tonyxlab.notemark.presentation.core.components.ShowAppSnackbar
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.editor.component.EditableText
@@ -33,6 +37,7 @@ import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import org.koin.androidx.compose.koinViewModel
+import timber.log.Timber
 
 @Composable
 fun EditorScreen(
@@ -62,6 +67,7 @@ fun EditorScreen(
     )
     BaseContentLayout(
             viewModel = viewModel,
+            snackbarHost = { AppSnackbarHost(snackbarHostState = snackbarHostState) },
             actionEventHandler = { _, action ->
 
                 when (action) {
@@ -69,9 +75,6 @@ fun EditorScreen(
                         navOperations.navigateToHomeScreenDestination()
                     }
 
-                    EditorActionEvent.ShowDialogue -> {
-                        navOperations.navigateToHomeScreenDestination()
-                    }
 
                     is EditorActionEvent.ShowSnackbar -> {
                         snackbarMessage = context.getString(action.messageRes)
@@ -80,11 +83,19 @@ fun EditorScreen(
                         snackbarTriggerId++
 
                     }
+
+                    EditorActionEvent.ShowDialogue -> {
+                        viewModel.onEvent(EditorUiEvent.ShowDialog)
+                        Timber.tag("EditorScreen")
+                                .i("Show Event Trigger")
+
+                    }
                 }
             },
             onBackPressed = {
                 viewModel.onEvent(EditorUiEvent.ExitEditor)
-            }) {
+            }
+    ) {
 
         EditorScreenContent(
                 modifier = modifier
@@ -129,6 +140,18 @@ fun EditorScreenContent(
                     onEvent = onEvent
             )
         }
+    }
+
+    if (uiState.showDialog) {
+
+        AppDialog(
+                onDismissRequest = { onEvent(EditorUiEvent.DismissDialog) },
+                onConfirm = { onEvent(EditorUiEvent.KeepEditing) },
+                dialogTitle = stringResource(id = R.string.dialog_text_discard_changes),
+                dialogText = stringResource(id = R.string.dialog_text_unsaved_changes),
+                positiveButtonText = stringResource(id = R.string.dialog_text_discard),
+                negativeButtonText = stringResource(id = R.string.dialog_text_keep_editing)
+        )
     }
 }
 

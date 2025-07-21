@@ -44,13 +44,18 @@
     <string name="snack_text_exit">Exit</string>
 
     <!--Dialog Texts-->
+
+    <string name="dialog_text_discard_changes">Discard Changes?</string>
+    <string name="dialog_text_unsaved_changes">You have unsaved changes. If you discard now, all changes made will be lost</string>
     <string name="dialog_text_delete_title">Delete this Note?</string>
-    <string name="dialog_text_delete_message">Are you sure want to delete this note?</string>j
-    <string name="dialog_text_delete">Delete</string>j
-    <string name="dialog_text_cancel">Cancel</string>j
+    <string name="dialog_text_delete_message">Are you sure want to delete this note?</string>
+    <string name="dialog_text_keep_editing">Keep Editing</string>
+    <string name="dialog_text_delete">Delete</string>
+    <string name="dialog_text_cancel">Cancel</string>
+    <string name="dialog_text_discard">Discard</string>
 
     <!--Supporting Texts-->
-    <string name="sup_text_blank"/>
+    <string name="sup_text_blank" />
 
     <string name="sup_text_def_username">Use between 3 and 20 characters for your username.</string>
     <string name="sup_text_error_username">Username must be at least 3 characters</string>
