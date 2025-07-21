@@ -11,7 +11,7 @@ sealed interface EditorUiEvent : UiEvent {
     data object ExitWithSnackbar : EditorUiEvent
 
     data object KeepEditing : EditorUiEvent
-    data object DismissDialog : EditorUiEvent
+    data object DiscardChanges : EditorUiEvent
     data object ShowDialog : EditorUiEvent
 
 }

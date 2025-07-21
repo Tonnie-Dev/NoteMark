@@ -6,7 +6,6 @@ package com.tonyxlab.notemark.presentation.screens.editor
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
 import com.tonyxlab.notemark.R
@@ -20,13 +19,8 @@ import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorActionEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
+import com.tonyxlab.notemark.presentation.screens.editor.handling.toActiveNote
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import timber.log.Timber
-import java.time.LocalDateTime
 
 typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, EditorActionEvent>
 
@@ -37,20 +31,12 @@ class EditorViewModel(
     savedStateHandle: SavedStateHandle
 ) : EditorBaseViewModel() {
 
-
     private lateinit var oldNotePair: Pair<String, String>
     private lateinit var newNotePair: Pair<String, String>
-
-
-    private var originalTitle: String = ""
-    private var originalContent: String = ""
 
     init {
 
         val navigationId = savedStateHandle.toRoute<EditorScreenDestination>().id
-        updateNoteId(noteId = navigationId)
-
-        observeTextFieldsInput()
         loadNote(navigationId)
     }
 
@@ -65,20 +51,12 @@ class EditorViewModel(
             EditorUiEvent.SaveNote -> saveNote()
             EditorUiEvent.ExitEditor -> handleEditorExit()
             EditorUiEvent.ShowDialog -> updateState { it.copy(showDialog = true) }
-
-            EditorUiEvent.KeepEditing,
-            EditorUiEvent.DismissDialog -> updateState { it.copy(showDialog = false) }
-
-            EditorUiEvent.ExitWithSnackbar -> {
-                sendActionEvent(EditorActionEvent.NavigateToHome)
-            }
+            EditorUiEvent.KeepEditing -> keepEditing()
+            EditorUiEvent.DiscardChanges,
+            EditorUiEvent.ExitWithSnackbar -> discardChanges()
         }
     }
 
-
-    private fun updateNoteId(noteId: Long) {
-        updateState { it.copy(noteId = noteId) }
-    }
 
     private fun loadNote(noteId: Long) {
 
@@ -92,71 +70,39 @@ class EditorViewModel(
             )
         }
         ) {
-
             val currentNoteItem = getNoteByIdUseCase(id = noteId)
-
-            oldNotePair = Pair(currentNoteItem.title, currentNoteItem.content)
-
-            storeOriginalNote(originalNoteItem = currentNoteItem)
-
+            initializeOldAndNewNotePairs(currentNoteItem)
+            
             updateState {
                 it.copy(
                         titleNoteState = currentState.titleNoteState.copy(
-                                titleTextFieldState = editTextField(
+                                titleTextFieldState = buildTextFieldState(
                                         currentNoteItem.title
                                 )
                         ),
                         contentNoteState = currentState.contentNoteState.copy(
-                                contentTextFieldState = editTextField(
+                                contentTextFieldState = buildTextFieldState(
                                         currentNoteItem.content
                                 )
-                        )
+                        ),
+                        activeNote = currentNoteItem.toActiveNote()
                 )
             }
-        }
-    }
 
-    private fun storeOriginalNote(originalNoteItem: NoteItem) {
-        originalTitle = originalNoteItem.title
-        originalContent = originalNoteItem.content
-    }
-
-    private fun observeTextFieldsInput() {
-
-        launch {
-
-            val titleTextSnapshotFlow =
-                snapshotFlow { currentState.titleNoteState.titleTextFieldState.text }
-                        .debounce(timeoutMillis = 300)
-                        .distinctUntilChanged()
-
-            val contentTextSnapshotFlow =
-                snapshotFlow { currentState.contentNoteState.contentTextFieldState.text }
-                        .debounce(timeoutMillis = 300)
-                        .distinctUntilChanged()
-
-            combine(titleTextSnapshotFlow, contentTextSnapshotFlow) { title, content ->
-
-                if (!title.isBlank() && !content.isBlank()) {
-                    val noteTitle = title.toString()
-                    val noteContent = content.toString()
-                    updatePlaceholderTexts(title = noteTitle, content = noteContent)
-                    newNotePair = Pair(noteTitle, noteContent)
-                }
-
-            }.collect()
 
         }
     }
 
-    private fun updatePlaceholderTexts(title: String, content: String) {
+    private fun initializeOldAndNewNotePairs(currentNoteItem: NoteItem) {
 
-        updateState {
-            it.copy(
-                    titleNoteState = currentState.titleNoteState.copy(titlePlaceholderText = title),
-                    contentNoteState = currentState.contentNoteState.copy(contentPlaceholderText = content)
-            )
-        }
+        oldNotePair = Pair(
+                first = currentNoteItem.title,
+                second = currentNoteItem.content
+        )
+        newNotePair = Pair(
+                first = currentState.titleNoteState.titleTextFieldState.text.toString(),
+                second = currentState.contentNoteState.contentTextFieldState.text.toString()
+        )
     }
 
     private fun editNoteTitle() {
@@ -179,20 +125,32 @@ class EditorViewModel(
         }
     }
 
+
+    private fun keepEditing() {
+        updateState { it.copy(showDialog = false) }
+    }
+
+    private fun discardChanges() {
+        updateState { it.copy(showDialog = false) }
+        sendActionEvent(EditorActionEvent.NavigateToHome)
+    }
+
     private fun saveNote() {
 
+        if (!isNoteEdited()) {
+            sendActionEvent(EditorActionEvent.NavigateToHome)
+            return
+        }
         val noteItem = NoteItem(
-                id = currentState.noteId,
+                id = currentState.activeNote.id,
                 title = currentState.titleNoteState.titleTextFieldState.text.toString(),
                 content = currentState.contentNoteState.contentTextFieldState.text.toString(),
-                createdOn = LocalDateTime.now()
+                createdOn = currentState.activeNote.createdOn
         )
 
         upsertNote(noteItem = noteItem)
         sendActionEvent(EditorActionEvent.NavigateToHome)
-
     }
-
 
     private fun upsertNote(noteItem: NoteItem) {
 
@@ -209,6 +167,7 @@ class EditorViewModel(
             upsertNoteUseCase(noteItem = noteItem)
         }
     }
+
 
     private fun deleteNote(noteItem: NoteItem) {
 
@@ -238,10 +197,11 @@ class EditorViewModel(
                     )
                 }
         ) {
-            val currentNote = getNoteByIdUseCase(id = currentState.noteId)
 
-            if (currentNote.isBlankNote()) {
-                deleteNote(noteItem = currentNote)
+            val currentNoteItem = getNoteByIdUseCase(id = currentState.activeNote.id)
+
+            if (currentNoteItem.isBlankNote()) {
+                deleteNote(noteItem = currentNoteItem)
             } else if (isNoteEdited()) {
                 sendActionEvent(EditorActionEvent.ShowDialogue)
                 return@launchCatching
@@ -251,26 +211,14 @@ class EditorViewModel(
         }
     }
 
-    private fun editTextField(value: String): TextFieldState {
+    private fun buildTextFieldState(value: String): TextFieldState {
         return TextFieldState(initialText = value)
     }
 
     private fun isNoteEdited(): Boolean {
 
-        Timber.tag("EditorScreen")
-                .i("Title Old${oldNotePair.first} \n title New is ${newNotePair.first}")
         return this::oldNotePair.isInitialized &&
                 this::newNotePair.isInitialized &&
                 oldNotePair != newNotePair
-
     }
-    /*  private fun exitDialog() {
-        updateState { it.copy(showDialog = false) }
-        sendActionEvent(EditorActionEvent.NavigateToHome)
-    }
-
-    private fun continueEditing() {
-
-        updateState { it.copy(showDialog = false) }
-    }*/
 }

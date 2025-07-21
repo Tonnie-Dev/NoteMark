@@ -145,8 +145,8 @@ fun EditorScreenContent(
     if (uiState.showDialog) {
 
         AppDialog(
-                onDismissRequest = { onEvent(EditorUiEvent.DismissDialog) },
-                onConfirm = { onEvent(EditorUiEvent.KeepEditing) },
+                onDismissRequest = { onEvent(EditorUiEvent.KeepEditing) },
+                onConfirm = { onEvent(EditorUiEvent.DiscardChanges) },
                 dialogTitle = stringResource(id = R.string.dialog_text_discard_changes),
                 dialogText = stringResource(id = R.string.dialog_text_unsaved_changes),
                 positiveButtonText = stringResource(id = R.string.dialog_text_discard),
