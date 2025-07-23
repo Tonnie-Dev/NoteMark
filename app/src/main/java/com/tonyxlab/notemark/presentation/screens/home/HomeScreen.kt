@@ -31,7 +31,7 @@ import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
 import com.tonyxlab.notemark.presentation.core.components.AppDialog
 import com.tonyxlab.notemark.presentation.core.components.AppFloatingActionButton
-import com.tonyxlab.notemark.presentation.core.components.AppTopBar
+import com.tonyxlab.notemark.presentation.screens.home.components.HomeTopBar
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.home.components.EmptyBoard
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeActionEvent
@@ -64,7 +64,10 @@ fun HomeScreen(
             modifier = modifier,
             viewModel = viewModel,
             topBar = {
-                AppTopBar(profileInitials = formatUserInitials(homeState.username))
+                HomeTopBar(
+                        profileInitials = formatUserInitials(homeState.username),
+                        onClickSettingsIcon = TODO()
+                )
             },
             floatingActionButton = {
                 AppFloatingActionButton(modifier = Modifier.navigationBarsPadding()) { event ->

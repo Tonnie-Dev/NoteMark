@@ -44,7 +44,6 @@
     <string name="snack_text_exit">Exit</string>
 
     <!--Dialog Texts-->
-
     <string name="dialog_text_discard_changes">Discard Changes?</string>
     <string name="dialog_text_unsaved_changes">You have unsaved changes. If you discard now, all changes made will be lost</string>
     <string name="dialog_text_delete_title">Delete this Note?</string>
@@ -56,18 +55,16 @@
 
     <!--Supporting Texts-->
     <string name="sup_text_blank" />
-
     <string name="sup_text_def_username">Use between 3 and 20 characters for your username.</string>
     <string name="sup_text_error_username">Username must be at least 3 characters</string>
-
     <string name="sup_text_error_email">Invalid email provided</string>
-
     <string name="sup_text_def_password_one">Use 8+ characters with a number or symbol for better security.</string>
     <string name="sup_text_error_password_one">Password must be at least 8 characters and include a number or symbol</string>
-
     <string name="sup_text_error_password_two">Password do not match</string>
 
     <!--Content Description Texts-->
     <string name="cds_text_add">Add</string>
     <string name="cds_text_cancel">Cancel</string>
+    <string name="cds_text_settings">Settings</string>
+    <string name="cds_text_back">Back</string>
 </resources>
