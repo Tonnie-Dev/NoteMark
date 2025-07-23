@@ -37,7 +37,6 @@ import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import org.koin.androidx.compose.koinViewModel
-import timber.log.Timber
 
 @Composable
 fun EditorScreen(
@@ -72,7 +71,7 @@ fun EditorScreen(
 
                 when (action) {
                     EditorActionEvent.NavigateToHome -> {
-                        navOperations.navigateToHomeScreenDestination()
+                        navOperations.popBackStack()
                     }
 
 
@@ -84,10 +83,8 @@ fun EditorScreen(
 
                     }
 
-                    EditorActionEvent.ShowDialogue -> {
+                    EditorActionEvent.ShowDialog -> {
                         viewModel.onEvent(EditorUiEvent.ShowDialog)
-                        Timber.tag("EditorScreen")
-                                .i("Show Event Trigger")
 
                     }
                 }

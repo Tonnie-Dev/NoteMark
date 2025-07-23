@@ -6,7 +6,7 @@ import com.tonyxlab.notemark.presentation.core.base.handling.ActionEvent
 sealed interface EditorActionEvent : ActionEvent {
 
     data object NavigateToHome : EditorActionEvent
-    data object ShowDialogue : EditorActionEvent
+    data object ShowDialog : EditorActionEvent
     data class ShowSnackbar(
         @StringRes val messageRes: Int,
         @StringRes val actionLabelRes: Int,

@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import timber.log.Timber
 
 typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, EditorActionEvent>
 
@@ -65,7 +64,6 @@ class EditorViewModel(
     private fun loadNote(noteId: Long) {
 
         launchCatching(onError = {
-
             sendActionEvent(
                     EditorActionEvent.ShowSnackbar(
                             messageRes = R.string.snack_text_note_not_found,
@@ -75,14 +73,9 @@ class EditorViewModel(
         }
         ) {
             val currentNoteItem = getNoteByIdUseCase(id = noteId)
-            // initializeOldAndNewNotePairs(currentNoteItem)
             populateOldNote(currentNoteItem)
             observeTitleAndContentFields(currentNoteItem)
-            //initializeOldAndNewNotePairs(currentNoteItem)
-
         }
-
-
     }
 
     private fun populateOldNote(oldNote: NoteItem) {
@@ -100,8 +93,6 @@ class EditorViewModel(
                     ),
                     activeNote = oldNote.toActiveNote()
             )
-
-
         }
     }
 
@@ -110,59 +101,38 @@ class EditorViewModel(
         launch {
 
             val titleSnapshotFlow =
-                snapshotFlow { currentState.titleNoteState.titleTextFieldState.text }.debounce(300)
+                snapshotFlow { currentState.titleNoteState.titleTextFieldState.text }
+                        .debounce(300)
                         .distinctUntilChanged()
 
-
             val contentSnapshotFlow =
-                snapshotFlow { currentState.contentNoteState.contentTextFieldState.text }.debounce(300)
+                snapshotFlow { currentState.contentNoteState.contentTextFieldState.text }
+                        .debounce(300)
                         .distinctUntilChanged()
 
             combine(titleSnapshotFlow, contentSnapshotFlow) { title, content ->
-                initializeOldAndNewNotePairs(oldNote = oldNote, newNote = Pair(title, content))
-           /*     updateState {
-
-
-                    it.copy(
-                            titleNoteState = currentState.titleNoteState.copy(
-                                    titleTextFieldState = buildTextFieldState(title.toString())
-                            )
-                    )
-
-                    it.copy(
-                            contentNoteState = currentState.contentNoteState.copy(
-                                    contentTextFieldState = buildTextFieldState(content.toString())
-                            )
-                    )
-                }*/
+                initializeOldAndNewNotePairs(
+                        oldNote = oldNote,
+                        newNote = Pair(title, content)
+                )
             }.collect()
-
-
         }
-
     }
 
     private fun initializeOldAndNewNotePairs(
         oldNote: NoteItem,
         newNote: Pair<CharSequence, CharSequence>
     ) {
-
         oldNotePair = Pair(
                 first = oldNote.title,
                 second = oldNote.content
         )
+
         newNotePair = Pair(
                 first = newNote.first.toString(),
                 second = newNote.second.toString()
         )
-        Timber.tag("EditorViewModel")
-                .i("initializeOldAndNewNotePairs() called")
-        Timber.tag("EditorViewModel")
-                .i("initialized Note: ${oldNotePair == newNotePair}")
-        Timber.tag("EditorViewModel")
-                .i("Old:\n Title: ${oldNotePair.first} \n New: Title: ${newNotePair.first}")
-        Timber.tag("EditorViewModel")
-                .i("Old:\n Content: ${oldNotePair.second} \n New: Content: ${newNotePair.second}")
+
     }
 
     private fun editNoteTitle() {
@@ -185,7 +155,6 @@ class EditorViewModel(
         }
     }
 
-
     private fun keepEditing() {
         updateState { it.copy(showDialog = false) }
     }
@@ -198,9 +167,6 @@ class EditorViewModel(
     private fun saveNote() {
 
         if (!isNoteEdited()) {
-
-            Timber.tag("EditorViewModel")
-                    .i("inside save note - note NOT Edited")
             sendActionEvent(EditorActionEvent.NavigateToHome)
             return
         }
@@ -210,9 +176,6 @@ class EditorViewModel(
                 content = currentState.contentNoteState.contentTextFieldState.text.toString(),
                 createdOn = currentState.activeNote.createdOn
         )
-
-        Timber.tag("EditorViewModel")
-                .i("inside save note - note EDITED!!")
         upsertNote(noteItem = noteItem)
         sendActionEvent(EditorActionEvent.NavigateToHome)
     }
@@ -261,21 +224,16 @@ class EditorViewModel(
                     )
                 }
         ) {
-
             val currentNoteItem = getNoteByIdUseCase(id = currentState.activeNote.id)
-            //initializeOldAndNewNotePairs(currentNoteItem)
+
             if (currentNoteItem.isBlankNote()) {
                 deleteNote(noteItem = currentNoteItem)
             } else if (isNoteEdited()) {
 
-                Timber.tag("EditorViewModel")
-                        .i("Entering else-if Block")
-                sendActionEvent(EditorActionEvent.ShowDialogue)
+                sendActionEvent(EditorActionEvent.ShowDialog)
                 return@launchCatching
             }
 
-            Timber.tag("EditorViewModel")
-                    .i("Exiting handleEditorExit")
             sendActionEvent(EditorActionEvent.NavigateToHome)
         }
     }
@@ -285,24 +243,8 @@ class EditorViewModel(
     }
 
     private fun isNoteEdited(): Boolean {
-
-        val titleAndContentChanged = currentState.titleNoteState.isEditingTitle ||
-                currentState.contentNoteState.isEditingContent
-
-        Timber.tag("EditorViewModel")
-                .i(
-                        "\ntitle/Content Edited-> $titleAndContentChanged" +
-                                "\noldPair initialized -> ${this::oldNotePair.isInitialized}" +
-                                "\nnewPair initialized -> ${this::newNotePair.isInitialized}" +
-                                "\n old equals new -> ${oldNotePair == newNotePair}" +
-                                "old Title: ${oldNotePair.first}, new Title: ${newNotePair.first}" +
-                                "\n old not equal to new -> ${oldNotePair != newNotePair}"
-                )
-
-
         return this::oldNotePair.isInitialized &&
                 this::newNotePair.isInitialized &&
-
                 oldNotePair != newNotePair
     }
 }
