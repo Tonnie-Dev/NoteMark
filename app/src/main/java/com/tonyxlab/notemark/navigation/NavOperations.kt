@@ -43,6 +43,12 @@ class NavOperations(val navHostController: NavHostController) {
 
     }
 
+    fun navigateToSettingsScreenDestination() {
+
+        navHostController.navigate(Destinations.SettingsScreenDestination)
+
+    }
+
     fun popBackStack() {
 
         navHostController.popBackStack()
