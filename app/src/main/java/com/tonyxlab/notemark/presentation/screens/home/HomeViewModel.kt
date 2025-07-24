@@ -4,6 +4,7 @@ package com.tonyxlab.notemark.presentation.screens.home
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.text.ClickableText
 import androidx.lifecycle.viewModelScope
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.domain.auth.AuthRepository
@@ -45,7 +46,12 @@ class HomeViewModel(
             is HomeUiEvent.LongPressNote -> showDialog(noteId = event.noteId)
             is HomeUiEvent.ConfirmDeleteNote -> confirmDelete(event.notedId)
             HomeUiEvent.DismissDialog -> dismissDialog()
+            HomeUiEvent.ClickSettingsIcon -> navigateToSettings()
         }
+    }
+
+    private fun navigateToSettings() {
+        sendActionEvent(HomeActionEvent.NavigateToSettingsScreen)
     }
 
     private fun showDialog(noteId: Long) {

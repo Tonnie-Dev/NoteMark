@@ -21,6 +21,7 @@ import com.tonyxlab.notemark.presentation.screens.editor.EditorViewModel
 import com.tonyxlab.notemark.presentation.screens.home.HomeViewModel
 import com.tonyxlab.notemark.presentation.screens.landing.LandingViewModel
 import com.tonyxlab.notemark.presentation.screens.login.LoginViewModel
+import com.tonyxlab.notemark.presentation.screens.settings.SettingsViewModel
 import com.tonyxlab.notemark.presentation.screens.signup.SignupViewModel
 import com.tonyxlab.notemark.util.Constants
 import org.koin.android.ext.koin.androidContext
@@ -34,6 +35,7 @@ val viewModelModule = module {
     viewModelOf(::LandingViewModel)
     viewModelOf(::HomeViewModel)
     viewModelOf(::EditorViewModel)
+    viewModelOf(::SettingsViewModel)
 }
 
 val networkModule = module {

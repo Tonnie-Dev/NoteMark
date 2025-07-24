@@ -66,7 +66,7 @@ fun HomeScreen(
             topBar = {
                 HomeTopBar(
                         profileInitials = formatUserInitials(homeState.username),
-                        onClickSettingsIcon = TODO()
+                        onClickSettingsIcon = { viewModel.onEvent(HomeUiEvent.ClickSettingsIcon)}
                 )
             },
             floatingActionButton = {
@@ -95,6 +95,11 @@ fun HomeScreen(
 
                     is HomeActionEvent.ShowDialog -> {
                         longPressedNoteId = action.noteId
+                    }
+
+                    HomeActionEvent.NavigateToSettingsScreen -> {
+
+                        navOperations.navigateToSettingsScreenDestination()
                     }
                 }
             }
