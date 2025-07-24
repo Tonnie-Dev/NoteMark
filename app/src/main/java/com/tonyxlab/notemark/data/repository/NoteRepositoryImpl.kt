@@ -41,6 +41,11 @@ class NoteRepositoryImpl(private val dao: NoteDao) : NoteRepository {
             result > 0
         }
 
+    override suspend fun clearAllNotes(): Resource<Boolean> = safeIoCall {
+        dao.clearAllNotes()
+        true
+    }
+
     suspend fun <T> safeIoCall(block: suspend () -> T): Resource<T> {
         return try {
             withContext(Dispatchers.IO) {

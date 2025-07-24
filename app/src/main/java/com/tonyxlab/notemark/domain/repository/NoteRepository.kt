@@ -13,4 +13,6 @@ interface NoteRepository {
     suspend fun getNoteById(id: Long) : Resource<NoteItem>
 
     suspend fun deleteNote(noteItem: NoteItem): Resource<Boolean>
+
+    suspend fun clearAllNotes(): Resource<Boolean>
 }
