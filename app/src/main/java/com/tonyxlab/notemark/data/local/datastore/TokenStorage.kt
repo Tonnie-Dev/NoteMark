@@ -29,13 +29,11 @@ object TokenStorage {
     suspend fun saveTokens(accessToken: String, refreshToken: String, username: String) {
 
         dataStore.edit { prefs ->
-
             prefs[ACCESS_TOKEN] = accessToken
             prefs[REFRESH_TOKEN] = refreshToken
             prefs[USERNAME] = username
         }
     }
-
 
     suspend fun getAccessToken(): String? {
 
@@ -56,6 +54,5 @@ object TokenStorage {
 
         return dataStore.data.first()[USERNAME]
     }
-
 
 }

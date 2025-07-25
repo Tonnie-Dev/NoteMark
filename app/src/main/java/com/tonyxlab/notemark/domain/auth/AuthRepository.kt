@@ -10,5 +10,6 @@ interface AuthRepository {
     suspend fun login(credentials: Credentials): Resource<Int>
     suspend fun isSignedIn(): Boolean
     suspend fun getUserName(): String?
+    suspend fun logout(refreshToken: String): Resource<Unit>
 
 }

@@ -80,13 +80,10 @@ class HttpClientFactory {
 
                         try {
 
-
                             val refreshResponse =
                                 defaultClient.post(ApiEndpoints.REFRESH_ENDPOINT) {
                                     header("Authorization", "Bearer $refreshToken")
-
                                 }
-
 
                             if (refreshResponse.status == HttpStatusCode.OK) {
                                 val newTokens = refreshResponse.body<AccessTokenResponse>()
