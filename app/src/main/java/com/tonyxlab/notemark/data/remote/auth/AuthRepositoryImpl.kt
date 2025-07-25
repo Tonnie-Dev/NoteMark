@@ -5,6 +5,7 @@ import com.tonyxlab.notemark.BuildConfig
 import com.tonyxlab.notemark.data.local.datastore.TokenStorage
 import com.tonyxlab.notemark.data.network.HttpClientFactory
 import com.tonyxlab.notemark.data.remote.auth.dto.AccessTokenResponse
+import com.tonyxlab.notemark.data.remote.auth.dto.LogoutRequest
 import com.tonyxlab.notemark.data.remote.auth.mappers.toAccessTokenRequest
 import com.tonyxlab.notemark.data.remote.auth.mappers.toRegistrationRequest
 import com.tonyxlab.notemark.domain.auth.AuthRepository
@@ -61,8 +62,6 @@ class AuthRepositoryImpl(private val httpClientFactory: HttpClientFactory) : Aut
         withContext(Dispatchers.IO) {
             try {
 
-
-
                 val client = httpClientFactory.provideMainHttpClient()
 
                 val result = client.post {
@@ -112,6 +111,35 @@ class AuthRepositoryImpl(private val httpClientFactory: HttpClientFactory) : Aut
     override suspend fun getUserName(): String? {
         return TokenStorage.getUsername()
     }
+
+    override suspend fun logout(refreshToken: String): Resource<Unit> =
+
+        safeIoCall {
+
+            val client = httpClientFactory.provideMainHttpClient()
+
+           client.post(ApiEndpoints.LOGIN_ENDPOINT) {
+                contentType(ContentType.Application.Json)
+                header("X-User-Email", BuildConfig.USER_EMAIL)
+                setBody(LogoutRequest(refreshToken = refreshToken))
+            }
+
+            Unit
+
+        }
+
+
+    suspend fun <T> safeIoCall(block: suspend () -> T): Resource<T> {
+        return try {
+            withContext(Dispatchers.IO) {
+                Resource.Success(block())
+            }
+        } catch (e: Exception) {
+            Resource.Error(e)
+        }
+
+    }
+
 }
 
 
