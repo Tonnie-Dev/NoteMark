@@ -11,11 +11,10 @@ import com.tonyxlab.notemark.domain.exception.NoteNotFoundException
 import com.tonyxlab.notemark.domain.model.NoteItem
 import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.domain.repository.NoteRepository
-import kotlinx.coroutines.Dispatchers
+import com.tonyxlab.notemark.util.safeIoCall
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 
 class NoteRepositoryImpl(private val dao: NoteDao) : NoteRepository {
     override fun getAllNotes(): Flow<List<NoteItem>> {
@@ -46,13 +45,4 @@ class NoteRepositoryImpl(private val dao: NoteDao) : NoteRepository {
         true
     }
 
-    suspend fun <T> safeIoCall(block: suspend () -> T): Resource<T> {
-        return try {
-            withContext(Dispatchers.IO) {
-                Resource.Success(block())
-            }
-        } catch (e: Exception) {
-            Resource.Error(e)
-        }
-    }
 }
