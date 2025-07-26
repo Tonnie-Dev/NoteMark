@@ -2,9 +2,7 @@
 
 package com.tonyxlab.notemark.presentation.screens.login
 
-import android.R.attr.password
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.text.toLowerCase
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.domain.auth.AuthRepository
 import com.tonyxlab.notemark.domain.model.Credentials
@@ -25,35 +23,29 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import timber.log.Timber
 
 typealias LoginBaseViewModel = BaseViewModel<LoginUiState, LoginUiEvent, LoginActionEvent>
 
 class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseViewModel() {
 
     init {
-
         observeFieldsInput()
-
     }
 
     override val initialState: LoginUiState
         get() = LoginUiState()
 
-
     override fun onEvent(event: LoginUiEvent) {
-
         when (event) {
-            LoginUiEvent.Login -> onLogin()
+            LoginUiEvent.Login -> login()
             LoginUiEvent.RegisterAccount -> onRegister()
-            LoginUiEvent.TogglePasswordVisibility -> onTogglePasswordVisibility()
+            LoginUiEvent.TogglePasswordVisibility -> toggledPasswordVisibility()
         }
     }
 
-    private fun onTogglePasswordVisibility() {
+    private fun toggledPasswordVisibility() {
         updateState { it.copy(isSecureText = !currentState.isSecureText) }
     }
-
 
     private fun onRegister() {
         sendActionEvent(LoginActionEvent.NavigateToSignupScreen)
@@ -78,43 +70,46 @@ class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseView
                 updateState { it.copy(fieldError = fieldError) }
             }.collect()
         }
-
     }
 
-    private fun onLogin() {
-        launch {
-            updateState { it.copy(loginStatus = Resource.Loading) }
+    private fun login() {
 
-            val credentials = Credentials(
+        launchCatching(
+                onError = { throwable ->
 
-                    email = currentState.fieldTextState.emailTextFieldState.toText.lowercase(),
-                    password = currentState.fieldTextState.passwordTextFieldState.toText
-            )
-            val response = authRepository.login(credentials = credentials)
+                    val exception =
+                        throwable as? Exception ?: Exception(throwable.message, throwable)
 
-            when (response) {
+                    updateState { it.copy(loginStatus = Resource.Error(exception = exception)) }
 
-                is Resource.Success -> {
-
-                    updateState { it.copy(loginStatus = Resource.Success(0)) }
-                    sendActionEvent(LoginActionEvent.NavigateToHomeScreen)
-                }
-
-                is Resource.Error -> {
-
-                    updateState { it.copy(loginStatus = Resource.Error(response.exception)) }
                     sendActionEvent(
                             LoginActionEvent.ShowSnackbar(
                                     messageRes = R.string.snack_text_login_failed,
-                                    actionLabelRes = R.string.snack_text_retry
-
+                                    actionLabelRes = R.string.snack_text_retry,
+                                    loginUiEvent = LoginUiEvent.Login
                             )
                     )
+
+                }
+        ) {
+            updateState { it.copy(loginStatus = Resource.Loading) }
+
+            val credentials = Credentials(
+                    email = currentState.fieldTextState.emailTextFieldState.toText.lowercase(),
+                    password = currentState.fieldTextState.passwordTextFieldState.toText
+            )
+
+            val result = authRepository.login(credentials = credentials)
+
+            when (result) {
+                is Resource.Success -> {
+                    updateState { it.copy(loginStatus = Resource.Success(result.data)) }
+                    sendActionEvent(LoginActionEvent.NavigateToHomeScreen)
                 }
 
+                is Resource.Error -> throw result.exception
                 else -> Unit
             }
-
         }
     }
 

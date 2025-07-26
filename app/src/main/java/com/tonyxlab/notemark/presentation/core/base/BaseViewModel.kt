@@ -59,8 +59,8 @@ abstract class BaseViewModel<S : UiState, E : UiEvent, A : ActionEvent> : ViewMo
 
             try {
                 block()
-            }catch (e: Throwable){
-                onError(e)
+            }catch (t: Throwable){
+                onError(t)
             }
         }
 

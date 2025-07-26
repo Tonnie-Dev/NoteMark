@@ -82,11 +82,15 @@ class SnackbarController<T> {
     var actionLabel by mutableStateOf("")
     var actionEvent by mutableStateOf<T?>(null)
 
-    fun showSnackbar(message: String, actionLabel: String = "", actionEvent:T? = null) {
+    fun showSnackbar(
+        message: String,
+        actionLabel: String = "",
+        actionEvent: T? = null
+    ) {
        this.message = message
        this.actionLabel = actionLabel
        this.actionEvent = actionEvent
-       triggerId ++
+       triggerId++
     }
 
     fun dismissSnackbar(){

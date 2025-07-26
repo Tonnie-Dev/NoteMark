@@ -31,11 +31,8 @@ data class LoginUiState(
 
         listOf(emailTextFieldState.text, passwordTextFieldState.text).all { it.isNotBlank() }
     }
-    val isLoginButtonEnabled: Boolean
-        get() = (fieldError == FieldError()) && areAllFieldsFilled
 
 }
-
 
 val TextFieldState.toText:String
     get() = text.toString()
