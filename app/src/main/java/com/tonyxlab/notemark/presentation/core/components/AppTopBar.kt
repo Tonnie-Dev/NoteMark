@@ -29,7 +29,7 @@ import com.tonyxlab.notemark.presentation.theme.textButtonStyle
 @Composable
 fun AppTopBar(
     screenTitle: String,
-    onPressBack: () -> Unit,
+    onChevronIconClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(color = MaterialTheme.colorScheme.background) {
@@ -45,7 +45,7 @@ fun AppTopBar(
             Icon(
                     modifier = Modifier
                             .padding(end = MaterialTheme.spacing.spaceDoubleDp)
-                            .clickable { onPressBack() },
+                            .clickable { onChevronIconClick() },
                     imageVector = Icons.Default.ChevronLeft,
                     contentDescription = stringResource(id = R.string.cds_text_back),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -73,15 +73,15 @@ private fun AppTopBar_Preview() {
         ) {
             AppTopBar(
                     screenTitle = "SETTINGS",
-                    onPressBack = {}
+                    onChevronIconClick = {}
             )
             AppTopBar(
                     screenTitle = "HOME",
-                    onPressBack = {}
+                    onChevronIconClick = {}
             )
             AppTopBar(
                     screenTitle = "EDITOR",
-                    onPressBack = {}
+                    onChevronIconClick = {}
             )
         }
     }

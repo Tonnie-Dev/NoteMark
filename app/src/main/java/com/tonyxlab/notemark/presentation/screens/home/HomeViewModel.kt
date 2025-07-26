@@ -19,6 +19,7 @@ import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiState
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import timber.log.Timber
 import java.time.LocalDateTime
 
 typealias HomeViewModelBaseClass = BaseViewModel<HomeUiState, HomeUiEvent, HomeActionEvent>
@@ -84,7 +85,7 @@ class HomeViewModel(
             if (authRepository.isSignedIn()) {
                 val username = authRepository.getUserName() ?: return@launch
                 updateState { it.copy(username = username) }
-
+                Timber.tag("HomeViewModel").i("User is-signed-in value is: ${authRepository.isSignedIn()}")
             } else {
                 sendActionEvent(HomeActionEvent.NavigateToLoginScreen)
             }

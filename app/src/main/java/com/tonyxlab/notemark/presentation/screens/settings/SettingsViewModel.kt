@@ -20,14 +20,16 @@ class SettingsViewModel(
 
     override fun onEvent(event: SettingsUiEvent) {
         when (event) {
-            SettingsUiEvent.LogOut -> logOut()
-            SettingsUiEvent.ExitSettings -> {
-                sendActionEvent(SettingsActionEvent.NavigateBack)
-            }
+            SettingsUiEvent.LogOut -> logout()
+            SettingsUiEvent.ExitSettings -> exitSettings()
         }
     }
 
-    private fun logOut() {
+    private fun exitSettings() {
+        sendActionEvent(SettingsActionEvent.ExitSettings)
+    }
+
+    private fun logout() {
         launchCatching(onError = {
             sendActionEvent(
                     SettingsActionEvent.ShowSnackbar(
@@ -42,7 +44,7 @@ class SettingsViewModel(
 
                 is Resource.Success -> {
                     if (result.data) {
-                        sendActionEvent(SettingsActionEvent.NavigateBack)
+                        sendActionEvent(SettingsActionEvent.ExitSettings)
                     } else {
                         sendActionEvent(
                                 SettingsActionEvent.ShowSnackbar(
@@ -53,6 +55,7 @@ class SettingsViewModel(
                     }
 
                 }
+
                 is Resource.Error -> throw result.exception
                 else -> Unit
             }

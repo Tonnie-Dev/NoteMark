@@ -19,21 +19,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
 import com.tonyxlab.notemark.presentation.core.components.AppTopBar
+import com.tonyxlab.notemark.presentation.core.components.ShowAppSnackbar
+import com.tonyxlab.notemark.presentation.core.components.SnackbarController
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsActionEvent
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiEvent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
+import com.tonyxlab.notemark.util.SetStatusBarIconsColor
 import org.koin.androidx.compose.koinViewModel
-
 
 @Composable
 fun SettingsScreen(
@@ -41,20 +46,52 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = koinViewModel()
 ) {
+
+    SetStatusBarIconsColor(darkIcons = true)
+
+    val snackbarController = remember {
+        SnackbarController<SettingsUiEvent>()
+    }
+
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    ShowAppSnackbar(
+            triggerId = snackbarController.triggerId,
+            snackbarHostState = snackbarHostState,
+            message = snackbarController.message,
+            actionLabel = snackbarController.actionLabel,
+            onActionClick = { snackbarController.actionEvent?.let { viewModel.onEvent(it) } },
+            onDismiss = { snackbarController.dismissSnackbar() }
+    )
+
     BaseContentLayout(
             viewModel = viewModel,
             topBar = {
                 AppTopBar(
                         screenTitle = stringResource(id = R.string.topbar_text_settings),
-                        onPressBack = { viewModel.onEvent(SettingsUiEvent.ExitSettings) })
+                        onChevronIconClick = { viewModel.onEvent(SettingsUiEvent.ExitSettings) })
             },
-            actionEventHandler = { _,action ->
+            actionEventHandler = { _, action ->
+                when (action) {
+                    SettingsActionEvent.ExitSettings -> {
+                        navOperations.popBackStack()
+                    }
 
-                when(action){
-                    SettingsActionEvent.NavigateBack -> navOperations.popBackStack()
-                    is SettingsActionEvent.ShowSnackbar -> TODO()
+                    is SettingsActionEvent.ShowSnackbar -> {
+                        snackbarController.showSnackbar(
+                                message = context.getString(action.messageRes),
+                                actionLabel = context.getString(action.labelRes),
+                                actionEvent = action.settingsActionEvent
+                        )
+                    }
+
+                    SettingsActionEvent.Logout -> {
+                        navOperations.navigateToLoginScreenAndClearBackStack()
+                    }
                 }
-            }
+            },
+            onBackPressed = { viewModel.onEvent(SettingsUiEvent.ExitSettings)}
     ) {
         SettingsScreenContent(
                 modifier = modifier,
@@ -77,7 +114,6 @@ fun SettingsScreenContent(
                 modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-
                             onEvent(SettingsUiEvent.LogOut)
                         }
                         .padding(MaterialTheme.spacing.spaceMedium)
