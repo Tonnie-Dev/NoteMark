@@ -1,4 +1,5 @@
 @file:RequiresApi(Build.VERSION_CODES.O)
+
 package com.tonyxlab.notemark.navigation
 
 import android.os.Build
@@ -24,6 +25,14 @@ class NavOperations(val navHostController: NavHostController) {
     fun navigateToLoginScreenDestination() {
 
         navHostController.navigate(Destinations.LoginScreenDestination)
+    }
+
+    fun navigateToLoginScreenAndClearBackStack() {
+
+        navHostController.navigate(Destinations.LoginScreenDestination) {
+            popUpTo(0) { inclusive = true }
+            launchSingleTop = true
+        }
     }
 
     fun navigateToSignupScreenDestination() {
@@ -59,6 +68,6 @@ class NavOperations(val navHostController: NavHostController) {
 @Composable
 fun rememberNavOperations(
     navController: NavHostController = rememberNavController()
-):NavOperations {
+): NavOperations {
     return remember { NavOperations(navController) }
 }
