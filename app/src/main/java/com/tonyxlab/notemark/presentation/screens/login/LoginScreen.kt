@@ -15,10 +15,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -35,6 +32,7 @@ import com.tonyxlab.notemark.presentation.core.components.AppTextButton
 import com.tonyxlab.notemark.presentation.core.components.AppTextField
 import com.tonyxlab.notemark.presentation.core.components.Header
 import com.tonyxlab.notemark.presentation.core.components.ShowAppSnackbar
+import com.tonyxlab.notemark.presentation.core.components.rememberSnackbarController
 import com.tonyxlab.notemark.presentation.core.utils.SupportText
 import com.tonyxlab.notemark.presentation.core.utils.eyeIcon
 import com.tonyxlab.notemark.presentation.core.utils.spacing
@@ -58,21 +56,19 @@ fun LoginScreen(
 
     val context = LocalContext.current
 
+    val snackbarController = rememberSnackbarController<LoginUiEvent>()
+
     val snackbarHostState = remember { SnackbarHostState() }
-    var snackbarTriggerId by remember { mutableIntStateOf(0) }
-    var snackbarMessage by remember { mutableStateOf("") }
-    var snackbarActionLabel by remember { mutableStateOf("") }
-    var snackbarActionEvent by remember { mutableStateOf<LoginUiEvent?>(null) }
+
 
     ShowAppSnackbar(
-            triggerId = snackbarTriggerId,
+            triggerId = snackbarController.triggerId,
             snackbarHostState = snackbarHostState,
-            message = snackbarMessage,
-            actionLabel = snackbarActionLabel,
-            onActionClick = { snackbarActionEvent?.let { viewModel.onEvent(it) } },
+            message = snackbarController.message,
+            actionLabel = snackbarController.actionLabel,
+            onActionClick = { snackbarController.actionEvent?.let { viewModel.onEvent(it) } },
             onDismiss = {
-                snackbarTriggerId = 0
-                snackbarActionEvent = null
+                snackbarController.dismissSnackbar()
             }
     )
 
@@ -97,10 +93,11 @@ fun LoginScreen(
                     }
 
                     is LoginActionEvent.ShowSnackbar -> {
-                        snackbarMessage = context.getString(action.messageRes)
-                        snackbarActionLabel = context.getString(action.actionLabelRes)
-                        snackbarActionEvent = action.onActionClick
-                        snackbarTriggerId++
+                        snackbarController.showSnackbar(
+                                message = context.getString(action.messageRes),
+                                actionLabel = context.getString(action.actionLabelRes),
+                                actionEvent = action.loginUiEvent
+                        )
                     }
                 }
             }

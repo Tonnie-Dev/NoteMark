@@ -9,7 +9,7 @@ sealed interface LoginActionEvent : ActionEvent {
     data class ShowSnackbar(
         @StringRes val messageRes: Int,
         @StringRes val actionLabelRes: Int,
-        val onActionClick: LoginUiEvent? = null,
+        val loginUiEvent: LoginUiEvent? = null,
         val isError: Boolean = false
     ) : LoginActionEvent
 }
