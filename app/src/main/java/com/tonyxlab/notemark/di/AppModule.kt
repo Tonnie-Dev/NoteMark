@@ -16,6 +16,7 @@ import com.tonyxlab.notemark.domain.repository.NoteRepository
 import com.tonyxlab.notemark.domain.usecase.DeleteNoteUseCase
 import com.tonyxlab.notemark.domain.usecase.GetAllNotesUseCase
 import com.tonyxlab.notemark.domain.usecase.GetNoteByIdUseCase
+import com.tonyxlab.notemark.domain.usecase.LogOutUseCase
 import com.tonyxlab.notemark.domain.usecase.UpsertNoteUseCase
 import com.tonyxlab.notemark.presentation.screens.editor.EditorViewModel
 import com.tonyxlab.notemark.presentation.screens.home.HomeViewModel
@@ -68,5 +69,6 @@ val useCasesModule = module {
     single { GetNoteByIdUseCase(get()) }
     single { UpsertNoteUseCase(get()) }
     single { DeleteNoteUseCase(get()) }
+    single { LogOutUseCase(get(), get()) }
 }
 

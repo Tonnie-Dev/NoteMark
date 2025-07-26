@@ -6,7 +6,7 @@ import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.domain.repository.NoteRepository
 import com.tonyxlab.notemark.util.safeIoCall
 
-class LogoutUseCase(
+class LogOutUseCase(
     private val noteRepository: NoteRepository,
     private val authRepository: AuthRepository
 ) {

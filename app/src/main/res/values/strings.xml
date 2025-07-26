@@ -48,6 +48,9 @@
     <string name="snack_text_note_not_saved">Note Not Saved</string>
     <string name="snack_text_exit">Exit</string>
 
+    <string name="snack_text_logout_incomplete">Logout incomplete, some steps failed</string>
+    <string name="snack_text_logout_failed">Logout Failed, try again</string>
+
     <!--Dialog Texts-->
     <string name="dialog_text_discard_changes">Discard Changes?</string>
     <string name="dialog_text_unsaved_changes">You have unsaved changes. If you discard now, all changes made will be lost</string>

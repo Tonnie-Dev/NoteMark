@@ -52,6 +52,7 @@ fun SettingsScreen(
 
                 when(action){
                     SettingsActionEvent.NavigateBack -> navOperations.popBackStack()
+                    is SettingsActionEvent.ShowSnackbar -> TODO()
                 }
             }
     ) {
