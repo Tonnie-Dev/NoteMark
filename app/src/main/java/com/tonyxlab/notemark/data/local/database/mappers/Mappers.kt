@@ -10,23 +10,18 @@ import com.tonyxlab.notemark.util.localDateTimeToMillis
 import com.tonyxlab.notemark.util.toLocalDateTime
 
 
-fun NoteItem.toEntity(): NoteEntity {
-    return NoteEntity(
-            id = id,
-            title = title,
-            content = content,
-                    createdOn = createdOn.localDateTimeToMillis()
-    )
-}
+fun NoteItem.toEntity() = NoteEntity(
+        id = id,
+        title = title,
+        content = content,
+        createdOn = createdOn.localDateTimeToMillis(),
+        lastEditedOn = lastEditedOn.localDateTimeToMillis()
+)
 
-
-fun NoteEntity.toModel(): NoteItem {
-
-    return NoteItem(
-
-            id = id,
-            title = title,
-            content = content,
-            createdOn = createdOn.toLocalDateTime()
-    )
-}
+fun NoteEntity.toModel() = NoteItem(
+        id = id,
+        title = title,
+        content = content,
+        createdOn = createdOn.toLocalDateTime(),
+        lastEditedOn = createdOn.toLocalDateTime()
+)

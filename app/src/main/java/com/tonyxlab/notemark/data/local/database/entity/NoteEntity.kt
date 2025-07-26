@@ -15,4 +15,6 @@ data class NoteEntity(
     val content: String,
     @ColumnInfo(name = "created_on")
     val createdOn: Long,
+    @ColumnInfo(name = "last_edited_on")
+    val lastEditedOn: Long
 )
