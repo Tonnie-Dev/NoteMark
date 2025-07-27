@@ -16,20 +16,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.tonyxlab.notemark.presentation.core.utils.EditorTextFieldStyle
-import com.tonyxlab.notemark.presentation.core.utils.EditorTextFieldStyle.*
+import com.tonyxlab.notemark.presentation.core.utils.EditorTextFieldStyle.EditorFocusedNoteStyle
+import com.tonyxlab.notemark.presentation.core.utils.EditorTextFieldStyle.EditorTitleStyle
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
@@ -45,7 +41,6 @@ fun EditableText(
 
 ) {
     val focusRequester = remember { FocusRequester() }
-    var isFocused by remember { mutableStateOf(false) }
 
     val currentStyle = remember(isTitle) {
         when {
@@ -63,10 +58,8 @@ fun EditableText(
     if (isEditing) {
         BasicTextField(
                 modifier = modifier
-                        .focusRequester(focusRequester)
-                        .onFocusChanged {
-                            isFocused = it.isFocused
-                        },
+                        .focusRequester(focusRequester),
+
                 state = textFieldState,
                 textStyle = currentStyle.first.textStyle(),
                 cursorBrush = SolidColor(currentStyle.first.cursorColor()),
@@ -75,6 +68,7 @@ fun EditableText(
                 }
         )
     } else {
+
         Text(
                 modifier = Modifier
                         .fillMaxWidth()
@@ -96,7 +90,6 @@ fun EditableText(
     }
 }
 
-
 @Composable
 private fun TextDecorator(
     innerDefaultText: @Composable () -> Unit,
@@ -109,7 +102,6 @@ private fun TextDecorator(
                     .padding(vertical = MaterialTheme.spacing.spaceTen * 2)
 
     ) {
-
         innerDefaultText()
     }
 }
@@ -118,7 +110,6 @@ private fun TextDecorator(
 @PreviewLightDark
 @Composable
 private fun EditorText_Preview() {
-
 
     NoteMarkTheme {
 
@@ -149,7 +140,6 @@ private fun EditorText_Preview() {
                     isTitle = false,
                     onEvent = {}
             )
-
         }
     }
 }
