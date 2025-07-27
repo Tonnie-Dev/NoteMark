@@ -1,9 +1,10 @@
-
 @file:RequiresApi(Build.VERSION_CODES.O)
 
 package com.tonyxlab.notemark.util
+
 import android.os.Build
 import androidx.annotation.RequiresApi
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -20,10 +21,29 @@ fun LocalDateTime.toNoteDate(): String {
 
 fun LocalDateTime.localDateTimeToMillis(): Long {
 
-    return this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+    return this.atZone(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
 }
 
 fun Long.toLocalDateTime(): LocalDateTime {
 
-    return Instant.ofEpochMilli(this).atZone(ZoneId.systemDefault()).toLocalDateTime()
+    return Instant.ofEpochMilli(this)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDateTime()
+}
+
+fun LocalDateTime.toMetadata(): String {
+
+    val now = LocalDateTime.now()
+    val duration = Duration.between(this, now)
+
+    return if (duration.toMinutes() < 5) {
+        "Just now"
+    } else {
+        val formatter =
+            DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
+        formatter.format(this)
+    }
+
 }
