@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import java.time.LocalDateTime
 
 typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, EditorActionEvent>
 
@@ -170,11 +171,14 @@ class EditorViewModel(
             sendActionEvent(EditorActionEvent.NavigateToHome)
             return
         }
+
+        val now = LocalDateTime.now()
         val noteItem = NoteItem(
                 id = currentState.activeNote.id,
                 title = currentState.titleNoteState.titleTextFieldState.text.toString(),
                 content = currentState.contentNoteState.contentTextFieldState.text.toString(),
-                createdOn = currentState.activeNote.createdOn
+                createdOn = currentState.activeNote.createdOn,
+                lastEditedOn = now
         )
         upsertNote(noteItem = noteItem)
         sendActionEvent(EditorActionEvent.NavigateToHome)

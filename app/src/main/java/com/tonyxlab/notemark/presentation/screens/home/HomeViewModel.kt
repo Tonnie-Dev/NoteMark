@@ -4,7 +4,6 @@ package com.tonyxlab.notemark.presentation.screens.home
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.text.ClickableText
 import androidx.lifecycle.viewModelScope
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.domain.auth.AuthRepository
@@ -85,7 +84,8 @@ class HomeViewModel(
             if (authRepository.isSignedIn()) {
                 val username = authRepository.getUserName() ?: return@launch
                 updateState { it.copy(username = username) }
-                Timber.tag("HomeViewModel").i("User is-signed-in value is: ${authRepository.isSignedIn()}")
+                Timber.tag("HomeViewModel")
+                        .i("User is-signed-in value is: ${authRepository.isSignedIn()}")
             } else {
                 sendActionEvent(HomeActionEvent.NavigateToLoginScreen)
             }
@@ -107,10 +107,13 @@ class HomeViewModel(
                     )
                 }
         ) {
+
+            val now = LocalDateTime.now()
             val newNote = NoteItem(
                     title = "New Note",
                     content = "",
-                    createdOn = LocalDateTime.now()
+                    createdOn = now,
+                    lastEditedOn = now
             )
             val result = upsertNoteUseCase(noteItem = newNote)
             val noteId = result

@@ -88,10 +88,14 @@ fun NotePreview(
 @Composable
 private fun NotePreview_Preview() {
 
-    val pastYearDate = LocalDateTime.now()
-            .minusYears(1)
+    val now = LocalDateTime.now()
+    val pastYearDate = now.minusYears(1)
 
-    val note = NoteItem(content = generateLoremIpsum(20), createdOn = pastYearDate)
+    val note = NoteItem(
+            content = generateLoremIpsum(20),
+            createdOn = pastYearDate,
+            lastEditedOn = now
+    )
 
     NoteMarkTheme {
 
@@ -121,10 +125,12 @@ private fun NotePreview_Preview() {
 
 
 fun getNote(id: Long): NoteItem {
+    val now = LocalDateTime.now()
     return NoteItem(
             id = id,
             content = generateLoremIpsum(10),
-            createdOn = LocalDateTime.now()
+            createdOn = now,
+            lastEditedOn = now
     )
 }
 
@@ -133,7 +139,6 @@ fun getNotes(count: Int): List<NoteItem> {
     return buildList {
 
         repeat(count) { i ->
-
             add(getNote(i.toLong()))
         }
     }
