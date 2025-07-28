@@ -15,7 +15,8 @@ data class EditorUiState(
     val activeNote: ActiveNote = ActiveNote(),
     val titleNoteState: TitleNoteState = TitleNoteState(),
     val contentNoteState: ContentNoteState = ContentNoteState(),
-    val showDialog: Boolean = false
+    val showDialog: Boolean = false,
+    val editorMode: EditorMode = EditorMode.ViewMode
 ) : UiState {
 
     @Stable
@@ -35,12 +36,17 @@ data class EditorUiState(
     @Stable
     data class ActiveNote(
         val id: Long = -1L,
-        val createdOn: LocalDateTime = LocalDateTime.now()
+        val createdOn: LocalDateTime = LocalDateTime.now(),
+        val lastEditedOn: LocalDateTime = LocalDateTime.now()
     )
+
+    @Stable
+    enum class EditorMode { ViewMode, ReadMode, EditMode }
 
 }
 
 fun NoteItem.toActiveNote(): EditorUiState.ActiveNote = EditorUiState.ActiveNote(
         id = id,
-        createdOn = createdOn
+        createdOn = createdOn,
+        lastEditedOn = lastEditedOn
 )

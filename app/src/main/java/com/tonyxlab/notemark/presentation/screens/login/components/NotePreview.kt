@@ -27,7 +27,7 @@ import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiEvent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.util.DeviceType
 import com.tonyxlab.notemark.util.generateLoremIpsum
-import com.tonyxlab.notemark.util.toNoteDate
+import com.tonyxlab.notemark.util.toHomeDisplayDate
 import com.tonyxlab.notemark.util.trimContentText
 import java.time.LocalDateTime
 
@@ -56,7 +56,7 @@ fun NotePreview(
 
                 Text(
                         modifier = Modifier.padding(bottom = MaterialTheme.spacing.spaceSmall),
-                        text = noteItem.createdOn.toNoteDate(),
+                        text = noteItem.createdOn.toHomeDisplayDate(),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                 )

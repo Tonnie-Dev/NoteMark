@@ -11,7 +11,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 
-fun LocalDateTime.toNoteDate(): String {
+fun LocalDateTime.toHomeDisplayDate(): String {
     val currentYear = LocalDateTime.now().year
     val pattern = if (this.year == currentYear) "dd MMM" else "dd MMM yyyy"
     val formatter = DateTimeFormatter.ofPattern(pattern)
@@ -33,7 +33,15 @@ fun Long.toLocalDateTime(): LocalDateTime {
             .toLocalDateTime()
 }
 
-fun LocalDateTime.toMetadata(): String {
+fun LocalDateTime.toCreatedOnMetaData(): String {
+
+    val pattern = "dd MMM yyyy, HH:mm"
+    val formatter =
+        DateTimeFormatter.ofPattern(pattern)
+    return this.format(formatter)
+}
+
+fun LocalDateTime.toLastEditedMetaData(): String {
 
     val now = LocalDateTime.now()
     val duration = Duration.between(this, now)
@@ -41,9 +49,11 @@ fun LocalDateTime.toMetadata(): String {
     return if (duration.toMinutes() < 5) {
         "Just now"
     } else {
+        val pattern = "dd MMM yyyy, HH:mm"
         val formatter =
-            DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
+            DateTimeFormatter.ofPattern(pattern)
         formatter.format(this)
     }
-
 }
+
+

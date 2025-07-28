@@ -76,4 +76,9 @@
     <string name="cds_text_settings">Settings</string>
     <string name="cds_text_back">Back</string>
     <string name="cds_text_log_out">Log Out</string>
+
+    <!--Meta Data Texts-->
+    <string name="meta_text_created_on">Date Created</string>
+    <string name="meta_text_edited_on">Last Edited</string>
+
 </resources>
