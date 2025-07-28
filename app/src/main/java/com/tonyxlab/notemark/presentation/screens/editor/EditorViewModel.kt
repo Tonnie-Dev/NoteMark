@@ -223,7 +223,7 @@ class EditorViewModel(
                             EditorActionEvent.ShowSnackbar(
                                     messageRes = R.string.snack_text_note_not_found,
                                     actionLabelRes = R.string.snack_text_exit,
-                                    onActionClick = EditorUiEvent.ExitWithSnackbar
+                                    editorUiEvent = EditorUiEvent.ExitWithSnackbar
                             )
                     )
                 }

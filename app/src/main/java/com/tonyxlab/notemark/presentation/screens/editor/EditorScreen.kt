@@ -16,11 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -32,6 +28,7 @@ import com.tonyxlab.notemark.presentation.core.components.AppDialog
 import com.tonyxlab.notemark.presentation.core.components.AppSnackbarHost
 import com.tonyxlab.notemark.presentation.core.components.AppTopBar
 import com.tonyxlab.notemark.presentation.core.components.ShowAppSnackbar
+import com.tonyxlab.notemark.presentation.core.components.SnackbarController
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.editor.component.EditableText
 import com.tonyxlab.notemark.presentation.screens.editor.component.EditorAppBar
@@ -51,21 +48,18 @@ fun EditorScreen(
 ) {
     val context = LocalContext.current
 
+    val snackbarController = SnackbarController<EditorUiEvent>()
     val snackbarHostState = remember { SnackbarHostState() }
-    var snackbarTriggerId by remember { mutableIntStateOf(0) }
-    var snackbarMessage by remember { mutableStateOf("") }
-    var snackbarActionLabel by remember { mutableStateOf("") }
-    var snackbarActionEvent by remember { mutableStateOf<EditorUiEvent?>(null) }
-
     ShowAppSnackbar(
-            triggerId = snackbarTriggerId,
+            triggerId = snackbarController.triggerId,
             snackbarHostState = snackbarHostState,
-            message = snackbarMessage,
-            actionLabel = snackbarActionLabel,
-            onActionClick = { snackbarActionEvent?.let { viewModel.onEvent(it) } },
+            message = snackbarController.message,
+            actionLabel = snackbarController.actionLabel,
+            onActionClick = {
+                snackbarController.actionEvent?.let { viewModel.onEvent(it) }
+            },
             onDismiss = {
-                snackbarTriggerId = 0
-                snackbarActionEvent = null
+                snackbarController.dismissSnackbar()
             }
 
     )
@@ -79,12 +73,12 @@ fun EditorScreen(
                         navOperations.popBackStack()
                     }
 
-
                     is EditorActionEvent.ShowSnackbar -> {
-                        snackbarMessage = context.getString(action.messageRes)
-                        snackbarActionLabel = context.getString(action.actionLabelRes)
-                        snackbarActionEvent = action.onActionClick
-                        snackbarTriggerId++
+                        snackbarController.showSnackbar(
+                                message = context.getString(action.messageRes),
+                                actionLabel = context.getString(action.actionLabelRes),
+                                actionEvent = action.editorUiEvent
+                        )
 
                     }
 
@@ -122,7 +116,7 @@ fun EditorScreenContent(
                 modifier = modifier,
                 uiState = uiState,
                 onEvent = onEvent,
-                )
+        )
 
 
         EditorUiState.EditorMode.EditMode -> EditModeScreenContent(
@@ -130,6 +124,7 @@ fun EditorScreenContent(
                 uiState = uiState,
                 onEvent = onEvent,
         )
+
         EditorUiState.EditorMode.ReadMode -> Unit
     }
 

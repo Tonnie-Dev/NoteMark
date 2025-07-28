@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -52,7 +53,11 @@ fun NotePreview(
 
         Surface(color = MaterialTheme.colorScheme.background) {
 
-            Column(modifier = Modifier.padding(MaterialTheme.spacing.spaceMedium)) {
+            Column(
+                    modifier = Modifier
+                            .padding(MaterialTheme.spacing.spaceMedium)
+                            .fillMaxWidth()
+            ) {
 
                 Text(
                         modifier = Modifier.padding(bottom = MaterialTheme.spacing.spaceSmall),
