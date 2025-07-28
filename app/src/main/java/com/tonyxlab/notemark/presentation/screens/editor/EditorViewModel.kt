@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import timber.log.Timber
 import java.time.LocalDateTime
 
 typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, EditorActionEvent>
@@ -75,6 +76,7 @@ class EditorViewModel(
         ) {
             val currentNoteItem = getNoteByIdUseCase(id = noteId)
             populateOldNote(currentNoteItem)
+            Timber.tag("EditorViewModel").i("Title - ${currentState.contentNoteState.contentTextFieldState.text}")
             observeTitleAndContentFields(currentNoteItem)
         }
     }

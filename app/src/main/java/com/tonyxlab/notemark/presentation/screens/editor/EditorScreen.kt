@@ -84,7 +84,6 @@ fun EditorScreen(
 
                     EditorActionEvent.ShowDialog -> {
                         viewModel.onEvent(EditorUiEvent.ShowDialog)
-
                     }
                 }
             },
@@ -182,10 +181,14 @@ fun ViewModeScreenContent(
     modifier: Modifier = Modifier,
 ) {
 
-    val title = remember { uiState.titleNoteState.titleTextFieldState.text.toString() }
-    val content = remember { uiState.contentNoteState.contentTextFieldState.text.toString() }
-    val createdOn = remember { uiState.activeNote.createdOn.toCreatedOnMetaData() }
-    val lastEditedOn = remember { uiState.activeNote.lastEditedOn.toLastEditedMetaData() }
+    val title = uiState.titleNoteState.titleTextFieldState.text.toString()
+    val content = uiState.contentNoteState.contentTextFieldState.text.toString()
+    val createdOn = uiState.activeNote.createdOn.toCreatedOnMetaData()
+    val lastEditedOn = uiState.activeNote.lastEditedOn.toLastEditedMetaData()
+
+    val contentPaddingModifier = Modifier
+            .padding(horizontal = MaterialTheme.spacing.spaceMedium)
+            .padding(vertical = MaterialTheme.spacing.spaceTen * 2)
 
     Column(modifier = modifier.fillMaxSize()) {
 
@@ -199,8 +202,7 @@ fun ViewModeScreenContent(
         Row(
                 modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = MaterialTheme.spacing.spaceMedium)
-                        .padding(vertical = MaterialTheme.spacing.spaceTen * 2)
+                        .then(contentPaddingModifier)
         ) {
 
             Text(
@@ -216,8 +218,7 @@ fun ViewModeScreenContent(
         Row(
                 modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = MaterialTheme.spacing.spaceMedium)
-                        .padding(vertical = MaterialTheme.spacing.spaceTen * 2)
+                        .then(contentPaddingModifier)
         ) {
 
 
