@@ -5,15 +5,15 @@ package com.tonyxlab.notemark.presentation.screens.editor.component
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -64,7 +64,6 @@ fun ExtendedFabButton(
     }
 }
 
-
 @Composable
 private fun IconFabButton(
     painter: Painter,
@@ -75,20 +74,21 @@ private fun IconFabButton(
     ) {
 
     val containerColor = if (isActive) Primary10 else Color.Unspecified
-
     val tintColor =
         if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
 
-    IconButton(
-            modifier = Modifier.padding(MaterialTheme.spacing.spaceExtraSmall),
-            colors = IconButtonDefaults.iconButtonColors(containerColor = containerColor),
-            onClick = onClickIcon
-    ) {
+    Box(
+            modifier = Modifier
+                    .clip(MaterialTheme.shapes.medium)
+                    .background(color = containerColor)
+                    .padding(MaterialTheme.spacing.spaceExtraSmall)
+                    .clickable { onClickIcon() },
+
+            ) {
         Icon(
                 modifier = Modifier
                         .size(MaterialTheme.spacing.spaceTen * 4)
-                        .padding(MaterialTheme.spacing.spaceExtraSmall)
-                        ,
+                        .padding(MaterialTheme.spacing.spaceExtraSmall),
                 contentDescription = semanticLabel,
                 painter = painter,
                 tint = tintColor
