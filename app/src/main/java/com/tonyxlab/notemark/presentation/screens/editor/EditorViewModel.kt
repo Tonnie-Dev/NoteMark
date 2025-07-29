@@ -60,7 +60,18 @@ class EditorViewModel(
             EditorUiEvent.KeepEditing -> keepEditing()
             EditorUiEvent.DiscardChanges,
             EditorUiEvent.ExitWithSnackbar -> discardChanges()
+
+            EditorUiEvent.EnterEditMode -> onEnterEditMode()
+            EditorUiEvent.EnterReadMode -> onEnterReadMode()
         }
+    }
+
+    private fun onEnterReadMode() {
+
+    }
+
+    private fun onEnterEditMode() {
+
     }
 
     private fun loadNote(noteId: Long) {

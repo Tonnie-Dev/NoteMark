@@ -1,63 +1,98 @@
+@file:RequiresApi(Build.VERSION_CODES.O)
+
 package com.tonyxlab.notemark.presentation.screens.editor.component
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.presentation.core.utils.spacing
+import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
+import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
+import com.tonyxlab.notemark.presentation.theme.Primary10
 
 @Composable
 fun ExtendedFabButton(
-    onEditMode: () -> Unit,
-    onReadMode: () -> Unit,
+    uiState: EditorUiState,
+    onEvent: (EditorUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
+            modifier = modifier
+                    .clip(MaterialTheme.shapes.large)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(MaterialTheme.spacing.spaceSmall),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceSmall)
     ) {
-        ExtendedFloatingActionButton(
+        val mode = uiState.editorMode
 
-                onClick = {},
+        IconFabButton(
+                painter = painterResource(R.drawable.ic_edit_mode),
+                semanticLabel = stringResource(id = R.string.cds_text_edit_mode),
+                isActive = mode == EditorUiState.EditorMode.EditMode,
+                onClickIcon = { onEvent(EditorUiEvent.EnterEditMode) }
+        )
 
-        ){
+        IconFabButton(
+                painter = painterResource(R.drawable.ic_read_mode),
+                semanticLabel = stringResource(id = R.string.cds_text_read_mode),
+                isActive = mode == EditorUiState.EditorMode.ReadMode,
+                onClickIcon = { onEvent(EditorUiEvent.EnterReadMode) }
+        )
 
-                Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = stringResource(id = R.string.cds_text_edit_mode)
-                )
-
-        }
+    }
+}
 
 
+@Composable
+private fun IconFabButton(
+    painter: Painter,
+    semanticLabel: String,
+    isActive: Boolean,
+    onClickIcon: () -> Unit,
 
-        ExtendedFloatingActionButton(
+    ) {
 
-                onClick = {},
+    val containerColor = if (isActive) Primary10 else Color.Unspecified
 
-                ){
+    val tintColor =
+        if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
 
-            Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(id = R.string.cds_text_edit_mode)
-            )
-
-        }
+    IconButton(
+            modifier = Modifier.padding(MaterialTheme.spacing.spaceExtraSmall),
+            colors = IconButtonDefaults.iconButtonColors(containerColor = containerColor),
+            onClick = onClickIcon
+    ) {
+        Icon(
+                modifier = Modifier
+                        .size(MaterialTheme.spacing.spaceTen * 4)
+                        .padding(MaterialTheme.spacing.spaceExtraSmall)
+                        ,
+                contentDescription = semanticLabel,
+                painter = painter,
+                tint = tintColor
+        )
 
     }
 }
@@ -67,17 +102,30 @@ fun ExtendedFabButton(
 @Composable
 private fun ExtendedFabButton_Preview() {
 
-
     NoteMarkTheme {
+
         Column(
                 modifier = Modifier
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
-                        .padding(MaterialTheme.spacing.spaceMedium)
+                        .padding(MaterialTheme.spacing.spaceMedium),
+                verticalArrangement = Arrangement.spacedBy(
+                        MaterialTheme.spacing.spaceMedium
+                )
         ) {
 
-            ExtendedFabButton(onEditMode = {}, onReadMode = {})
+            ExtendedFabButton(
+                    uiState = EditorUiState(),
+                    onEvent = {}
+            )
+            ExtendedFabButton(
+                    uiState = EditorUiState(editorMode = EditorUiState.EditorMode.EditMode),
+                    onEvent = {}
+            )
+            ExtendedFabButton(
+                    uiState = EditorUiState(editorMode = EditorUiState.EditorMode.ReadMode),
+                    onEvent = {}
+            )
         }
-
     }
 }
