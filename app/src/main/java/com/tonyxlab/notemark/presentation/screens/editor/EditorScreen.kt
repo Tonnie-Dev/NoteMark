@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -32,6 +34,7 @@ import com.tonyxlab.notemark.presentation.core.components.SnackbarController
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.editor.component.EditableText
 import com.tonyxlab.notemark.presentation.screens.editor.component.EditorAppBar
+import com.tonyxlab.notemark.presentation.screens.editor.component.ExtendedFabButton
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorActionEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
@@ -124,7 +127,11 @@ fun EditorScreenContent(
                 onEvent = onEvent,
         )
 
-        EditorUiState.EditorMode.ReadMode -> Unit
+        EditorUiState.EditorMode.ReadMode -> ViewModeScreenContent(
+                modifier = modifier,
+                uiState = uiState,
+                onEvent = onEvent,
+        )
     }
 
 }
@@ -190,87 +197,100 @@ fun ViewModeScreenContent(
             .padding(horizontal = MaterialTheme.spacing.spaceMedium)
             .padding(vertical = MaterialTheme.spacing.spaceTen * 2)
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Box {
 
-        AppTopBar(
-                screenTitle = stringResource(id = R.string.topbar_text_all_notes),
-                onChevronIconClick = {
-                    onEvent(EditorUiEvent.ExitEditor)
+
+        Column(modifier = modifier.fillMaxSize()) {
+
+
+            AppTopBar(
+                    screenTitle = stringResource(id = R.string.topbar_text_all_notes),
+                    onChevronIconClick = {
+                        onEvent(EditorUiEvent.ExitEditor)
+                    }
+            )
+
+            Row(
+                    modifier = Modifier
+                            .fillMaxWidth()
+                            .then(contentPaddingModifier)
+            ) {
+
+                Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleLarge.copy(
+                                color = MaterialTheme.colorScheme.onSurface
+                        )
+                )
+            }
+
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            Row(
+                    modifier = Modifier
+                            .fillMaxWidth()
+                            .then(contentPaddingModifier)
+            ) {
+
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                            stringResource(id = R.string.meta_text_created_on),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                    )
+                    Text(
+                            text = createdOn,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                    color = MaterialTheme.colorScheme.onSurface
+                            )
+                    )
                 }
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                            stringResource(id = R.string.meta_text_edited_on),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                    )
+                    Text(
+                            text = lastEditedOn,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                    color = MaterialTheme.colorScheme.onSurface
+                            )
+                    )
+                }
+
+            }
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+            Row(
+                    modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = MaterialTheme.spacing.spaceMedium)
+                            .padding(vertical = MaterialTheme.spacing.spaceTen * 2)
+            ) {
+
+
+                Text(
+                        text = content,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                )
+
+            }
+        }
+
+        ExtendedFabButton(
+                modifier = Modifier
+                        .align(alignment = Alignment.BottomCenter)
+                        .padding(MaterialTheme.spacing.spaceTwelve),
+                uiState = uiState,
+                onEvent = onEvent
         )
-
-        Row(
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .then(contentPaddingModifier)
-        ) {
-
-            Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge.copy(
-                            color = MaterialTheme.colorScheme.onSurface
-                    )
-            )
-        }
-
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-        Row(
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .then(contentPaddingModifier)
-        ) {
-
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                        stringResource(id = R.string.meta_text_created_on),
-                        style = MaterialTheme.typography.bodySmall.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                )
-                Text(
-                        text = createdOn,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                                color = MaterialTheme.colorScheme.onSurface
-                        )
-                )
-            }
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                        stringResource(id = R.string.meta_text_edited_on),
-                        style = MaterialTheme.typography.bodySmall.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                )
-                Text(
-                        text = lastEditedOn,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                                color = MaterialTheme.colorScheme.onSurface
-                        )
-                )
-            }
-
-        }
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-        Row(
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = MaterialTheme.spacing.spaceMedium)
-                        .padding(vertical = MaterialTheme.spacing.spaceTen * 2)
-        ) {
-
-
-            Text(
-                    text = content,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-            )
-
-        }
     }
 }
 

@@ -66,11 +66,13 @@ class EditorViewModel(
         }
     }
 
+    private fun onEnterEditMode() {
+
+        updateState { it.copy(editorMode = EditorUiState.EditorMode.EditMode) }
+    }
     private fun onEnterReadMode() {
 
-    }
-
-    private fun onEnterEditMode() {
+        updateState { it.copy(editorMode = EditorUiState.EditorMode.ReadMode) }
 
     }
 

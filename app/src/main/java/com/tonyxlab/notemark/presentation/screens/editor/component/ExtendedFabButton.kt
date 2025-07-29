@@ -87,7 +87,7 @@ private fun IconFabButton(
             ) {
         Icon(
                 modifier = Modifier
-                        .size(MaterialTheme.spacing.spaceTen * 4)
+                        .size(MaterialTheme.spacing.spaceTen * 3)
                         .padding(MaterialTheme.spacing.spaceExtraSmall),
                 contentDescription = semanticLabel,
                 painter = painter,
