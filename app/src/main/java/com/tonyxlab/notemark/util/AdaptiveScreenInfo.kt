@@ -32,7 +32,7 @@ enum class DeviceType {
 
                 widthClass == WindowWidthSizeClass.EXPANDED
                         && heightClass == WindowHeightSizeClass.MEDIUM -> TABLET_LANDSCAPE
-                
+
                 else -> DESKTOP
             }
         }
