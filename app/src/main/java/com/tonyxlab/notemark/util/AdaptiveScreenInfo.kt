@@ -1,7 +1,10 @@
 package com.tonyxlab.notemark.util
 
-enum class DeviceType {
+import androidx.window.core.layout.WindowHeightSizeClass
+import androidx.window.core.layout.WindowSizeClass
+import androidx.window.core.layout.WindowWidthSizeClass
 
+enum class DeviceType {
 
     MOBILE_PORTRAIT,
     MOBILE_LANDSCAPE,
@@ -11,22 +14,25 @@ enum class DeviceType {
 
     companion object {
 
-        fun fromWindowSizeClass(windowSizeClass: androidx.window.core.layout.WindowSizeClass): DeviceType {
-
+        fun fromWindowSizeClass(windowSizeClass: WindowSizeClass): DeviceType {
 
             val widthClass = windowSizeClass.windowWidthSizeClass
             val heightClass = windowSizeClass.windowHeightSizeClass
+
             return when {
 
+                widthClass == WindowWidthSizeClass.COMPACT
+                        && heightClass == WindowHeightSizeClass.MEDIUM -> MOBILE_PORTRAIT
 
-                widthClass == androidx.window.core.layout.WindowWidthSizeClass.COMPACT && heightClass == androidx.window.core.layout.WindowHeightSizeClass.MEDIUM -> MOBILE_PORTRAIT
+                widthClass == WindowWidthSizeClass.COMPACT
+                        && heightClass == WindowHeightSizeClass.EXPANDED -> MOBILE_PORTRAIT
 
-                widthClass == androidx.window.core.layout.WindowWidthSizeClass.EXPANDED && heightClass == androidx.window.core.layout.WindowHeightSizeClass.COMPACT -> MOBILE_LANDSCAPE
+                widthClass == WindowWidthSizeClass.EXPANDED
+                        && heightClass == WindowHeightSizeClass.COMPACT -> MOBILE_LANDSCAPE
 
-                widthClass == androidx.window.core.layout.WindowWidthSizeClass.MEDIUM && heightClass == androidx.window.core.layout.WindowHeightSizeClass.EXPANDED -> TABLET_PORTRAIT
-
-                widthClass == androidx.window.core.layout.WindowWidthSizeClass.EXPANDED && heightClass == androidx.window.core.layout.WindowHeightSizeClass.MEDIUM -> TABLET_LANDSCAPE
-
+                widthClass == WindowWidthSizeClass.EXPANDED
+                        && heightClass == WindowHeightSizeClass.MEDIUM -> TABLET_LANDSCAPE
+                
                 else -> DESKTOP
             }
         }
