@@ -36,10 +36,10 @@ fun AppTopBar(
     modifier: Modifier = Modifier,
     height: Dp = Dp.Unspecified,
 ) {
-    Surface(color = MaterialTheme.colorScheme.primary) {
+    Surface(color = MaterialTheme.colorScheme.background) {
         Row(
                 modifier = modifier
-                        .statusBarsPadding()
+                        //.statusBarsPadding()
                         .height(height = height)
                         .padding(MaterialTheme.spacing.spaceSmall),
                 verticalAlignment = Alignment.CenterVertically

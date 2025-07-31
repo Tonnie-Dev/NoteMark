@@ -38,6 +38,7 @@ import com.tonyxlab.notemark.presentation.screens.editor.component.ExtendedFabBu
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorActionEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
+import com.tonyxlab.notemark.presentation.screens.editor.modes.EditModeScreenContent
 import com.tonyxlab.notemark.presentation.screens.editor.modes.ViewModeScreenContent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.util.toCreatedOnMetaData
