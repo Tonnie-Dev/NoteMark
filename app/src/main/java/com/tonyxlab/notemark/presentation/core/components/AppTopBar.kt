@@ -21,6 +21,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
@@ -30,14 +33,14 @@ import com.tonyxlab.notemark.presentation.theme.textButtonStyle
 fun AppTopBar(
     screenTitle: String,
     onChevronIconClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    height: Dp = Dp.Unspecified,
 ) {
-    Surface(color = MaterialTheme.colorScheme.background) {
+    Surface(color = MaterialTheme.colorScheme.primary) {
         Row(
                 modifier = modifier
                         .statusBarsPadding()
-                        .fillMaxWidth()
-                        .height(MaterialTheme.spacing.spaceSmall * 7)
+                        .height(height = height)
                         .padding(MaterialTheme.spacing.spaceSmall),
                 verticalAlignment = Alignment.CenterVertically
         ) {
@@ -71,15 +74,17 @@ private fun AppTopBar_Preview() {
                         .background(color = MaterialTheme.colorScheme.surface),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium)
         ) {
-            AppTopBar(
+            AppTopBar(modifier = Modifier.fillMaxWidth(),
                     screenTitle = "SETTINGS",
+
                     onChevronIconClick = {}
             )
-            AppTopBar(
+            AppTopBar(modifier = Modifier.fillMaxWidth(),
                     screenTitle = "HOME",
+                    height = 56.dp,
                     onChevronIconClick = {}
             )
-            AppTopBar(
+            AppTopBar(modifier = Modifier.fillMaxWidth(),
                     screenTitle = "EDITOR",
                     onChevronIconClick = {}
             )
