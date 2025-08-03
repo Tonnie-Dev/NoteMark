@@ -60,7 +60,6 @@ fun EditorAppBar(
                     style = MaterialTheme.typography.textButtonStyle
             )
         }
-
     }
 }
 

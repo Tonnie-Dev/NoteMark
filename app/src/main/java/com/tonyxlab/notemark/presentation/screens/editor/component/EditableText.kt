@@ -56,10 +56,10 @@ fun EditableText(
     }
 
     if (isEditing) {
+
         BasicTextField(
                 modifier = modifier
                         .focusRequester(focusRequester),
-
                 state = textFieldState,
                 textStyle = currentStyle.first.textStyle(),
                 cursorBrush = SolidColor(currentStyle.first.cursorColor()),

@@ -61,7 +61,7 @@ fun ViewModeScreenContent(
                     )
 
                     MetaDataSection(
-                            modifier = modifier,
+                            modifier = Modifier.fillMaxHeight(),
                             uiState = uiState
                     )
                 }

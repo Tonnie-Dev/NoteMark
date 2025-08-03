@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.presentation.core.utils.spacing
@@ -37,31 +35,30 @@ fun AppTopBar(
     height: Dp = Dp.Unspecified,
 ) {
 
+    Row(
+            modifier = modifier
+                    .statusBarsPadding()
+                    .height(height = height)
+                    .padding(MaterialTheme.spacing.spaceSmall),
+            verticalAlignment = Alignment.CenterVertically
+    ) {
 
-        Row(
-                modifier = modifier
-                        .statusBarsPadding()
-                        .height(height = height)
-                        .padding(MaterialTheme.spacing.spaceSmall),
-                verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            Icon(
-                    modifier = Modifier
-                            .padding(end = MaterialTheme.spacing.spaceDoubleDp)
-                            .clickable { onChevronIconClick() },
-                    imageVector = Icons.Default.ChevronLeft,
-                    contentDescription = stringResource(id = R.string.cds_text_back),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                    text = screenTitle,
-                    style = MaterialTheme.typography.textButtonStyle.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-            )
-        }
+        Icon(
+                modifier = Modifier
+                        .padding(end = MaterialTheme.spacing.spaceDoubleDp)
+                        .clickable { onChevronIconClick() },
+                imageVector = Icons.Default.ChevronLeft,
+                contentDescription = stringResource(id = R.string.cds_text_back),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+                text = screenTitle,
+                style = MaterialTheme.typography.textButtonStyle.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+        )
     }
+}
 
 
 @PreviewLightDark
@@ -75,17 +72,20 @@ private fun AppTopBar_Preview() {
                         .background(color = MaterialTheme.colorScheme.surface),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium)
         ) {
-            AppTopBar(modifier = Modifier.fillMaxWidth(),
+            AppTopBar(
+                    modifier = Modifier.fillMaxWidth(),
                     screenTitle = "SETTINGS",
 
                     onChevronIconClick = {}
             )
-            AppTopBar(modifier = Modifier.fillMaxWidth(),
+            AppTopBar(
+                    modifier = Modifier.fillMaxWidth(),
                     screenTitle = "HOME",
                     height = 56.dp,
                     onChevronIconClick = {}
             )
-            AppTopBar(modifier = Modifier.fillMaxWidth(),
+            AppTopBar(
+                    modifier = Modifier.fillMaxWidth(),
                     screenTitle = "EDITOR",
                     onChevronIconClick = {}
             )

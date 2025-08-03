@@ -41,6 +41,7 @@ import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
 import com.tonyxlab.notemark.presentation.screens.editor.modes.EditModeScreenContent
 import com.tonyxlab.notemark.presentation.screens.editor.modes.ViewModeScreenContent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
+import com.tonyxlab.notemark.util.SetStatusBarIconsColor
 import com.tonyxlab.notemark.util.toCreatedOnMetaData
 import com.tonyxlab.notemark.util.toLastEditedMetaData
 import org.koin.androidx.compose.koinViewModel
@@ -51,6 +52,8 @@ fun EditorScreen(
     modifier: Modifier = Modifier,
     viewModel: EditorViewModel = koinViewModel()
 ) {
+
+    SetStatusBarIconsColor(darkIcons = true)
     val context = LocalContext.current
 
     val snackbarController = SnackbarController<EditorUiEvent>()
@@ -99,7 +102,7 @@ fun EditorScreen(
 
         EditorScreenContent(
                 modifier = modifier
-                        .background(color = MaterialTheme.colorScheme.background)
+                        //.background(color = MaterialTheme.colorScheme.background)
                         .fillMaxSize(),
                 uiState = it,
                 onEvent = viewModel::onEvent
