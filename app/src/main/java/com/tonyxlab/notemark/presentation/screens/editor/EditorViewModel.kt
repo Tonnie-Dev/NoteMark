@@ -8,10 +8,12 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.domain.model.NoteItem
 import com.tonyxlab.notemark.domain.model.isBlankNote
+import com.tonyxlab.notemark.domain.timer.CountdownTimer
 import com.tonyxlab.notemark.domain.usecase.DeleteNoteUseCase
 import com.tonyxlab.notemark.domain.usecase.GetNoteByIdUseCase
 import com.tonyxlab.notemark.domain.usecase.UpsertNoteUseCase
@@ -26,7 +28,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
-import timber.log.Timber
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import java.time.LocalDateTime
 
 typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, EditorActionEvent>
@@ -40,10 +43,28 @@ class EditorViewModel(
 
     private lateinit var oldNotePair: Pair<String, String>
     private lateinit var newNotePair: Pair<String, String>
+    private var countdownTimer: CountdownTimer? = null
 
     init {
         val navigationId = savedStateHandle.toRoute<EditorScreenDestination>().id
         loadNote(navigationId)
+        //updateTimer()
+    }
+
+    private fun updateTimer() {
+
+        countdownTimer?.stop() //Clean up the old timer
+        countdownTimer = CountdownTimer().also { timer ->
+
+
+            timer.start()
+            timer.remainingSecs.onEach { secs ->
+
+
+                updateState { it.copy(remainingSecs = secs) }
+            }.launchIn(viewModelScope)
+        }
+
     }
 
     override val initialState: EditorUiState
@@ -62,19 +83,11 @@ class EditorViewModel(
             EditorUiEvent.ExitWithSnackbar -> discardChanges()
 
             EditorUiEvent.EnterEditMode -> onEnterEditMode()
-            EditorUiEvent.EnterReadMode -> onEnterReadMode()
+            EditorUiEvent.EnterReadMode -> enterReadMode()
+            EditorUiEvent.ExitReadMode -> exitReadMode()
         }
     }
 
-    private fun onEnterEditMode() {
-
-        updateState { it.copy(editorMode = EditorUiState.EditorMode.EditMode) }
-    }
-    private fun onEnterReadMode() {
-
-        updateState { it.copy(editorMode = EditorUiState.EditorMode.ReadMode) }
-
-    }
 
     private fun loadNote(noteId: Long) {
 
@@ -89,7 +102,6 @@ class EditorViewModel(
         ) {
             val currentNoteItem = getNoteByIdUseCase(id = noteId)
             populateOldNote(currentNoteItem)
-            Timber.tag("EditorViewModel").i("Title - ${currentState.contentNoteState.contentTextFieldState.text}")
             observeTitleAndContentFields(currentNoteItem)
         }
     }
@@ -150,6 +162,28 @@ class EditorViewModel(
         )
 
     }
+
+    private fun enterReadMode() {
+
+        updateTimer()
+
+        updateState { it.copy(editorMode = EditorUiState.EditorMode.ReadMode) }
+        sendActionEvent(EditorActionEvent.EnterReadMode)
+
+    }
+
+    private fun exitReadMode() {
+
+        updateState { it.copy(editorMode = EditorUiState.EditorMode.ViewMode) }
+        sendActionEvent(EditorActionEvent.ExitReadMode)
+
+    }
+
+    private fun onEnterEditMode() {
+        exitReadMode()
+        updateState { it.copy(editorMode = EditorUiState.EditorMode.EditMode) }
+    }
+
 
     private fun editNoteTitle() {
 
@@ -253,6 +287,7 @@ class EditorViewModel(
                 return@launchCatching
             }
 
+            sendActionEvent(EditorActionEvent.ExitReadMode)
             sendActionEvent(EditorActionEvent.NavigateToHome)
         }
     }

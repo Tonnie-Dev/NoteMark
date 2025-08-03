@@ -169,30 +169,30 @@ private fun TitleAndContentEditBoxes(
                     .animateContentSize()
 
     ) {
-        EditableText(
-                //modifier = Modifier.padding(horizontal = MaterialTheme.spacing.spaceMedium),
-                textFieldState = uiState.titleNoteState.titleTextFieldState,
-                placeHolderText = uiState.titleNoteState.titlePlaceholderText,
-                isEditing = uiState.titleNoteState.isEditingTitle,
-                isTitle = true,
-                onEvent = onEvent
-        )
-    }
 
-    HorizontalDivider(modifier = Modifier.fillMaxWidth())
+        Row(modifier = Modifier.padding(horizontal = MaterialTheme.spacing.spaceMedium)) {
+            EditableText(
+                    textFieldState = uiState.titleNoteState.titleTextFieldState,
+                    placeHolderText = uiState.titleNoteState.titlePlaceholderText,
+                    isEditing = uiState.titleNoteState.isEditingTitle,
+                    isTitle = true,
+                    onEvent = onEvent
+            )
+        }
 
-    Row(modifier = Modifier.padding(horizontal = MaterialTheme.spacing.spaceMedium)) {
-        EditableText(
-                textFieldState = uiState.contentNoteState.contentTextFieldState,
-                placeHolderText = uiState.contentNoteState.contentPlaceholderText,
-                isEditing = uiState.contentNoteState.isEditingContent,
-                isTitle = false,
-                onEvent = onEvent
-        )
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+
+        Row(modifier = Modifier.padding(horizontal = MaterialTheme.spacing.spaceMedium)) {
+            EditableText(
+                    textFieldState = uiState.contentNoteState.contentTextFieldState,
+                    placeHolderText = uiState.contentNoteState.contentPlaceholderText,
+                    isEditing = uiState.contentNoteState.isEditingContent,
+                    isTitle = false,
+                    onEvent = onEvent
+            )
+        }
     }
 }
-
-
 
 @PreviewScreenSizes
 @Composable

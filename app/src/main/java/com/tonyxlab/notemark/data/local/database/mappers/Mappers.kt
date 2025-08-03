@@ -23,5 +23,5 @@ fun NoteEntity.toModel() = NoteItem(
         title = title,
         content = content,
         createdOn = createdOn.toLocalDateTime(),
-        lastEditedOn = createdOn.toLocalDateTime()
+        lastEditedOn = lastEditedOn.toLocalDateTime()
 )

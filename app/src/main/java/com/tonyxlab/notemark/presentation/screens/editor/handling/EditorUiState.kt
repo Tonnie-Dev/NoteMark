@@ -16,7 +16,8 @@ data class EditorUiState(
     val titleNoteState: TitleNoteState = TitleNoteState(),
     val contentNoteState: ContentNoteState = ContentNoteState(),
     val showDialog: Boolean = false,
-    val editorMode: EditorMode = EditorMode.ViewMode
+    val editorMode: EditorMode = EditorMode.ViewMode,
+    val remainingSecs: Int = 0
 ) : UiState {
 
     @Stable

@@ -2,49 +2,39 @@
 
 package com.tonyxlab.notemark.presentation.screens.editor
 
+
 import android.os.Build
+import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
-import com.tonyxlab.notemark.presentation.core.components.AppDialog
 import com.tonyxlab.notemark.presentation.core.components.AppSnackbarHost
-import com.tonyxlab.notemark.presentation.core.components.AppTopBar
 import com.tonyxlab.notemark.presentation.core.components.ShowAppSnackbar
 import com.tonyxlab.notemark.presentation.core.components.SnackbarController
-import com.tonyxlab.notemark.presentation.core.utils.spacing
-import com.tonyxlab.notemark.presentation.screens.editor.component.EditableText
-import com.tonyxlab.notemark.presentation.screens.editor.component.EditorAppBar
-import com.tonyxlab.notemark.presentation.screens.editor.component.ExtendedFabButton
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorActionEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
 import com.tonyxlab.notemark.presentation.screens.editor.modes.EditModeScreenContent
+import com.tonyxlab.notemark.presentation.screens.editor.modes.ReadModeScreenContent
 import com.tonyxlab.notemark.presentation.screens.editor.modes.ViewModeScreenContent
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
+import com.tonyxlab.notemark.util.DeviceType
 import com.tonyxlab.notemark.util.SetStatusBarIconsColor
-import com.tonyxlab.notemark.util.toCreatedOnMetaData
-import com.tonyxlab.notemark.util.toLastEditedMetaData
+import com.tonyxlab.notemark.util.enterReaderMode
+import com.tonyxlab.notemark.util.exitReaderMode
 import org.koin.androidx.compose.koinViewModel
+import timber.log.Timber
 
 @Composable
 fun EditorScreen(
@@ -55,9 +45,13 @@ fun EditorScreen(
 
     SetStatusBarIconsColor(darkIcons = true)
     val context = LocalContext.current
+    val componentActivity = context as? ComponentActivity
 
+    val windowClass = currentWindowAdaptiveInfo().windowSizeClass
     val snackbarController = SnackbarController<EditorUiEvent>()
+
     val snackbarHostState = remember { SnackbarHostState() }
+
     ShowAppSnackbar(
             triggerId = snackbarController.triggerId,
             snackbarHostState = snackbarHostState,
@@ -71,6 +65,7 @@ fun EditorScreen(
             }
 
     )
+
     BaseContentLayout(
             viewModel = viewModel,
             snackbarHost = { AppSnackbarHost(snackbarHostState = snackbarHostState) },
@@ -87,11 +82,30 @@ fun EditorScreen(
                                 actionLabel = context.getString(action.actionLabelRes),
                                 actionEvent = action.editorUiEvent
                         )
-
                     }
 
                     EditorActionEvent.ShowDialog -> {
                         viewModel.onEvent(EditorUiEvent.ShowDialog)
+                    }
+
+                    EditorActionEvent.EnterReadMode -> {
+                        val deviceType =
+                            DeviceType.fromWindowSizeClass(windowClass)
+
+                        if (deviceType == DeviceType.MOBILE_PORTRAIT) {
+                            componentActivity?.enterReaderMode()
+                            Timber.tag("EditorScreen")
+                                    .i("EnterReadMode Action Detected")
+                        }
+
+                    }
+
+                    EditorActionEvent.ExitReadMode -> {
+                        Timber.tag("EditorScreen")
+                                .i("ExitReadMode Action Detected")
+
+                        componentActivity?.exitReaderMode()
+
                     }
                 }
             },
@@ -101,9 +115,7 @@ fun EditorScreen(
     ) {
 
         EditorScreenContent(
-                modifier = modifier
-                        //.background(color = MaterialTheme.colorScheme.background)
-                        .fillMaxSize(),
+                modifier = modifier.fillMaxSize(),
                 uiState = it,
                 onEvent = viewModel::onEvent
         )
@@ -118,6 +130,7 @@ fun EditorScreenContent(
     onEvent: (EditorUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
+
     when (uiState.editorMode) {
         EditorUiState.EditorMode.ViewMode -> ViewModeScreenContent(
                 modifier = modifier,
@@ -132,7 +145,7 @@ fun EditorScreenContent(
                 onEvent = onEvent,
         )
 
-        EditorUiState.EditorMode.ReadMode -> ViewModeScreenContent(
+        EditorUiState.EditorMode.ReadMode -> ReadModeScreenContent(
                 modifier = modifier,
                 uiState = uiState,
                 onEvent = onEvent,

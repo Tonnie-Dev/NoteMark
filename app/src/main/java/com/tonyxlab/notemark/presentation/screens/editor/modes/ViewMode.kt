@@ -94,7 +94,7 @@ fun ViewModeScreenContent(
                         }
                 )
 
-                Box {
+                Box() {
                     MetaDataSection(
                             modifier = modifier
                                     .align(alignment = Alignment.TopStart)

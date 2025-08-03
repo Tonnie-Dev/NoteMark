@@ -7,6 +7,8 @@ sealed interface EditorActionEvent : ActionEvent {
 
     data object NavigateToHome : EditorActionEvent
     data object ShowDialog : EditorActionEvent
+    data object EnterReadMode: EditorActionEvent
+    data object ExitReadMode: EditorActionEvent
     data class ShowSnackbar(
         @StringRes val messageRes: Int,
         @StringRes val actionLabelRes: Int,
