@@ -2,6 +2,7 @@
 
 package com.tonyxlab.notemark.presentation.screens.editor.component
 
+import android.R.attr.mode
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background

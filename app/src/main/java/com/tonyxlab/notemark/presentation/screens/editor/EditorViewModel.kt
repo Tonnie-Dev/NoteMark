@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import timber.log.Timber
 import java.time.LocalDateTime
 
 typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, EditorActionEvent>
@@ -85,7 +86,14 @@ class EditorViewModel(
             EditorUiEvent.EnterEditMode -> onEnterEditMode()
             EditorUiEvent.EnterReadMode -> enterReadMode()
             EditorUiEvent.ExitReadMode -> exitReadMode()
+            EditorUiEvent.ToggledReadModeComponentVisibility -> toggleUiComponentsVisibility()
         }
+    }
+
+    private fun toggleUiComponentsVisibility() {
+     //   Timber.tag("EditorViewModel").i("toggleUiComponentVisibility Event received")
+        Timber.tag("EditorViewModel").i("Remaining secs:- ${currentState.remainingSecs}")
+      countdownTimer?.start()
     }
 
 

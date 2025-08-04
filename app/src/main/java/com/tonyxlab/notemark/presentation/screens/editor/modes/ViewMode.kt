@@ -49,7 +49,8 @@ fun ViewModeScreenContent(
     when (deviceType) {
         DeviceType.MOBILE_PORTRAIT,
         DeviceType.TABLET_PORTRAIT,
-        DeviceType.TABLET_LANDSCAPE, DeviceType.DESKTOP -> {
+        DeviceType.TABLET_LANDSCAPE,
+        DeviceType.DESKTOP -> {
 
             Box {
                 Column {

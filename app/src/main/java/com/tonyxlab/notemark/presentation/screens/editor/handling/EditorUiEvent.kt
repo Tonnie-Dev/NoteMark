@@ -20,4 +20,5 @@ sealed interface EditorUiEvent : UiEvent {
     data object DiscardChanges : EditorUiEvent
     data object ShowDialog : EditorUiEvent
 
+    data object ToggledReadModeComponentVisibility: EditorUiEvent
 }
