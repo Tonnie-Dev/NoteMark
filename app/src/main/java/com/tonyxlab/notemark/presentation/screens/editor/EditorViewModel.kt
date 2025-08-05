@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import timber.log.Timber
 import java.time.LocalDateTime
 
 typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, EditorActionEvent>
@@ -44,29 +43,15 @@ class EditorViewModel(
 
     private lateinit var oldNotePair: Pair<String, String>
     private lateinit var newNotePair: Pair<String, String>
-    private var countdownTimer: CountdownTimer? = null
+    private var timer: CountdownTimer? = null
 
     init {
+
         val navigationId = savedStateHandle.toRoute<EditorScreenDestination>().id
         loadNote(navigationId)
-        //updateTimer()
-    }
-
-    private fun updateTimer() {
-
-        countdownTimer?.stop() //Clean up the old timer
-        countdownTimer = CountdownTimer().also { timer ->
-
-
-            timer.start()
-            timer.remainingSecs.onEach { secs ->
-
-
-                updateState { it.copy(remainingSecs = secs) }
-            }.launchIn(viewModelScope)
-        }
 
     }
+
 
     override val initialState: EditorUiState
         get() = EditorUiState()
@@ -87,48 +72,6 @@ class EditorViewModel(
             EditorUiEvent.EnterReadMode -> enterReadMode()
             EditorUiEvent.ExitReadMode -> exitReadMode()
             EditorUiEvent.ToggledReadModeComponentVisibility -> toggleUiComponentsVisibility()
-        }
-    }
-
-    private fun toggleUiComponentsVisibility() {
-     //   Timber.tag("EditorViewModel").i("toggleUiComponentVisibility Event received")
-        Timber.tag("EditorViewModel").i("Remaining secs:- ${currentState.remainingSecs}")
-      countdownTimer?.start()
-    }
-
-
-    private fun loadNote(noteId: Long) {
-
-        launchCatching(onError = {
-            sendActionEvent(
-                    EditorActionEvent.ShowSnackbar(
-                            messageRes = R.string.snack_text_note_not_found,
-                            actionLabelRes = R.string.snack_text_exit
-                    )
-            )
-        }
-        ) {
-            val currentNoteItem = getNoteByIdUseCase(id = noteId)
-            populateOldNote(currentNoteItem)
-            observeTitleAndContentFields(currentNoteItem)
-        }
-    }
-
-    private fun populateOldNote(oldNote: NoteItem) {
-        updateState {
-            it.copy(
-                    titleNoteState = currentState.titleNoteState.copy(
-                            titleTextFieldState = buildTextFieldState(
-                                    oldNote.title
-                            )
-                    ),
-                    contentNoteState = currentState.contentNoteState.copy(
-                            contentTextFieldState = buildTextFieldState(
-                                    oldNote.content
-                            )
-                    ),
-                    activeNote = oldNote.toActiveNote()
-            )
         }
     }
 
@@ -171,10 +114,79 @@ class EditorViewModel(
 
     }
 
+    private fun loadNote(noteId: Long) {
+
+        launchCatching(onError = {
+            sendActionEvent(
+                    EditorActionEvent.ShowSnackbar(
+                            messageRes = R.string.snack_text_note_not_found,
+                            actionLabelRes = R.string.snack_text_exit
+                    )
+            )
+        }
+        ) {
+            val currentNoteItem = getNoteByIdUseCase(id = noteId)
+            populateOldNote(currentNoteItem)
+            observeTitleAndContentFields(currentNoteItem)
+        }
+    }
+
+    private fun startTimer() {
+
+        timer?.stop() //Clean up the old timer
+        timer = CountdownTimer().also { timer ->
+            timer.start()
+            timer.remainingSecs.onEach { secs ->
+
+
+                updateState { it.copy(remainingSecs = secs) }
+            }
+                    .launchIn(viewModelScope)
+        }
+
+    }
+
+    private fun stopTimer() {
+
+        timer?.stop()
+        updateState { it.copy(remainingSecs = 0) }
+    }
+
+    private fun populateOldNote(oldNote: NoteItem) {
+        updateState {
+            it.copy(
+                    titleNoteState = currentState.titleNoteState.copy(
+                            titleTextFieldState = buildTextFieldState(
+                                    oldNote.title
+                            )
+                    ),
+                    contentNoteState = currentState.contentNoteState.copy(
+                            contentTextFieldState = buildTextFieldState(
+                                    oldNote.content
+                            )
+                    ),
+                    activeNote = oldNote.toActiveNote()
+            )
+        }
+    }
+
+    private fun toggleUiComponentsVisibility() {
+
+        if (currentState.remainingSecs > 0) {
+            // UI Visible -> Hide
+            stopTimer()
+        } else {
+
+            // UI Not Visible - Show
+
+            startTimer()
+        }
+
+    }
+
     private fun enterReadMode() {
 
-        updateTimer()
-
+        startTimer()
         updateState { it.copy(editorMode = EditorUiState.EditorMode.ReadMode) }
         sendActionEvent(EditorActionEvent.EnterReadMode)
 
@@ -188,8 +200,10 @@ class EditorViewModel(
     }
 
     private fun onEnterEditMode() {
+
         exitReadMode()
         updateState { it.copy(editorMode = EditorUiState.EditorMode.EditMode) }
+
     }
 
 
@@ -214,12 +228,16 @@ class EditorViewModel(
     }
 
     private fun keepEditing() {
+
         updateState { it.copy(showDialog = false) }
+
     }
 
     private fun discardChanges() {
+
         updateState { it.copy(showDialog = false) }
         sendActionEvent(EditorActionEvent.NavigateToHome)
+
     }
 
     private fun saveNote() {
@@ -237,8 +255,10 @@ class EditorViewModel(
                 createdOn = currentState.activeNote.createdOn,
                 lastEditedOn = now
         )
+
         upsertNote(noteItem = noteItem)
         sendActionEvent(EditorActionEvent.NavigateToHome)
+
     }
 
     private fun upsertNote(noteItem: NoteItem) {
@@ -301,7 +321,9 @@ class EditorViewModel(
     }
 
     private fun buildTextFieldState(value: String): TextFieldState {
+
         return TextFieldState(initialText = value)
+
     }
 
     private fun isNoteEdited(): Boolean {

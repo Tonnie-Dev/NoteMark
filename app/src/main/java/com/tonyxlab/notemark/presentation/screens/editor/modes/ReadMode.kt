@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -22,11 +23,18 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.presentation.core.components.AppTopBar
@@ -36,6 +44,7 @@ import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.util.DeviceType
+import com.tonyxlab.notemark.util.InvisibleSpacer
 import com.tonyxlab.notemark.util.generateLoremIpsum
 
 @Composable
@@ -51,9 +60,7 @@ fun ReadModeScreenContent(
             .pointerInput(Unit) {
                 detectTapGestures {
                     onEvent(EditorUiEvent.ToggledReadModeComponentVisibility)
-
                 }
-
             }
             .fillMaxSize()
 
@@ -61,8 +68,10 @@ fun ReadModeScreenContent(
 
         DeviceType.MOBILE_PORTRAIT -> {
 
-            Box(modifier = Modifier.then(detectGesturesModifier)) {
+            Box(modifier = detectGesturesModifier) {
+
                 Column {
+
                     AnimatedTopAppBar(uiState = uiState, onEvent = onEvent)
 
                     MetaDataSection(
@@ -74,8 +83,6 @@ fun ReadModeScreenContent(
                 AnimatedExtendedFab(
                         uiState = uiState,
                         onEvent = onEvent, modifier = Modifier
-                        .align(alignment = Alignment.BottomCenter)
-                        .padding(MaterialTheme.spacing.spaceTwelve)
                 )
             }
         }
@@ -95,8 +102,10 @@ fun ReadModeScreenContent(
                     verticalAlignment = Alignment.Top
             ) {
 
-                AnimatedTopAppBar(uiState = uiState, onEvent = onEvent)
-
+                AnimatedTopAppBar(
+                        uiState = uiState,
+                        onEvent = onEvent
+                )
 
                 Box {
 
@@ -106,15 +115,12 @@ fun ReadModeScreenContent(
                                     .fillMaxHeight(),
                             uiState = uiState
                     )
+
                     AnimatedExtendedFab(
                             uiState = uiState,
                             onEvent = onEvent, modifier = Modifier
-                            .align(alignment = Alignment.BottomCenter)
-                            .padding(MaterialTheme.spacing.spaceMedium)
-
                     )
                 }
-
             }
         }
     }
@@ -122,48 +128,75 @@ fun ReadModeScreenContent(
 
 
 @Composable
-private fun AnimatedExtendedFab(
+private fun BoxScope.AnimatedExtendedFab(
     uiState: EditorUiState,
     onEvent: (EditorUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     val showUiElements = uiState.remainingSecs > 0
-    AnimatedVisibility(
-            modifier = modifier,
-            visible = showUiElements,
 
-            enter = fadeIn(animationSpec = tween(durationMillis = 500)),
-            exit = fadeOut(animationSpec = tween(durationMillis = 500))
+    val density = LocalDensity.current
+    var componentSize by remember { mutableStateOf(IntSize.Zero) }
+
+    Box(
+            modifier = modifier
+                    .align(alignment = Alignment.BottomCenter)
+                    .padding(MaterialTheme.spacing.spaceTwelve)
     ) {
-        ExtendedFabButton(
 
-                uiState = uiState,
-                onEvent = onEvent
-        )
+        if (!showUiElements && componentSize != IntSize.Zero) {
+            InvisibleSpacer(componentSize = componentSize)
+        }
 
-
+        AnimatedVisibility(
+                visible = showUiElements,
+                enter = fadeIn(animationSpec = tween(durationMillis = 2_000)),
+                exit = fadeOut(animationSpec = tween(durationMillis = 2_000))
+        ) {
+            ExtendedFabButton(
+                    modifier = Modifier.onGloballyPositioned {
+                        componentSize = with(density) { it.size }
+                    },
+                    uiState = uiState,
+                    onEvent = onEvent
+            )
+        }
     }
 }
+
 
 @Composable
 private fun AnimatedTopAppBar(
     uiState: EditorUiState,
-    onEvent: (EditorUiEvent) -> Unit
+    onEvent: (EditorUiEvent) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val showUiElements = uiState.remainingSecs > 0
-    AnimatedVisibility(
-            visible = showUiElements,
-            enter = fadeIn(animationSpec = tween(durationMillis = 500)),
-            exit = fadeOut(animationSpec = tween(durationMillis = 500))
-    ) {
-        AppTopBar(
-                screenTitle = stringResource(id = R.string.topbar_text_all_notes),
-                onChevronIconClick = {
-                    onEvent(EditorUiEvent.ExitEditor)
-                }
-        )
+    val density = LocalDensity.current
+    var componentSize by remember { mutableStateOf(IntSize.Zero) }
 
+    Box(modifier = modifier) {
+
+        if (!showUiElements && componentSize != IntSize.Zero) {
+            InvisibleSpacer(componentSize = componentSize)
+        }
+        AnimatedVisibility(
+                visible = showUiElements,
+                enter = fadeIn(animationSpec = tween(durationMillis = 2_000)),
+                exit = fadeOut(animationSpec = tween(durationMillis = 2_000))
+        ) {
+            AppTopBar(
+                    modifier = Modifier.onGloballyPositioned {
+                        componentSize = with(density) {
+                            it.size
+                        }
+                    },
+                    screenTitle = stringResource(id = R.string.topbar_text_all_notes),
+                    onChevronIconClick = {
+                        onEvent(EditorUiEvent.ExitEditor)
+                    }
+            )
+        }
     }
 }
 
@@ -183,7 +216,5 @@ private fun ReadModeScreenContent_Preview() {
                 ),
                 onEvent = {}
         )
-
     }
-
 }

@@ -13,8 +13,7 @@ class CountdownTimer {
     private val _remainingSecs = MutableStateFlow(0)
     val remainingSecs = _remainingSecs.asStateFlow()
 
-
-    private var totalSeconds =5L
+    private var totalSeconds = 5L
     private var lastTimeStamp = 0L
 
     private var job: Job? = null
@@ -25,19 +24,16 @@ class CountdownTimer {
     }
 
     fun stop() {
-
         resetTimer()
     }
 
     private fun launchTimer() {
 
-
         job = CoroutineScope(Dispatchers.Main).launch {
 
             lastTimeStamp = System.currentTimeMillis()
 
-
-            while (totalSeconds >0) {
+            while (totalSeconds > 0) {
                 delay(1_000)
                 val elapsedSeconds = (System.currentTimeMillis() - lastTimeStamp) / 1_000
                 totalSeconds = maxOf(0, totalSeconds - elapsedSeconds)
@@ -47,9 +43,7 @@ class CountdownTimer {
         }
     }
 
-
     private fun resetTimer() {
-
         job?.cancel()
         job = null
         totalSeconds = 5L
