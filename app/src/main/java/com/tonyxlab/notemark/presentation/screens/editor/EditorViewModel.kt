@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import timber.log.Timber
 import java.time.LocalDateTime
 
 typealias EditorBaseViewModel = BaseViewModel<EditorUiState, EditorUiEvent, EditorActionEvent>
@@ -68,7 +69,7 @@ class EditorViewModel(
             EditorUiEvent.DiscardChanges,
             EditorUiEvent.ExitWithSnackbar -> discardChanges()
 
-            EditorUiEvent.EnterEditMode -> onEnterEditMode()
+            EditorUiEvent.EnterEditMode -> enterEditMode()
             EditorUiEvent.EnterReadMode -> enterReadMode()
             EditorUiEvent.ExitReadMode -> exitReadMode()
             EditorUiEvent.ToggledReadModeComponentVisibility -> toggleUiComponentsVisibility()
@@ -173,11 +174,9 @@ class EditorViewModel(
     private fun toggleUiComponentsVisibility() {
 
         if (currentState.remainingSecs > 0) {
-            // UI Visible -> Hide
+
             stopTimer()
         } else {
-
-            // UI Not Visible - Show
 
             startTimer()
         }
@@ -186,9 +185,14 @@ class EditorViewModel(
 
     private fun enterReadMode() {
 
-        startTimer()
-        updateState { it.copy(editorMode = EditorUiState.EditorMode.ReadMode) }
-        sendActionEvent(EditorActionEvent.EnterReadMode)
+        if (currentState.editorMode == EditorUiState.EditorMode.ReadMode) {
+            exitReadMode()
+
+        } else {
+            startTimer()
+            updateState { it.copy(editorMode = EditorUiState.EditorMode.ReadMode) }
+            sendActionEvent(EditorActionEvent.EnterReadMode)
+        }
 
     }
 
@@ -199,8 +203,7 @@ class EditorViewModel(
 
     }
 
-    private fun onEnterEditMode() {
-
+    private fun enterEditMode() {
         exitReadMode()
         updateState { it.copy(editorMode = EditorUiState.EditorMode.EditMode) }
 

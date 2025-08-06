@@ -8,6 +8,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -82,7 +83,8 @@ fun ReadModeScreenContent(
 
                 AnimatedExtendedFab(
                         uiState = uiState,
-                        onEvent = onEvent, modifier = Modifier
+                        onEvent = onEvent,
+                        modifier = Modifier
                 )
             }
         }
@@ -118,13 +120,56 @@ fun ReadModeScreenContent(
 
                     AnimatedExtendedFab(
                             uiState = uiState,
-                            onEvent = onEvent, modifier = Modifier
+                            onEvent = onEvent,
+                            modifier = Modifier
                     )
                 }
             }
         }
     }
 }
+
+
+@Composable
+private fun AnimatedTopAppBar(
+    uiState: EditorUiState,
+    onEvent: (EditorUiEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val showUiElements = uiState.remainingSecs > 0
+    val density = LocalDensity.current
+    var componentSize by remember { mutableStateOf(IntSize.Zero) }
+
+    Box(modifier = modifier) {
+
+        if (!showUiElements && componentSize != IntSize.Zero) {
+            InvisibleSpacer(componentSize = componentSize)
+        }
+        AnimatedVisibility(
+                visible = showUiElements,
+                enter = fadeIn(animationSpec = tween(durationMillis = 2_000)),
+                exit = fadeOut(animationSpec = tween(durationMillis = 2_000))
+        ) {
+            AppTopBar(
+                    modifier = Modifier.onGloballyPositioned {
+                        componentSize = with(density) {
+                            it.size
+                        }
+                    }.clickable{
+
+                        onEvent(EditorUiEvent.ExitEditor)
+                    },
+                    screenTitle = stringResource(id = R.string.topbar_text_all_notes),
+                    onChevronIconClick = {
+
+                        onEvent(EditorUiEvent.ExitEditor)
+
+                    }
+            )
+        }
+    }
+}
+
 
 
 @Composable
@@ -163,43 +208,6 @@ private fun BoxScope.AnimatedExtendedFab(
         }
     }
 }
-
-
-@Composable
-private fun AnimatedTopAppBar(
-    uiState: EditorUiState,
-    onEvent: (EditorUiEvent) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val showUiElements = uiState.remainingSecs > 0
-    val density = LocalDensity.current
-    var componentSize by remember { mutableStateOf(IntSize.Zero) }
-
-    Box(modifier = modifier) {
-
-        if (!showUiElements && componentSize != IntSize.Zero) {
-            InvisibleSpacer(componentSize = componentSize)
-        }
-        AnimatedVisibility(
-                visible = showUiElements,
-                enter = fadeIn(animationSpec = tween(durationMillis = 2_000)),
-                exit = fadeOut(animationSpec = tween(durationMillis = 2_000))
-        ) {
-            AppTopBar(
-                    modifier = Modifier.onGloballyPositioned {
-                        componentSize = with(density) {
-                            it.size
-                        }
-                    },
-                    screenTitle = stringResource(id = R.string.topbar_text_all_notes),
-                    onChevronIconClick = {
-                        onEvent(EditorUiEvent.ExitEditor)
-                    }
-            )
-        }
-    }
-}
-
 
 @PreviewScreenSizes
 @Composable

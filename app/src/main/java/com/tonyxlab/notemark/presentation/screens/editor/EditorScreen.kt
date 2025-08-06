@@ -94,15 +94,13 @@ fun EditorScreen(
 
                         if (deviceType == DeviceType.MOBILE_PORTRAIT) {
                             componentActivity?.enterReaderMode()
-                            Timber.tag("EditorScreen")
-                                    .i("EnterReadMode Action Detected")
+
                         }
 
                     }
 
                     EditorActionEvent.ExitReadMode -> {
-                        Timber.tag("EditorScreen")
-                                .i("ExitReadMode Action Detected")
+
 
                         componentActivity?.exitReaderMode()
 

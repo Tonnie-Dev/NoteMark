@@ -51,7 +51,7 @@ fun AppTopBar(
                 contentDescription = stringResource(id = R.string.cds_text_back),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Text(
+        Text(modifier = Modifier.clickable { onChevronIconClick()},
                 text = screenTitle,
                 style = MaterialTheme.typography.textButtonStyle.copy(
                         color = MaterialTheme.colorScheme.onSurfaceVariant

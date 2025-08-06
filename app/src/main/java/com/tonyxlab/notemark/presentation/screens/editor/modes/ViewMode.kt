@@ -95,7 +95,7 @@ fun ViewModeScreenContent(
                         }
                 )
 
-                Box() {
+                Box {
                     MetaDataSection(
                             modifier = modifier
                                     .align(alignment = Alignment.TopStart)
@@ -228,7 +228,8 @@ private fun ViewModeScreenContent_Preview() {
     }
 
 }
-/*@PreviewScreenSizes
+
+@PreviewScreenSizes
 @Composable
 private fun MetaDataSection_Preview() {
     val content = generateLoremIpsum(56)
@@ -244,4 +245,4 @@ private fun MetaDataSection_Preview() {
 
     }
 
-}*/
+}
