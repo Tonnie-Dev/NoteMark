@@ -303,7 +303,7 @@ class EditorViewModel(
         launchCatching(
                 onError = {
                     Timber.tag("EditorViewModel")
-                            .i("HEE - Step 6")
+                            .i("HEE - Step 6 ${it.message}")
                     sendActionEvent(
                             EditorActionEvent.ShowSnackbar(
                                     messageRes = R.string.snack_text_note_not_found,
@@ -334,10 +334,7 @@ class EditorViewModel(
                 }
 
                 EditorUiState.EditorMode.EditMode -> {
-
-                    if (currentNoteItem.isBlankNote()) {
-                        deleteNote(noteItem = currentNoteItem)
-                    } else if (isNoteEdited()) {
+                    if (isNoteEdited()) {
                         sendActionEvent(EditorActionEvent.ShowDialog)
                     } else {
                         enterViewMode()

@@ -1,0 +1,13 @@
+package com.tonyxlab.notemark.domain.connectivity
+
+import kotlinx.coroutines.flow.Flow
+
+interface ConnectivityObserver {
+
+    fun observe(): Flow<Status>
+    fun isInternetConnectionAvailable( status: Status):Boolean
+    enum class Status {
+
+        AVAILABLE, UNAVAILABLE, LOSING, LOST
+    }
+}
