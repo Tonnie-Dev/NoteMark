@@ -155,16 +155,8 @@ class EditorViewModel(
     private fun populateOldNote(oldNote: NoteItem) {
         updateState {
             it.copy(
-                    titleNoteState = currentState.titleNoteState.copy(
-                            titleTextFieldState = buildTextFieldState(
-                                    oldNote.title
-                            )
-                    ),
-                    contentNoteState = currentState.contentNoteState.copy(
-                            contentTextFieldState = buildTextFieldState(
-                                    oldNote.content
-                            )
-                    ),
+                    titleNoteState = updateTitle(oldNote.title),
+                    contentNoteState = updateContent(oldNote.content),
                     activeNote = oldNote.toActiveNote()
             )
         }
@@ -242,16 +234,21 @@ class EditorViewModel(
 
     private fun discardChanges() {
 
+        if (this::oldNotePair.isInitialized) {
+            updateState {
+                it.copy(
+                        titleNoteState = updateTitle(oldNotePair.first),
+                        contentNoteState = updateContent(oldNotePair.second)
+                )
+            }
+        }
         updateState { it.copy(showDialog = false) }
         enterViewMode()
-
     }
 
     private fun saveNote() {
-Timber.tag("EditorViewModel").i("saveNote() called")
-        if (!isNoteEdited()) {
 
-            Timber.tag("EditorViewModel").i("entering saveNote() if-Block ...")
+        if (!isNoteEdited()) {
             enterViewMode()
             return
         }
@@ -267,8 +264,6 @@ Timber.tag("EditorViewModel").i("saveNote() called")
 
         upsertNote(noteItem = noteItem)
         enterViewMode()
-
-        Timber.tag("EditorViewModel").i("leaving saveNote() ...")
     }
 
     private fun upsertNote(noteItem: NoteItem) {
@@ -307,7 +302,8 @@ Timber.tag("EditorViewModel").i("saveNote() called")
     private fun handleEditorExit() {
         launchCatching(
                 onError = {
-                    Timber.tag("EditorViewModel").i("HEE - Step 6")
+                    Timber.tag("EditorViewModel")
+                            .i("HEE - Step 6")
                     sendActionEvent(
                             EditorActionEvent.ShowSnackbar(
                                     messageRes = R.string.snack_text_note_not_found,
@@ -319,34 +315,59 @@ Timber.tag("EditorViewModel").i("saveNote() called")
         ) {
             val currentNoteItem = getNoteByIdUseCase(id = currentState.activeNote.id)
 
-            Timber.tag("EditorViewModel").i("handleEditorExit() called")
-            if (currentNoteItem.isBlankNote()) {
-                Timber.tag("EditorViewModel").i("HEE - Step 1")
 
-                deleteNote(noteItem = currentNoteItem)
-            } else if (isNoteEdited()) {
-                Timber.tag("EditorViewModel").i("HEE - Step 2")
-                sendActionEvent(EditorActionEvent.ShowDialog)
-                return@launchCatching
+            when (currentState.editorMode) {
+
+                EditorUiState.EditorMode.ViewMode -> {
+
+                    if (currentNoteItem.isBlankNote()) {
+                        deleteNote(noteItem = currentNoteItem)
+                    }
+                    sendActionEvent(EditorActionEvent.NavigateToHome)
+                    return@launchCatching
+                }
+
+                EditorUiState.EditorMode.ReadMode -> {
+                    sendActionEvent(EditorActionEvent.ExitReadMode)
+                    sendActionEvent(EditorActionEvent.NavigateToHome)
+                    return@launchCatching
+                }
+
+                EditorUiState.EditorMode.EditMode -> {
+
+                    if (currentNoteItem.isBlankNote()) {
+                        deleteNote(noteItem = currentNoteItem)
+                    } else if (isNoteEdited()) {
+                        sendActionEvent(EditorActionEvent.ShowDialog)
+                    } else {
+                        enterViewMode()
+                    }
+                    return@launchCatching
+                }
+
             }
-            Timber.tag("EditorViewModel").i("HEE - Step 3")
-
-            if (currentState.editorMode == EditorUiState.EditorMode.ReadMode) {
-
-                Timber.tag("EditorViewModel").i("HEE - Step 4")
-                sendActionEvent(EditorActionEvent.ExitReadMode)
-
-                sendActionEvent(EditorActionEvent.NavigateToHome)
-            }
-            Timber.tag("EditorViewModel").i("HEE - Step 5")
-            sendActionEvent(EditorActionEvent.NavigateToHome)
         }
+
     }
 
     private fun buildTextFieldState(value: String): TextFieldState {
 
         return TextFieldState(initialText = value)
 
+    }
+
+    private fun updateTitle(value: String): EditorUiState.TitleNoteState {
+
+        return currentState.titleNoteState.copy(
+                titleTextFieldState = buildTextFieldState(value)
+        )
+
+    }
+
+    private fun updateContent(value: String): EditorUiState.ContentNoteState {
+        return currentState.contentNoteState.copy(
+                contentTextFieldState = buildTextFieldState(value)
+        )
     }
 
     private fun isNoteEdited(): Boolean {
