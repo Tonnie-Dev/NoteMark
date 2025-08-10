@@ -7,4 +7,5 @@ data class HomeUiState(
     val username: String = "",
     val notes: List<NoteItem> = emptyList(),
     val showDialog: Boolean = false,
+    val isOffline: Boolean = false
 ) : UiState

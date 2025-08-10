@@ -78,6 +78,7 @@
     <string name="cds_text_log_out">Log Out</string>
     <string name="cds_text_edit_mode">Edit Mode</string>
     <string name="cds_text_read_mode">Read Mode</string>
+    <string name="cds_text_offline">Offline</string>
 
     <!--Meta Data Texts-->
     <string name="meta_text_created_on">Date Created</string>

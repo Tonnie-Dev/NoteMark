@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.Color
 // Scheme
 val OnSurface = Color(0xFF1B1B1C)
 val OnSurface12 = Color(0x1F1B1B1C) // 12% alpha (1F in hex)
+val OnSurface40= Color(0x53536466) // 12% alpha (1F in hex)
 val OnSurfaceVariant = Color(0xFF535364)
 val Surface = Color(0xFFEFEFF2)
 val SurfaceLowest = Color(0xFFFFFFFF)

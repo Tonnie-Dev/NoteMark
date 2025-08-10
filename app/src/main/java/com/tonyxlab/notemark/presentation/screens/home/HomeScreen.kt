@@ -66,6 +66,7 @@ fun HomeScreen(
             topBar = {
                 HomeTopBar(
                         profileInitials = formatUserInitials(homeState.username),
+                        isOffline = homeState.isOffline,
                         onClickSettingsIcon = { viewModel.onEvent(HomeUiEvent.ClickSettingsIcon)}
                 )
             },

@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.viewModelScope
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.domain.auth.AuthRepository
+import com.tonyxlab.notemark.domain.connectivity.ConnectivityObserver
 import com.tonyxlab.notemark.domain.model.NoteItem
 import com.tonyxlab.notemark.domain.usecase.DeleteNoteUseCase
 import com.tonyxlab.notemark.domain.usecase.GetAllNotesUseCase
@@ -16,7 +17,9 @@ import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeActionEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiState
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import java.time.LocalDateTime
@@ -28,7 +31,8 @@ class HomeViewModel(
     private val getAllNotesUseCase: GetAllNotesUseCase,
     private val getNoteByIdUseCase: GetNoteByIdUseCase,
     private val upsertNoteUseCase: UpsertNoteUseCase,
-    private val deleteNoteUseCase: DeleteNoteUseCase
+    private val deleteNoteUseCase: DeleteNoteUseCase,
+    private val connectivityObserver: ConnectivityObserver
 ) : HomeViewModelBaseClass() {
 
     override val initialState: HomeUiState
@@ -37,6 +41,7 @@ class HomeViewModel(
     init {
         updateUsername()
         retrieveSavedNotes()
+        observeNetwork()
     }
 
     override fun onEvent(event: HomeUiEvent) {
@@ -135,5 +140,13 @@ class HomeViewModel(
             val noteItem = getNoteByIdUseCase(id = noteId)
             deleteNoteUseCase(noteItem = noteItem)
         }
+    }
+
+    private fun observeNetwork() {
+
+        connectivityObserver.isOnline().onEach {
+            isOnline -> updateState { it.copy(isOffline = !isOnline) }
+        }.launchIn(viewModelScope)
+
     }
 }
