@@ -5,6 +5,7 @@ package com.tonyxlab.notemark
 import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.tonyxlab.notemark.di.connectivityModule
 import com.tonyxlab.notemark.di.databaseModule
 import com.tonyxlab.notemark.di.networkModule
 import com.tonyxlab.notemark.di.repositoryModule
@@ -29,7 +30,8 @@ class NoteMarkApp : Application() {
                             repositoryModule,
                             networkModule,
                             databaseModule,
-                            useCasesModule
+                            useCasesModule,
+                            connectivityModule
                     )
             )
         }

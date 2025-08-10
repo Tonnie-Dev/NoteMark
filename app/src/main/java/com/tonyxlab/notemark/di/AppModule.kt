@@ -2,16 +2,20 @@
 
 package com.tonyxlab.notemark.di
 
+import android.net.ConnectivityManager
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.room.Room
 import com.tonyxlab.notemark.data.local.database.NoteMarkDatabase
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
 import com.tonyxlab.notemark.data.local.datastore.TokenStorage
 import com.tonyxlab.notemark.data.network.HttpClientFactory
 import com.tonyxlab.notemark.data.remote.auth.AuthRepositoryImpl
+import com.tonyxlab.notemark.data.remote.connectivity.ConnectivityObserverImpl
 import com.tonyxlab.notemark.data.repository.NoteRepositoryImpl
 import com.tonyxlab.notemark.domain.auth.AuthRepository
+import com.tonyxlab.notemark.domain.connectivity.ConnectivityObserver
 import com.tonyxlab.notemark.domain.repository.NoteRepository
 import com.tonyxlab.notemark.domain.usecase.DeleteNoteUseCase
 import com.tonyxlab.notemark.domain.usecase.GetAllNotesUseCase
@@ -49,6 +53,17 @@ val networkModule = module {
 val repositoryModule = module {
     single<AuthRepository> { AuthRepositoryImpl(get()) }
     single<NoteRepository> { NoteRepositoryImpl(get()) }
+}
+
+val connectivityModule = module {
+    single<ConnectivityManager> {
+        ContextCompat.getSystemService(
+                androidContext(),
+                ConnectivityManager::class.java
+        ) ?: error("Connectivity Manager not available")
+
+    }
+    single<ConnectivityObserver> { ConnectivityObserverImpl(get()) }
 }
 
 val databaseModule = module {
