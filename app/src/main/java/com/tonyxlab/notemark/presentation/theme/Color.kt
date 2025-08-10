@@ -10,6 +10,7 @@ val OnSurface40= Color(0x53536466) // 12% alpha (1F in hex)
 val OnSurfaceVariant = Color(0xFF535364)
 val Surface = Color(0xFFEFEFF2)
 val SurfaceLowest = Color(0xFFFFFFFF)
+val LandingPageBackground = Color(0xFFE0EAFF)
 val Error = Color(0xFFE1294B)
 
 // Brand
