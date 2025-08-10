@@ -1,6 +1,10 @@
 package com.tonyxlab.notemark.presentation.screens.home.components
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,20 +27,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
+import com.tonyxlab.notemark.presentation.theme.OnSurface40
 
 
 @Composable
 fun HomeTopBar(
-
     profileInitials: String,
-    onClickSettingsIcon: () -> Unit,
+    isOffline: Boolean,
     modifier: Modifier = Modifier,
     @StringRes titleRes: Int = R.string.app_name,
+    onClickSettingsIcon: () -> Unit,
 ) {
     val clipShape = MaterialTheme.shapes.medium
 
@@ -53,11 +59,30 @@ fun HomeTopBar(
                 horizontalArrangement = Arrangement.SpaceBetween
         ) {
 
-            Text(
-                    text = stringResource(id = titleRes),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                    horizontalArrangement = Arrangement.spacedBy(
+                            MaterialTheme.spacing.spaceSmall
+                    ),
+                    verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                        text = stringResource(id = titleRes),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                )
+                AnimatedVisibility(
+                        visible = isOffline,
+                        enter = fadeIn(animationSpec = tween(durationMillis = 1_000)),
+                        exit = fadeOut(animationSpec = tween(durationMillis = 1_000))
+                ) {
+                    Icon(
+                            modifier = Modifier.size(MaterialTheme.spacing.spaceMedium),
+                            painter = painterResource(R.drawable.cloud_off),
+                            contentDescription = stringResource(id = R.string.cds_text_settings),
+                            tint = OnSurface40,
+                    )
+                }
+            }
             Row(
                     horizontalArrangement = Arrangement.spacedBy(
                             MaterialTheme.spacing.spaceExtraSmall
@@ -108,11 +133,19 @@ private fun AppTopBarPreview() {
         Column(
                 modifier = Modifier
                         .background(color = MaterialTheme.colorScheme.surface)
-                        .fillMaxSize()
+                        .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium)
         ) {
             HomeTopBar(
                     titleRes = R.string.app_name,
                     profileInitials = "TX",
+                    isOffline = false,
+                    onClickSettingsIcon = {}
+            )
+            HomeTopBar(
+                    titleRes = R.string.app_name,
+                    profileInitials = "TX",
+                    isOffline = true,
                     onClickSettingsIcon = {}
             )
         }
