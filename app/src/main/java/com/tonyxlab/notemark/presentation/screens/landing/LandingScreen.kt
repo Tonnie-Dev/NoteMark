@@ -18,12 +18,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -39,6 +41,7 @@ import com.tonyxlab.notemark.presentation.screens.landing.handling.LandingAction
 import com.tonyxlab.notemark.presentation.screens.landing.handling.LandingUiEvent
 import com.tonyxlab.notemark.presentation.theme.LandingPageBackground
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
+import com.tonyxlab.notemark.presentation.theme.getClippingShape
 import com.tonyxlab.notemark.util.DeviceType
 import com.tonyxlab.notemark.util.SetStatusBarIconsColor
 import org.koin.androidx.compose.koinViewModel
@@ -89,6 +92,7 @@ private fun LandingScreenContent(
                 )
 
                 LoginPanel(
+                        modifier = Modifier.clip(getClippingShape()),
                         onEvent = onEvent,
                         alignment = Alignment.BottomCenter,
                         startPadding = MaterialTheme.spacing.spaceMedium,
@@ -111,6 +115,12 @@ private fun LandingScreenContent(
                 )
 
                 LoginPanel(
+                        modifier = Modifier.clip(
+                                RoundedCornerShape(
+                                        topStart = MaterialTheme.spacing.spaceTen,
+                                        bottomStart = MaterialTheme.spacing.spaceTen
+                                )
+                        ),
                         onEvent = onEvent,
                         alignment = Alignment.CenterEnd,
                         widthFraction = .5f,
@@ -138,6 +148,7 @@ private fun LandingScreenContent(
                 )
 
                 LoginPanel(
+                        modifier = Modifier.clip(getClippingShape()),
                         onEvent = onEvent,
                         alignment = Alignment.BottomCenter,
                         widthFraction = .8f,
