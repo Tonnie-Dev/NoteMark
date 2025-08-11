@@ -112,7 +112,6 @@ fun EditModeScreenContent(
                         verticalAlignment = Alignment.Top
                 ) {
                     IconButton(
-
                             onClick = { onEvent(EditorUiEvent.ExitEditor) }) {
 
                         Icon(
@@ -123,8 +122,6 @@ fun EditModeScreenContent(
                         )
                     }
                     TextButton(
-
-
                             onClick = { onEvent(EditorUiEvent.SaveNote) }) {
 
                         Text(

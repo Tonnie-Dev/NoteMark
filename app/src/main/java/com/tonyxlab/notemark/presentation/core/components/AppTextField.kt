@@ -1,5 +1,6 @@
 package com.tonyxlab.notemark.presentation.core.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -76,7 +77,7 @@ fun AppTextField(
     val supportingText =
         if (isError) supportText.getErrorText(context) else supportText.getDefaultText(context)
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.animateContentSize()) {
         Text(
                 text = label,
                 style = labelTextStyle.copy(color = MaterialTheme.colorScheme.onSurface)

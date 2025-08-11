@@ -100,8 +100,6 @@ fun EditorScreen(
                     }
 
                     EditorActionEvent.ExitReadMode -> {
-
-
                         componentActivity?.exitReaderMode()
 
                     }
@@ -136,7 +134,6 @@ fun EditorScreenContent(
                 onEvent = onEvent,
         )
 
-
         EditorUiState.EditorMode.EditMode -> EditModeScreenContent(
                 modifier = modifier,
                 uiState = uiState,
@@ -149,7 +146,6 @@ fun EditorScreenContent(
                 onEvent = onEvent,
         )
     }
-
 }
 
 
