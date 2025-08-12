@@ -17,12 +17,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -91,7 +94,7 @@ fun SettingsScreen(
                     }
                 }
             },
-            onBackPressed = { viewModel.onEvent(SettingsUiEvent.ExitSettings)}
+            onBackPressed = { viewModel.onEvent(SettingsUiEvent.ExitSettings) }
     ) {
         SettingsScreenContent(
                 modifier = modifier,
@@ -105,11 +108,70 @@ fun SettingsScreenContent(
     onEvent: (SettingsUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
+SettingsSection(onEvent = onEvent)
+}
+
+
+@Composable
+fun SettingsSection(
+    onEvent: (SettingsUiEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Column(
             modifier = modifier
                     .fillMaxSize()
                     .background(color = MaterialTheme.colorScheme.background)
     ) {
+
+        Row(
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onEvent(SettingsUiEvent.LogOut)
+                        }
+                        .padding(MaterialTheme.spacing.spaceMedium),
+                verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                    modifier = Modifier
+                            .size(MaterialTheme.spacing.spaceTen * 2),
+                    imageVector = Icons.Default.AccessTime,
+                    contentDescription = stringResource(id = R.string.cds_text_log_out),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.width(MaterialTheme.spacing.spaceTwelve))
+
+            Text(
+                    text = stringResource(id = R.string.txt_btn_log_out),
+                    style = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onSurface)
+            )
+        }
+
+
+        Row(
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onEvent(SettingsUiEvent.LogOut)
+                        }
+                        .padding(MaterialTheme.spacing.spaceMedium),
+                verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                    modifier = Modifier
+                            .size(MaterialTheme.spacing.spaceTen * 2),
+                    imageVector = Icons.AutoMirrored.Filled.Logout,
+                    contentDescription = stringResource(id = R.string.cds_text_log_out),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.width(MaterialTheme.spacing.spaceTwelve))
+
+            Text(
+                    text = stringResource(id = R.string.txt_btn_log_out),
+                    style = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.onSurface)
+            )
+        }
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
         Row(
                 modifier = Modifier
                         .fillMaxWidth()
@@ -123,7 +185,7 @@ fun SettingsScreenContent(
                             .size(MaterialTheme.spacing.spaceTen * 2),
                     imageVector = Icons.AutoMirrored.Filled.Logout,
                     contentDescription = stringResource(id = R.string.cds_text_log_out),
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.width(MaterialTheme.spacing.spaceTwelve))
 

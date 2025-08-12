@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -105,12 +106,13 @@ fun HomeScreen(
                 }
             }
     ) { state ->
+
         state.notes.ifEmpty { EmptyBoard() }
+
         HomeScreenContent(
                 modifier = modifier,
                 state = state,
-                onEvent = viewModel::onEvent,
-                deviceType = DeviceType.MOBILE_PORTRAIT
+                onEvent = viewModel::onEvent
         )
 
         if (state.showDialog) {
@@ -136,8 +138,11 @@ fun HomeScreenContent(
     state: HomeUiState,
     onEvent: (HomeUiEvent) -> Unit,
     modifier: Modifier = Modifier,
-    deviceType: DeviceType = DeviceType.MOBILE_PORTRAIT
 ) {
+
+    val windowClass = currentWindowAdaptiveInfo().windowSizeClass
+    val deviceType = DeviceType.fromWindowSizeClass(windowClass)
+
     val columns = when (deviceType) {
         DeviceType.MOBILE_PORTRAIT, DeviceType.TABLET_PORTRAIT -> 2
         DeviceType.MOBILE_LANDSCAPE, DeviceType.TABLET_LANDSCAPE -> 3
@@ -159,7 +164,6 @@ fun HomeScreenContent(
         }
     }
 }
-
 
 @PreviewLightDark
 @Composable
