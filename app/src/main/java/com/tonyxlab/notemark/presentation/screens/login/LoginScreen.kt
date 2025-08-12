@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -62,14 +64,12 @@ fun LoginScreen(
 ) {
 
     SetStatusBarIconsColor(darkIcons = false)
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     val snackbarController = rememberSnackbarController<LoginUiEvent>()
-
     val snackbarHostState = remember { SnackbarHostState() }
-
 
     ShowAppSnackbar(
             triggerId = snackbarController.triggerId,
@@ -91,7 +91,6 @@ fun LoginScreen(
                         isError = state.loginStatus is Resource.Error
                 )
             },
-
             actionEventHandler = { _, action ->
                 when (action) {
                     LoginActionEvent.NavigateToHomeScreen -> {
@@ -130,15 +129,16 @@ private fun LoginScreenContent(
 
     val windowClass = currentWindowAdaptiveInfo().windowSizeClass
     val deviceType = DeviceType.fromWindowSizeClass(windowClass)
+
     val rootModifier = modifier
             .background(MaterialTheme.colorScheme.primary)
             .fillMaxSize()
 
-
     when (deviceType) {
 
         DeviceType.MOBILE_PORTRAIT -> {
-            Box(modifier = rootModifier.padding(top = MaterialTheme.spacing.spaceTen * 6)) {
+            Box(modifier = rootModifier
+                    .padding(top = MaterialTheme.spacing.spaceTen * 4)) {
                 Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background,
@@ -199,7 +199,9 @@ private fun LoginScreenContent(
                         )
 
                         LoginInputFields(
-                                modifier = Modifier.weight(.5f),
+                                modifier = Modifier
+                                        .weight(.5f)
+                                        .verticalScroll(rememberScrollState()),
                                 uiState = uiState,
                                 onEvent = onEvent
                         )
@@ -254,7 +256,8 @@ private fun LoginInputFields(
 
     Column(modifier = modifier) {
         Column(
-                modifier = Modifier.padding(bottom = MaterialTheme.spacing.spaceTwelve * 2),
+                modifier = Modifier
+                        .padding(bottom = MaterialTheme.spacing.spaceTwelve * 2),
                 verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium)
         ) {
 
@@ -308,5 +311,4 @@ private fun LoginScreenContentPreview() {
                 onEvent = {}
         )
     }
-
 }
