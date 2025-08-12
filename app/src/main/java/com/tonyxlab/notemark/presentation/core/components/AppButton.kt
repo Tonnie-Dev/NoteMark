@@ -51,7 +51,7 @@ fun AppButton(
                     .clip(shape)
                     .fillMaxWidth()
                     .height(buttonHeight)
-                    .clickable { onClick() }
+                    .clickable {if (isEnabled){ onClick() }}
                     .ifThen(isOutlined) {
 
                         border(
