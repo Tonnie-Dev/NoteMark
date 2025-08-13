@@ -7,7 +7,8 @@ sealed interface SettingsActionEvent : ActionEvent {
 
 
     data object ExitSettings : SettingsActionEvent
-    data object Logout: SettingsActionEvent
+    data object Logout : SettingsActionEvent
+    data object ShowSyncIntervalContextMenu : SettingsActionEvent
     data class ShowSnackbar(
         @StringRes val messageRes: Int,
         @StringRes val labelRes: Int,
