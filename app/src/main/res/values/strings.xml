@@ -22,7 +22,16 @@
     <string name="txt_btn_no_account">Don’t have an account?</string>
     <string name="txt_btn_already_have_account">Already have an account?</string>
     <string name="txt_btn_save_note">SAVE NOTE</string>
-    <string name="txt_btn_log_out">Log Out</string>
+
+    <!--Settings Presets-->
+    <string name="settings_sync_interval">Sync Interval</string>
+    <string name="settings_sync_data">Sync Data</string>
+    <string name="settings_last_sync">Last Sync:</string>
+    <string name="settings_log_out">Log Out</string>
+    <string name="settings_manual_only">Manual Only</string>
+    <string name="settings_fifteen_mins">15 Minutes</string>
+    <string name="settings_thirty_mins">30 Minutes</string>
+    <string name="settings_one_hour">1 Hour</string>
 
     <!--Label Texts-->
     <string name="lab_text_email_label">Email</string>
@@ -79,6 +88,7 @@
     <string name="cds_text_edit_mode">Edit Mode</string>
     <string name="cds_text_read_mode">Read Mode</string>
     <string name="cds_text_offline">Offline</string>
+    <string name="cds_text_check_mark">Check Mark</string>
 
     <!--Meta Data Texts-->
     <string name="meta_text_created_on">Date Created</string>
