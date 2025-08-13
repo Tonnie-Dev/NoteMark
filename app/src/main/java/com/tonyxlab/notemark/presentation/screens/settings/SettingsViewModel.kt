@@ -22,7 +22,31 @@ class SettingsViewModel(
         when (event) {
             SettingsUiEvent.LogOut -> logout()
             SettingsUiEvent.ExitSettings -> exitSettings()
+            is SettingsUiEvent.SelectSyncInterval -> {selectSyncInterval(event.syncInterval)}
+            SettingsUiEvent.ShowSyncIntervalSettings -> showSyncIntervalMenu()
+            SettingsUiEvent.SyncData -> syncData()
+            SettingsUiEvent.DismissSyncMenu -> dismissSyncMenu()
         }
+    }
+
+    private fun dismissSyncMenu() {
+
+        updateState { it.copy(syncMenuState = currentState.syncMenuState.copy(isMenuOpen = false)) }
+    }
+
+    private fun syncData() {
+
+        showSyncIntervalMenu()
+    }
+
+    private fun showSyncIntervalMenu() {
+
+        updateState { it.copy(syncMenuState = currentState.syncMenuState.copy(isMenuOpen = true)) }
+    }
+
+    private fun selectSyncInterval(interval: SettingsUiState.SyncInterval) {
+
+        updateState { it.copy(syncMenuState = currentState.syncMenuState.copy(activeInterval = interval)) }
     }
 
     private fun exitSettings() {
