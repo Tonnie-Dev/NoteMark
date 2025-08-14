@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,6 +43,7 @@ import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsActi
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiEvent
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
+import com.tonyxlab.notemark.util.DeviceType
 import com.tonyxlab.notemark.util.SetStatusBarIconsColor
 import org.koin.androidx.compose.koinViewModel
 
@@ -107,6 +109,7 @@ fun SettingsScreen(
                 uiState = it,
                 onEvent = viewModel::onEvent
         )
+
     }
 }
 
@@ -116,11 +119,47 @@ fun SettingsScreenContent(
     onEvent: (SettingsUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    SettingsSection(
-            modifier = modifier.padding(MaterialTheme.spacing.spaceMedium),
-            uiState = uiState,
-            onEvent = onEvent
-    )
+
+
+    val windowClass = currentWindowAdaptiveInfo().windowSizeClass
+    val deviceType = DeviceType.fromWindowSizeClass(windowClass)
+
+    when (deviceType) {
+        DeviceType.MOBILE_PORTRAIT -> {
+
+            SettingsSection(
+                    modifier = modifier.padding(horizontal = MaterialTheme.spacing.spaceMedium),
+                    uiState = uiState,
+                    onEvent = onEvent
+            )
+
+        }
+
+        DeviceType.MOBILE_LANDSCAPE -> {
+
+            SettingsSection(
+                    modifier = modifier
+                            .padding(start = MaterialTheme.spacing.spaceTen * 6)
+                            .padding(end = MaterialTheme.spacing.spaceMedium),
+                    uiState = uiState,
+                    onEvent = onEvent
+            )
+
+        }
+
+        DeviceType.TABLET_PORTRAIT,
+        DeviceType.TABLET_LANDSCAPE,
+        DeviceType.DESKTOP -> {
+
+            SettingsSection(
+                    modifier = modifier.padding(horizontal = MaterialTheme.spacing.spaceTwelve * 2),
+                    uiState = uiState,
+                    onEvent = onEvent
+            )
+        }
+    }
+
+
 }
 
 
@@ -133,7 +172,7 @@ fun SettingsSection(
     Column(
             modifier = modifier
                     .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.background)
+
     ) {
 
         SyncIntervalRow(uiState = uiState, onEvent = onEvent)
@@ -161,7 +200,7 @@ fun SettingsSection(
             Column {
                 Text(
                         text = stringResource(id = R.string.settings_sync_data),
-                        style = MaterialTheme.typography.titleSmall.copy(
+                        style = MaterialTheme.typography.titleMedium.copy(
                                 color = MaterialTheme.colorScheme.onSurface
                         )
                 )
@@ -196,7 +235,9 @@ fun SettingsSection(
 
             Text(
                     text = stringResource(id = R.string.settings_log_out),
-                    style = MaterialTheme.typography.titleSmall.copy(color = MaterialTheme.colorScheme.error)
+                    style = MaterialTheme.typography.titleMedium.copy(
+                            color = MaterialTheme.colorScheme.error
+                    )
             )
         }
     }
