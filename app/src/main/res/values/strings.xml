@@ -89,6 +89,9 @@
     <string name="cds_text_read_mode">Read Mode</string>
     <string name="cds_text_offline">Offline</string>
     <string name="cds_text_check_mark">Check Mark</string>
+    <string name="cds_sync_interval">Sync Interval</string>
+    <string name="cds_sync_data">Sync Data</string>
+    <string name="cds_last_sync">Last Sync:</string>
 
     <!--Meta Data Texts-->
     <string name="meta_text_created_on">Date Created</string>

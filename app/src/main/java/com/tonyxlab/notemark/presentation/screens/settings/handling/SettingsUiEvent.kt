@@ -6,7 +6,7 @@ sealed interface SettingsUiEvent : UiEvent {
     data object LogOut : SettingsUiEvent
     data object ShowSyncIntervalSettings : SettingsUiEvent
     data object DismissSyncMenu : SettingsUiEvent
-    data class SelectSyncInterval(val syncInterval: SettingsUiState.SyncInterval) : SettingsUiEvent
+    data class SelectSyncInterval(val syncInterval: SyncInterval) : SettingsUiEvent
     data object SyncData : SettingsUiEvent
     data object ExitSettings : SettingsUiEvent
 }

@@ -7,6 +7,7 @@ import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsActionEvent
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiEvent
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiState
+import com.tonyxlab.notemark.presentation.screens.settings.handling.SyncInterval
 
 
 typealias SettingsBaseViewModel =
@@ -44,7 +45,7 @@ class SettingsViewModel(
         updateState { it.copy(syncMenuState = currentState.syncMenuState.copy(isMenuOpen = true)) }
     }
 
-    private fun selectSyncInterval(interval: SettingsUiState.SyncInterval) {
+    private fun selectSyncInterval(interval: SyncInterval) {
 
         updateState { it.copy(syncMenuState = currentState.syncMenuState.copy(activeInterval = interval)) }
     }

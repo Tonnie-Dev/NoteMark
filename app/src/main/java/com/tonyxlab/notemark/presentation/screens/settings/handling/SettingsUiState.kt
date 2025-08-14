@@ -15,11 +15,12 @@ data class SettingsUiState(
         val intervals: List<SyncInterval> = SyncInterval.entries
     )
 
-    @Stable
-    enum class SyncInterval {
-        ManualOnlyInterval,
-        FifteenMinutesInterval,
-        ThirtyMinutesInterval,
-        HourlyInterval
-    }
+
+}
+
+enum class SyncInterval {
+    ManualOnlyInterval,
+    FifteenMinutesInterval,
+    ThirtyMinutesInterval,
+    HourlyInterval
 }
