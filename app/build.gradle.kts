@@ -98,6 +98,9 @@ dependencies {
     // Data Store
     implementation(AndroidX.dataStore.preferences)
 
+    // Work Manager
+    implementation(AndroidX.work.runtime)
+    
     // Koin
     implementation(Koin.android)
     implementation(Koin.compose)
