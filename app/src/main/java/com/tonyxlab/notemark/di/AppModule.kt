@@ -1,12 +1,17 @@
 @file: RequiresApi(Build.VERSION_CODES.O)
+@file:RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 
 package com.tonyxlab.notemark.di
 
+import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.core.content.ContextCompat
 import androidx.room.Room
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import com.tonyxlab.notemark.data.local.database.NoteMarkDatabase
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
 import com.tonyxlab.notemark.data.local.datastore.TokenStorage
@@ -14,6 +19,8 @@ import com.tonyxlab.notemark.data.network.HttpClientFactory
 import com.tonyxlab.notemark.data.remote.auth.AuthRepositoryImpl
 import com.tonyxlab.notemark.data.remote.connectivity.ConnectivityObserverImpl
 import com.tonyxlab.notemark.data.repository.NoteRepositoryImpl
+import com.tonyxlab.notemark.data.workmanager.SyncRequest
+import com.tonyxlab.notemark.data.workmanager.SyncWorker
 import com.tonyxlab.notemark.domain.auth.AuthRepository
 import com.tonyxlab.notemark.domain.connectivity.ConnectivityObserver
 import com.tonyxlab.notemark.domain.repository.NoteRepository
@@ -85,5 +92,18 @@ val useCasesModule = module {
     single { UpsertNoteUseCase(get()) }
     single { DeleteNoteUseCase(get()) }
     single { LogOutUseCase(get(), get()) }
+}
+
+val syncWorkModule = module {
+
+    single { WorkManager.getInstance(androidContext()) }
+
+    single { SyncRequest(get()) }
+
+    factory{ (context: Context, params: WorkerParameters) ->
+
+        SyncWorker(context = context, workerParams = params, repository =  get())
+    }
+
 }
 

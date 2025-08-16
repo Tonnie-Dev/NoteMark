@@ -21,7 +21,6 @@ class SyncRequest(private val workManager: WorkManager) {
         val DEFAULT_CONSTRAINTS: Constraints = Constraints.Builder()
                 .setRequiredNetworkType(networkType = NetworkType.CONNECTED)
                 .build()
-
     }
 
     fun enqueueManualSync() {
@@ -30,9 +29,10 @@ class SyncRequest(private val workManager: WorkManager) {
                 .setBackoffCriteria(
                         backoffPolicy = BackoffPolicy.EXPONENTIAL,
                         backoffDelay = 10,
-                        timeUnit = java.util.concurrent.TimeUnit.SECONDS
+                        timeUnit = TimeUnit.SECONDS
                 )
                 .build()
+
         workManager.enqueueUniqueWork(
                 uniqueWorkName = UNIQUE_MANUAL,
                 existingWorkPolicy = ExistingWorkPolicy.KEEP,
@@ -51,7 +51,8 @@ class SyncRequest(private val workManager: WorkManager) {
 
         val request =
             PeriodicWorkRequestBuilder<SyncWorker>(
-                    repeatInterval = minutes, TimeUnit.MINUTES
+                    repeatInterval = minutes,
+                    repeatIntervalTimeUnit = TimeUnit.MINUTES
             ).setConstraints(DEFAULT_CONSTRAINTS)
                     .build()
 
