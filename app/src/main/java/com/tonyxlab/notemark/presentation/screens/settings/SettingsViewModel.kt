@@ -2,12 +2,12 @@ package com.tonyxlab.notemark.presentation.screens.settings
 
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.domain.model.Resource
+import com.tonyxlab.notemark.domain.model.SyncInterval
 import com.tonyxlab.notemark.domain.usecase.LogOutUseCase
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsActionEvent
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiEvent
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiState
-import com.tonyxlab.notemark.presentation.screens.settings.handling.SyncInterval
 
 
 typealias SettingsBaseViewModel =

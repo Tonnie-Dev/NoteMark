@@ -1,6 +1,7 @@
 package com.tonyxlab.notemark.presentation.screens.settings.handling
 
 import androidx.compose.runtime.Stable
+import com.tonyxlab.notemark.domain.model.SyncInterval
 import com.tonyxlab.notemark.presentation.core.base.handling.UiState
 
 data class SettingsUiState(
@@ -11,16 +12,9 @@ data class SettingsUiState(
     @Stable
     data class SyncMenuState(
         val isMenuOpen: Boolean = false,
-        val activeInterval: SyncInterval = SyncInterval.ManualOnlyInterval,
+        val activeInterval: SyncInterval = SyncInterval.MANUAL,
         val intervals: List<SyncInterval> = SyncInterval.entries
     )
 
 
-}
-
-enum class SyncInterval {
-    ManualOnlyInterval,
-    FifteenMinutesInterval,
-    ThirtyMinutesInterval,
-    HourlyInterval
 }

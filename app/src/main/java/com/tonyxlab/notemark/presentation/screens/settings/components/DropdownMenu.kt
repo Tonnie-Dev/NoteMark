@@ -36,10 +36,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
 import com.tonyxlab.notemark.R
+import com.tonyxlab.notemark.domain.model.SyncInterval
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiEvent
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiState
-import com.tonyxlab.notemark.presentation.screens.settings.handling.SyncInterval
 import com.tonyxlab.notemark.util.toDpSize
 
 @Composable
@@ -173,17 +173,17 @@ fun SyncIntervalRow(
 private fun SyncInterval.toStringInterval(): String {
 
     return when (this) {
-        SyncInterval.ManualOnlyInterval ->
+        SyncInterval.MANUAL ->
             stringResource(R.string.settings_manual_only)
 
-        SyncInterval.FifteenMinutesInterval ->
+        SyncInterval.MIN_15 ->
             stringResource(R.string.settings_fifteen_mins)
 
-        SyncInterval.ThirtyMinutesInterval ->
+        SyncInterval.MIN_30 ->
 
             stringResource(R.string.settings_thirty_mins)
 
-        SyncInterval.HourlyInterval ->
+        SyncInterval.MIN_60 ->
             stringResource(R.string.settings_one_hour)
     }
 }
