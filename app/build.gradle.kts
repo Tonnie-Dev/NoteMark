@@ -100,6 +100,7 @@ dependencies {
 
     // Work Manager
     implementation(AndroidX.work.runtime)
+    implementation(Koin.workManager)
 
     // Koin
     implementation(Koin.android)

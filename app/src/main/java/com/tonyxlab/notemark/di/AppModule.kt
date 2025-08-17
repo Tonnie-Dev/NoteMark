@@ -2,17 +2,15 @@
 
 package com.tonyxlab.notemark.di
 
-import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.room.Room
 import androidx.work.WorkManager
-import androidx.work.WorkerParameters
 import com.tonyxlab.notemark.data.local.database.NoteMarkDatabase
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
-import com.tonyxlab.notemark.data.local.datastore.TokenStorage
+import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.data.network.HttpClientFactory
 import com.tonyxlab.notemark.data.remote.auth.AuthRepositoryImpl
 import com.tonyxlab.notemark.data.remote.connectivity.ConnectivityObserverImpl
@@ -35,6 +33,7 @@ import com.tonyxlab.notemark.presentation.screens.settings.SettingsViewModel
 import com.tonyxlab.notemark.presentation.screens.signup.SignupViewModel
 import com.tonyxlab.notemark.util.Constants
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.workmanager.dsl.workerOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -49,13 +48,12 @@ val viewModelModule = module {
 
 val networkModule = module {
     single {
-        TokenStorage.init(androidContext())
-        HttpClientFactory()
+        HttpClientFactory(get())
     }
 }
 
 val repositoryModule = module {
-    single<AuthRepository> { AuthRepositoryImpl(get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<NoteRepository> { NoteRepositoryImpl(get()) }
 }
 
@@ -88,7 +86,7 @@ val useCasesModule = module {
     single { GetNoteByIdUseCase(get()) }
     single { UpsertNoteUseCase(get()) }
     single { DeleteNoteUseCase(get()) }
-    single { LogOutUseCase(get(), get()) }
+    single { LogOutUseCase(get(), get(), get()) }
 }
 
 val syncWorkModule = module {
@@ -97,10 +95,13 @@ val syncWorkModule = module {
 
     single { SyncRequest(get()) }
 
-    factory{ (context: Context, params: WorkerParameters) ->
+    workerOf(::SyncWorker)
 
-        SyncWorker(context = context, workerParams = params, repository =  get())
-    }
+}
 
+
+val dataStoreModule = module {
+
+    single{ DataStore(androidContext()) }
 }
 
