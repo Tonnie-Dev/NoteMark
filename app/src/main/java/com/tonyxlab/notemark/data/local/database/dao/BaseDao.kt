@@ -14,4 +14,7 @@ interface BaseDao<T> {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAndReturnId(value: T): Long
+
+    @Upsert
+    suspend fun upsert(value: T): Long
 }
