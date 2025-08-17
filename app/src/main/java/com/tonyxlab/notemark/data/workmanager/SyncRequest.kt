@@ -20,6 +20,7 @@ class SyncRequest(private val workManager: WorkManager) {
 
         val DEFAULT_CONSTRAINTS: Constraints = Constraints.Builder()
                 .setRequiredNetworkType(networkType = NetworkType.CONNECTED)
+                .setRequiresBatteryNotLow(true)
                 .build()
     }
 

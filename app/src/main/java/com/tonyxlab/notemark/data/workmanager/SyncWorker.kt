@@ -1,15 +1,17 @@
-@file:RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
+
 
 package com.tonyxlab.notemark.data.workmanager
 
 import android.content.Context
-import android.net.http.HttpException
-import android.os.Build
-import androidx.annotation.RequiresExtension
+
+
+
+
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.tonyxlab.notemark.domain.repository.NoteRepository
-import okio.IOException
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import java.io.IOException
 
 
 class SyncWorker(
@@ -26,7 +28,7 @@ class SyncWorker(
 
         }.onFailure {  }.getOrElse { e ->
 
-            if (e is HttpException || e is IOException)
+            if (e is HttpRequestTimeoutException  || e is IOException)
                 Result.retry()
             else
                 Result.failure()

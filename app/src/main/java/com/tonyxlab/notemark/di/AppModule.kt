@@ -1,5 +1,4 @@
 @file: RequiresApi(Build.VERSION_CODES.O)
-@file:RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 
 package com.tonyxlab.notemark.di
 
@@ -7,7 +6,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresExtension
 import androidx.core.content.ContextCompat
 import androidx.room.Room
 import androidx.work.WorkManager
@@ -39,7 +37,6 @@ import com.tonyxlab.notemark.util.Constants
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-
 
 val viewModelModule = module {
     viewModelOf(::LoginViewModel)

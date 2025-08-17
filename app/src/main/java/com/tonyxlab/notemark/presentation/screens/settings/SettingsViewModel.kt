@@ -49,7 +49,7 @@ class SettingsViewModel(
 
     private fun syncData() {
 
-        syncRequest.enqueuePeriodicSync(currentState.syncMenuState.activeInterval)
+        syncRequest.enqueueManualSync()
     }
 
     private fun showSyncIntervalMenu() {
@@ -60,6 +60,8 @@ class SettingsViewModel(
     private fun selectSyncInterval(interval: SyncInterval) {
 
         setSyncInterval(interval)
+
+
 
         launch {
             TokenStorage.saveSyncInterval(interval)

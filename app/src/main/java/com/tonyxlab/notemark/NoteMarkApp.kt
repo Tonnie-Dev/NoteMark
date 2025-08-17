@@ -1,14 +1,11 @@
 @file:RequiresApi(Build.VERSION_CODES.O)
-@file:RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 
 package com.tonyxlab.notemark
-
 
 import android.app.Application
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresExtension
 import androidx.work.Configuration
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
@@ -31,7 +28,10 @@ class NoteMarkApp : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
-        Timber.plant(Timber.DebugTree())
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
 
         startKoin {
             androidContext(this@NoteMarkApp)
@@ -51,22 +51,25 @@ class NoteMarkApp : Application(), Configuration.Provider {
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
-                .setWorkerFactory(
-                        object : WorkerFactory() {
-                            override fun createWorker(
-                                appContext: Context,
-                                workerClassName: String,
-                                workerParameters: WorkerParameters
-                            ): ListenableWorker? =
-                                when (Class.forName(workerClassName)) {
-                                    SyncWorker::class.java -> getKoin().get<SyncWorker> {
-                                        parametersOf(appContext, workerParameters)
-                                    }
+                .setWorkerFactory(object : WorkerFactory() {
+                    override fun createWorker(
+                        appContext: Context,
+                        workerClassName: String,
+                        workerParameters: WorkerParameters
+                    ): ListenableWorker? {
+                        return when (workerClassName) {
+                            SyncWorker::class.java.name -> {
 
-                                    else -> null
+                                getKoin().get<SyncWorker> {
+                                    parametersOf(appContext, workerParameters)
                                 }
-                        }
+                            }
 
+                            else -> null
+                        }
+                    }
+                }
                 )
+                .setMinimumLoggingLevel(android.util.Log.INFO)
                 .build()
 }
