@@ -11,6 +11,7 @@ import com.tonyxlab.notemark.di.dataStoreModule
 import com.tonyxlab.notemark.di.databaseModule
 import com.tonyxlab.notemark.di.networkModule
 import com.tonyxlab.notemark.di.repositoryModule
+import com.tonyxlab.notemark.di.serializationModule
 import com.tonyxlab.notemark.di.syncWorkModule
 import com.tonyxlab.notemark.di.useCasesModule
 import com.tonyxlab.notemark.di.viewModelModule
@@ -39,7 +40,8 @@ class NoteMarkApp : Application(), Configuration.Provider {
                             useCasesModule,
                             connectivityModule,
                             syncWorkModule,
-                            dataStoreModule
+                            dataStoreModule,
+                            serializationModule
                     )
             )
         }

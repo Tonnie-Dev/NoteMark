@@ -8,17 +8,21 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.room.Room
 import androidx.work.WorkManager
+import com.tonyxlab.notemark.data.json.JsonSerializerImpl
 import com.tonyxlab.notemark.data.local.database.NoteMarkDatabase
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
 import com.tonyxlab.notemark.data.local.datastore.DataStore
+import com.tonyxlab.notemark.data.local.sync.dao.SyncDao
 import com.tonyxlab.notemark.data.network.HttpClientFactory
 import com.tonyxlab.notemark.data.remote.auth.AuthRepositoryImpl
 import com.tonyxlab.notemark.data.remote.connectivity.ConnectivityObserverImpl
+import com.tonyxlab.notemark.data.repository.NoteLocalWriter
 import com.tonyxlab.notemark.data.repository.NoteRepositoryImpl
 import com.tonyxlab.notemark.data.workmanager.SyncRequest
 import com.tonyxlab.notemark.data.workmanager.SyncWorker
 import com.tonyxlab.notemark.domain.auth.AuthRepository
 import com.tonyxlab.notemark.domain.connectivity.ConnectivityObserver
+import com.tonyxlab.notemark.domain.json.JsonSerializer
 import com.tonyxlab.notemark.domain.repository.NoteRepository
 import com.tonyxlab.notemark.domain.usecase.DeleteNoteUseCase
 import com.tonyxlab.notemark.domain.usecase.GetAllNotesUseCase
@@ -30,6 +34,7 @@ import com.tonyxlab.notemark.presentation.screens.home.HomeViewModel
 import com.tonyxlab.notemark.presentation.screens.landing.LandingViewModel
 import com.tonyxlab.notemark.presentation.screens.login.LoginViewModel
 import com.tonyxlab.notemark.presentation.screens.settings.SettingsViewModel
+import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiEvent
 import com.tonyxlab.notemark.presentation.screens.signup.SignupViewModel
 import com.tonyxlab.notemark.util.Constants
 import org.koin.android.ext.koin.androidContext
@@ -46,15 +51,63 @@ val viewModelModule = module {
     viewModelOf(::SettingsViewModel)
 }
 
+val useCasesModule = module {
+    single { GetAllNotesUseCase(get()) }
+    single { GetNoteByIdUseCase(get()) }
+    single { UpsertNoteUseCase(get()) }
+    single { DeleteNoteUseCase(get()) }
+    single { LogOutUseCase(get(), get(), get()) }
+}
+
+
+val repositoryModule = module {
+    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
+    single {
+        NoteLocalWriter(
+                noteDao = get(),
+                syncDao = get(),
+                jsonSerializer = get(),
+                dataStore = get()
+        )
+    }
+    single<NoteRepository> { NoteRepositoryImpl(get(), get()) }
+}
+
+val databaseModule = module {
+
+    single<NoteMarkDatabase> {
+        Room.databaseBuilder(
+                context = androidContext(),
+                klass = NoteMarkDatabase::class.java,
+                name = Constants.DATABASE_NAME
+        )
+                .build()
+    }
+    single<NoteDao> { get<NoteMarkDatabase>().noteDao }
+    single<SyncDao> { get<NoteMarkDatabase>().syncDao }
+}
+
+val dataStoreModule = module {
+    single{ DataStore(androidContext()) }
+}
+
+val syncWorkModule = module {
+
+    single { WorkManager.getInstance(androidContext()) }
+
+    single { SyncRequest(get()) }
+
+    workerOf(::SyncWorker)
+
+}
+val serializationModule = module {
+    single<JsonSerializer> { JsonSerializerImpl() }
+}
+
 val networkModule = module {
     single {
         HttpClientFactory(get())
     }
-}
-
-val repositoryModule = module {
-    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
-    single<NoteRepository> { NoteRepositoryImpl(get()) }
 }
 
 val connectivityModule = module {
@@ -68,40 +121,5 @@ val connectivityModule = module {
     single<ConnectivityObserver> { ConnectivityObserverImpl(get()) }
 }
 
-val databaseModule = module {
 
-    single<NoteMarkDatabase> {
-        Room.databaseBuilder(
-                context = androidContext(),
-                klass = NoteMarkDatabase::class.java,
-                name = Constants.DATABASE_NAME
-        )
-                .build()
-    }
-    single<NoteDao> { get<NoteMarkDatabase>().dao }
-}
-
-val useCasesModule = module {
-    single { GetAllNotesUseCase(get()) }
-    single { GetNoteByIdUseCase(get()) }
-    single { UpsertNoteUseCase(get()) }
-    single { DeleteNoteUseCase(get()) }
-    single { LogOutUseCase(get(), get(), get()) }
-}
-
-val syncWorkModule = module {
-
-    single { WorkManager.getInstance(androidContext()) }
-
-    single { SyncRequest(get()) }
-
-    workerOf(::SyncWorker)
-
-}
-
-
-val dataStoreModule = module {
-
-    single{ DataStore(androidContext()) }
-}
 

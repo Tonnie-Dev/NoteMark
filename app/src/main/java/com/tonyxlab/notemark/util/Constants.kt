@@ -9,6 +9,7 @@ object Constants {
     const val REFRESH_TOKEN = "refresh_token"
     const val USERNAME_KEY = "username_key"
     const val SYNC_INTERVAL_KEY = "sync_interval_key"
+    const val INTERNAL_USER_ID = "internal_user_id"
 
     const val EMAIL_HEADER_KEY = "X-User-Email"
 

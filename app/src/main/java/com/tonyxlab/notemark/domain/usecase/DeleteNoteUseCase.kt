@@ -12,7 +12,7 @@ class DeleteNoteUseCase(private val repository: NoteRepository) {
             is Resource.Success -> {
                 val deleted = result.data
                 if (!deleted) throw Exception("Note deletion failed or note not found.")
-           true
+
             }
 
             is Resource.Error -> throw result.exception

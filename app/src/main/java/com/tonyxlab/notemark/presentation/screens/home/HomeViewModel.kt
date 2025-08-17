@@ -89,8 +89,7 @@ class HomeViewModel(
             if (authRepository.isSignedIn()) {
                 val username = authRepository.getUserName() ?: return@launch
                 updateState { it.copy(username = username) }
-                Timber.tag("HomeViewModel")
-                        .i("User is-signed-in value is: ${authRepository.isSignedIn()}")
+
             } else {
                 sendActionEvent(HomeActionEvent.NavigateToLoginScreen)
             }

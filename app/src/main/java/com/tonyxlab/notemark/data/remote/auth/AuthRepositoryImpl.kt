@@ -85,6 +85,7 @@ class AuthRepositoryImpl(
                                 username = accessTokenResponse.username
                         )
 
+                        dataStore.getOrCreateInternalUserId()
                         Resource.Success(0)
                     }
 
