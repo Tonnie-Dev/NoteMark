@@ -1,5 +1,6 @@
 package com.tonyxlab.notemark.presentation.screens.settings.handling
 
+import com.tonyxlab.notemark.domain.model.SyncInterval
 import com.tonyxlab.notemark.presentation.core.base.handling.UiEvent
 
 sealed interface SettingsUiEvent : UiEvent {

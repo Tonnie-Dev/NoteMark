@@ -4,8 +4,12 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.tonyxlab.notemark.domain.model.SyncInterval
+import com.tonyxlab.notemark.domain.model.toPrefsInt
+import com.tonyxlab.notemark.domain.model.toSyncInterval
 import com.tonyxlab.notemark.util.Constants
 import kotlinx.coroutines.flow.first
 
@@ -19,6 +23,7 @@ object TokenStorage {
     private val ACCESS_TOKEN = stringPreferencesKey(Constants.ACCESS_TOKEN)
     private val REFRESH_TOKEN = stringPreferencesKey(Constants.REFRESH_TOKEN)
     private val USERNAME = stringPreferencesKey(Constants.USERNAME_KEY)
+    private val SYNC_INTERVAL = intPreferencesKey(Constants.SYNC_INTERVAL_KEY)
 
     fun init(context: Context) {
 
@@ -53,6 +58,16 @@ object TokenStorage {
     suspend fun getUsername(): String? {
 
         return dataStore.data.first()[USERNAME]
+    }
+
+    suspend fun getSyncInterval(): SyncInterval {
+
+        return dataStore.data.first()[SYNC_INTERVAL]?.toSyncInterval() ?: SyncInterval.MANUAL
+    }
+
+    suspend fun saveSyncInterval(interval: SyncInterval) {
+
+        dataStore.edit { prefs -> prefs[SYNC_INTERVAL] = interval.toPrefsInt() }
     }
 
 }

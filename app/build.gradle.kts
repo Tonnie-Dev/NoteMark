@@ -24,7 +24,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
 
-
         //load the values from .properties file
         val keysFile = project.rootProject.file("keys.properties")
         val properties = Properties()
@@ -65,8 +64,9 @@ android {
         useJUnitPlatform()
     }
 }
-dependencies {
 
+
+dependencies {
     implementation(AndroidX.core.ktx)
     implementation(AndroidX.lifecycle.runtime.ktx)
     implementation(AndroidX.activity.compose)
@@ -100,14 +100,13 @@ dependencies {
 
     // Work Manager
     implementation(AndroidX.work.runtime)
-    
+
     // Koin
     implementation(Koin.android)
     implementation(Koin.compose)
 
     // Kotlinx Serialization
     implementation(KotlinX.serialization.json)
-
 
     // Ktor
     implementation(Ktor.client.core)
@@ -129,11 +128,8 @@ dependencies {
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
-   testImplementation(Testing.Kotest.assertions.core)
-   testImplementation(Testing.Kotest.runner.junit5)
-
-
-
+    testImplementation(Testing.Kotest.assertions.core)
+    testImplementation(Testing.Kotest.runner.junit5)
 
     // Android Tests
     androidTestImplementation(libs.androidx.junit)
@@ -142,5 +138,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
 }

@@ -1,6 +1,8 @@
 package com.tonyxlab.notemark.presentation.screens.settings
 
 import com.tonyxlab.notemark.R
+import com.tonyxlab.notemark.data.local.datastore.TokenStorage
+import com.tonyxlab.notemark.data.workmanager.SyncRequest
 import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.domain.model.SyncInterval
 import com.tonyxlab.notemark.domain.usecase.LogOutUseCase
@@ -14,16 +16,26 @@ typealias SettingsBaseViewModel =
         BaseViewModel<SettingsUiState, SettingsUiEvent, SettingsActionEvent>
 
 class SettingsViewModel(
-    private val logOutUseCase: LogOutUseCase
+    private val logOutUseCase: LogOutUseCase,
+    private val syncRequest: SyncRequest,
 ) : SettingsBaseViewModel() {
+
     override val initialState: SettingsUiState
         get() = SettingsUiState()
+
+
+    init {
+        observeActiveSyncInterval()
+    }
 
     override fun onEvent(event: SettingsUiEvent) {
         when (event) {
             SettingsUiEvent.LogOut -> logout()
             SettingsUiEvent.ExitSettings -> exitSettings()
-            is SettingsUiEvent.SelectSyncInterval -> {selectSyncInterval(event.syncInterval)}
+            is SettingsUiEvent.SelectSyncInterval -> {
+                selectSyncInterval(event.syncInterval)
+            }
+
             SettingsUiEvent.ShowSyncIntervalSettings -> showSyncIntervalMenu()
             SettingsUiEvent.SyncData -> syncData()
             SettingsUiEvent.DismissSyncMenu -> dismissSyncMenu()
@@ -37,7 +49,7 @@ class SettingsViewModel(
 
     private fun syncData() {
 
-        showSyncIntervalMenu()
+        syncRequest.enqueuePeriodicSync(currentState.syncMenuState.activeInterval)
     }
 
     private fun showSyncIntervalMenu() {
@@ -47,7 +59,35 @@ class SettingsViewModel(
 
     private fun selectSyncInterval(interval: SyncInterval) {
 
-        updateState { it.copy(syncMenuState = currentState.syncMenuState.copy(activeInterval = interval)) }
+        setSyncInterval(interval)
+
+        launch {
+            TokenStorage.saveSyncInterval(interval)
+            syncRequest.enqueuePeriodicSync(interval)
+        }
+    }
+
+    private fun observeActiveSyncInterval() {
+        launch {
+
+
+            val activeInterval = TokenStorage.getSyncInterval()
+            setSyncInterval(activeInterval)
+
+        }
+
+    }
+
+    private fun setSyncInterval(interval: SyncInterval) {
+
+        updateState {
+            it.copy(
+                    syncMenuState = currentState.syncMenuState.copy(
+                            activeInterval = interval
+                    )
+            )
+        }
+
     }
 
     private fun exitSettings() {

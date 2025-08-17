@@ -48,10 +48,11 @@ class SyncRequest(private val workManager: WorkManager) {
         }
 
         val minutes = interval.toMinutes()
+        val safeMinutes = maxOf(15,minutes)
 
         val request =
             PeriodicWorkRequestBuilder<SyncWorker>(
-                    repeatInterval = minutes,
+                    repeatInterval = safeMinutes.toLong(),
                     repeatIntervalTimeUnit = TimeUnit.MINUTES
             ).setConstraints(DEFAULT_CONSTRAINTS)
                     .build()
