@@ -16,7 +16,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 
-class NoteRepositoryImpl(private val dao: NoteDao) : NoteRepository {
+class NoteRepositoryImpl(
+    private val dao: NoteDao,
+    private val localWriter: NoteLocalWriter
+) : NoteRepository {
     override fun getAllNotes(): Flow<List<NoteItem>> {
         return dao.getAllNotes()
                 .filterNotNull()
@@ -24,7 +27,7 @@ class NoteRepositoryImpl(private val dao: NoteDao) : NoteRepository {
     }
 
     override suspend fun upsertNote(noteItem: NoteItem): Resource<Long> =
-        safeIoCall { dao.insertAndReturnId(noteItem.toEntity()) }
+        safeIoCall { localWriter.create(noteEntity = noteItem.toEntity()) }
 
     override suspend fun getNoteById(id: Long): Resource<NoteItem> =
 
@@ -36,8 +39,7 @@ class NoteRepositoryImpl(private val dao: NoteDao) : NoteRepository {
     override suspend fun deleteNote(noteItem: NoteItem): Resource<Boolean> =
 
         safeIoCall {
-            val result = dao.delete(noteItem.toEntity())
-            result > 0
+          localWriter.delete(noteItem.toEntity())
         }
 
     override suspend fun clearAllNotes(): Resource<Boolean> = safeIoCall {

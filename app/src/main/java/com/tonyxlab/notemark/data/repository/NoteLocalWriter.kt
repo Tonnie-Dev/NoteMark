@@ -8,7 +8,6 @@ import com.tonyxlab.notemark.data.local.sync.entity.SyncRecord
 import com.tonyxlab.notemark.domain.json.JsonSerializer
 import java.util.UUID
 
-
 class NoteLocalWriter(
     private val noteDao: NoteDao,
     private val syncDao: SyncDao,
@@ -32,7 +31,6 @@ class NoteLocalWriter(
 
         return id
     }
-
 
     suspend fun delete(noteEntity: NoteEntity): Boolean {
         val rowsDeleted = noteDao.delete(noteEntity)
