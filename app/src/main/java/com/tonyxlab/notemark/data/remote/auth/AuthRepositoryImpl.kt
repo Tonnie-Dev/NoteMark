@@ -2,7 +2,7 @@ package com.tonyxlab.notemark.data.remote.auth
 
 
 import com.tonyxlab.notemark.BuildConfig
-import com.tonyxlab.notemark.data.local.datastore.TokenStorage
+import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.data.network.HttpClientFactory
 import com.tonyxlab.notemark.data.remote.auth.dto.AccessTokenResponse
 import com.tonyxlab.notemark.data.remote.auth.dto.LogoutRequest
@@ -26,7 +26,10 @@ import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class AuthRepositoryImpl(private val httpClientFactory: HttpClientFactory) : AuthRepository {
+class AuthRepositoryImpl(
+    private val httpClientFactory: HttpClientFactory,
+    private val dataStore: DataStore,
+) : AuthRepository {
 
     override suspend fun register(credentials: Credentials): Resource<Int> =
 
@@ -76,7 +79,7 @@ class AuthRepositoryImpl(private val httpClientFactory: HttpClientFactory) : Aut
                     200 -> {
                         val accessTokenResponse = result.body<AccessTokenResponse>()
 
-                        TokenStorage.saveTokens(
+                        dataStore.saveTokens(
                                 accessToken = accessTokenResponse.accessToken,
                                 refreshToken = accessTokenResponse.refreshToken,
                                 username = accessTokenResponse.username
@@ -102,14 +105,14 @@ class AuthRepositoryImpl(private val httpClientFactory: HttpClientFactory) : Aut
 
 
     override suspend fun isSignedIn(): Boolean {
-        val accessToken = TokenStorage.getAccessToken()
-        val username = TokenStorage.getUsername()
+        val accessToken = dataStore.getAccessToken()
+        val username = dataStore.getUsername()
         return !accessToken.isNullOrBlank() && !username.isNullOrBlank()
 
     }
 
     override suspend fun getUserName(): String? {
-        return TokenStorage.getUsername()
+        return dataStore.getUsername()
     }
 
     override suspend fun logout(refreshToken: String): Resource<Unit> =
@@ -118,7 +121,7 @@ class AuthRepositoryImpl(private val httpClientFactory: HttpClientFactory) : Aut
 
             val client = httpClientFactory.provideMainHttpClient()
 
-           client.post(ApiEndpoints.LOGIN_ENDPOINT) {
+            client.post(ApiEndpoints.LOGIN_ENDPOINT) {
                 contentType(ContentType.Application.Json)
                 header("X-User-Email", BuildConfig.USER_EMAIL)
                 setBody(LogoutRequest(refreshToken = refreshToken))
@@ -139,7 +142,6 @@ class AuthRepositoryImpl(private val httpClientFactory: HttpClientFactory) : Aut
         }
 
     }
-
 }
 
 

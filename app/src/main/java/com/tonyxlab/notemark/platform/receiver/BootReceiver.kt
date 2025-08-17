@@ -3,7 +3,7 @@ package com.tonyxlab.notemark.platform.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.tonyxlab.notemark.data.local.datastore.TokenStorage
+import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.data.workmanager.SyncRequest
 
 
@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.context.GlobalContext
 
-class BootReceiver: BroadcastReceiver() {
+class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (Intent.ACTION_BOOT_COMPLETED != intent.action) return
 
@@ -21,10 +21,10 @@ class BootReceiver: BroadcastReceiver() {
         CoroutineScope(Dispatchers.Default).launch {
             try {
                 val koin = GlobalContext.get()
-
+                val dataStore: DataStore = koin.get()
                 val syncRequest: SyncRequest = koin.get()
 
-                val interval = TokenStorage.getSyncInterval()
+                val interval = dataStore.getSyncInterval()
                 syncRequest.enqueuePeriodicSync(interval)
             } finally {
                 pendingResult.finish()

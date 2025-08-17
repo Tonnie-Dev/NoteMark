@@ -1,7 +1,7 @@
 package com.tonyxlab.notemark.data.network
 
 import com.tonyxlab.notemark.BuildConfig
-import com.tonyxlab.notemark.data.local.datastore.TokenStorage
+import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.data.remote.auth.dto.AccessTokenResponse
 import com.tonyxlab.notemark.util.ApiEndpoints
 import com.tonyxlab.notemark.util.Constants.EMAIL_HEADER_KEY
@@ -25,7 +25,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import timber.log.Timber
 
-class HttpClientFactory {
+class HttpClientFactory(private val dataStore: DataStore) {
 
     private val defaultClient = HttpClient(CIO) {
 
@@ -64,8 +64,8 @@ class HttpClientFactory {
             install(Auth) {
                 bearer {
                     loadTokens {
-                        val access = TokenStorage.getAccessToken()
-                        val refresh = TokenStorage.getRefreshToken()
+                        val access = dataStore.getAccessToken()
+                        val refresh = dataStore.getRefreshToken()
 
                         if (access != null && refresh != null) {
                             BearerTokens(access, refresh)
@@ -76,7 +76,7 @@ class HttpClientFactory {
 
                     refreshTokens {
                         val refreshToken =
-                            TokenStorage.getRefreshToken() ?: return@refreshTokens null
+                            dataStore.getRefreshToken() ?: return@refreshTokens null
 
                         try {
 
@@ -87,18 +87,18 @@ class HttpClientFactory {
 
                             if (refreshResponse.status == HttpStatusCode.OK) {
                                 val newTokens = refreshResponse.body<AccessTokenResponse>()
-                                TokenStorage.saveTokens(
+                                dataStore.saveTokens(
                                         accessToken = newTokens.accessToken,
                                         refreshToken = newTokens.refreshToken,
                                         username = newTokens.username
                                 )
                                 BearerTokens(newTokens.accessToken, newTokens.refreshToken)
                             } else {
-                                TokenStorage.clearTokens()
+                                dataStore.clearTokens()
                                 null
                             }
                         } catch (e: Exception) {
-                            TokenStorage.clearTokens()
+                            dataStore.clearTokens()
                             null
                         }
                     }

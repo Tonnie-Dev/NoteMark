@@ -1,8 +1,6 @@
 package com.tonyxlab.notemark.data.local.datastore
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -16,20 +14,19 @@ import kotlinx.coroutines.flow.first
 
 val Context.dataStore by preferencesDataStore(Constants.DATASTORE_PREF_NAME)
 
-object TokenStorage {
+class DataStore(context: Context) {
 
-    lateinit var dataStore: DataStore<Preferences>
+    val dataStore = context.dataStore
 
-    private val ACCESS_TOKEN = stringPreferencesKey(Constants.ACCESS_TOKEN)
-    private val REFRESH_TOKEN = stringPreferencesKey(Constants.REFRESH_TOKEN)
-    private val USERNAME = stringPreferencesKey(Constants.USERNAME_KEY)
-    private val SYNC_INTERVAL = intPreferencesKey(Constants.SYNC_INTERVAL_KEY)
+    companion object{
 
-    fun init(context: Context) {
-
-        dataStore = context.dataStore
-
+        private val ACCESS_TOKEN = stringPreferencesKey(Constants.ACCESS_TOKEN)
+        private val REFRESH_TOKEN = stringPreferencesKey(Constants.REFRESH_TOKEN)
+        private val USERNAME = stringPreferencesKey(Constants.USERNAME_KEY)
+        private val SYNC_INTERVAL = intPreferencesKey(Constants.SYNC_INTERVAL_KEY)
     }
+
+
 
     suspend fun saveTokens(accessToken: String, refreshToken: String, username: String) {
 

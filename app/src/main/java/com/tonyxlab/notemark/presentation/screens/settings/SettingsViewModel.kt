@@ -1,7 +1,7 @@
 package com.tonyxlab.notemark.presentation.screens.settings
 
 import com.tonyxlab.notemark.R
-import com.tonyxlab.notemark.data.local.datastore.TokenStorage
+import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.data.workmanager.SyncRequest
 import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.domain.model.SyncInterval
@@ -17,6 +17,7 @@ typealias SettingsBaseViewModel =
 
 class SettingsViewModel(
     private val logOutUseCase: LogOutUseCase,
+    private val dataStore: DataStore,
     private val syncRequest: SyncRequest,
 ) : SettingsBaseViewModel() {
 
@@ -64,7 +65,7 @@ class SettingsViewModel(
 
 
         launch {
-            TokenStorage.saveSyncInterval(interval)
+            dataStore.saveSyncInterval(interval)
             syncRequest.enqueuePeriodicSync(interval)
         }
     }
@@ -73,7 +74,7 @@ class SettingsViewModel(
         launch {
 
 
-            val activeInterval = TokenStorage.getSyncInterval()
+            val activeInterval = dataStore.getSyncInterval()
             setSyncInterval(activeInterval)
 
         }
