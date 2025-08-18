@@ -19,7 +19,7 @@ class DataStore(context: Context) {
 
     val dataStore = context.dataStore
 
-    companion object{
+    companion object {
 
         private val ACCESS_TOKEN = stringPreferencesKey(Constants.ACCESS_TOKEN)
         private val REFRESH_TOKEN = stringPreferencesKey(Constants.REFRESH_TOKEN)
@@ -27,7 +27,6 @@ class DataStore(context: Context) {
         private val SYNC_INTERVAL = intPreferencesKey(Constants.SYNC_INTERVAL_KEY)
         private val INTERNAL_USER_ID = stringPreferencesKey(Constants.INTERNAL_USER_ID)
     }
-
 
 
     suspend fun saveTokens(accessToken: String, refreshToken: String, username: String) {
@@ -50,7 +49,6 @@ class DataStore(context: Context) {
     }
 
 
-
     suspend fun getUsername(): String? {
 
         return dataStore.data.first()[USERNAME]
@@ -67,33 +65,32 @@ class DataStore(context: Context) {
     }
 
 
-
-    suspend fun getOrCreateInternalUserId():String{
+    suspend fun getOrCreateInternalUserId(): String {
 
         val existingUserId = getInternalUserId()
-        return if (!existingUserId.isNullOrBlank()){
+        return if (!existingUserId.isNullOrBlank()) {
             existingUserId
-        }else{
-          val newUserId =  UUID.randomUUID().toString()
+        } else {
+            val newUserId = UUID.randomUUID()
+                    .toString()
             saveInternalUserId(newUserId)
             newUserId
         }
-
     }
 
-    suspend fun getInternalUserId(): String?{
+    suspend fun getInternalUserId(): String? {
 
         return dataStore.data.first()[INTERNAL_USER_ID]
     }
 
-    suspend fun saveInternalUserId(userId:String){
+    suspend fun saveInternalUserId(userId: String) {
 
         dataStore.edit { prefs -> prefs[INTERNAL_USER_ID] = userId }
     }
+
     suspend fun clearTokens() {
 
         dataStore.edit { prefs ->
-
             prefs.remove(ACCESS_TOKEN)
             prefs.remove(REFRESH_TOKEN)
             prefs.remove(USERNAME)

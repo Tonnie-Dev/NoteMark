@@ -1,10 +1,10 @@
-package com.tonyxlab.notemark.data.local.sync.dao
+package com.tonyxlab.notemark.data.remote.sync.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.tonyxlab.notemark.data.local.sync.entity.SyncRecord
+import com.tonyxlab.notemark.data.remote.sync.entity.SyncRecord
 
 @Dao
 interface SyncDao {

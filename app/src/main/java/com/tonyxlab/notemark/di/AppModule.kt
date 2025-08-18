@@ -12,7 +12,7 @@ import com.tonyxlab.notemark.data.json.JsonSerializerImpl
 import com.tonyxlab.notemark.data.local.database.NoteMarkDatabase
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
 import com.tonyxlab.notemark.data.local.datastore.DataStore
-import com.tonyxlab.notemark.data.local.sync.dao.SyncDao
+import com.tonyxlab.notemark.data.remote.sync.dao.SyncDao
 import com.tonyxlab.notemark.data.network.HttpClientFactory
 import com.tonyxlab.notemark.data.remote.auth.AuthRepositoryImpl
 import com.tonyxlab.notemark.data.remote.connectivity.ConnectivityObserverImpl
@@ -34,7 +34,6 @@ import com.tonyxlab.notemark.presentation.screens.home.HomeViewModel
 import com.tonyxlab.notemark.presentation.screens.landing.LandingViewModel
 import com.tonyxlab.notemark.presentation.screens.login.LoginViewModel
 import com.tonyxlab.notemark.presentation.screens.settings.SettingsViewModel
-import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiEvent
 import com.tonyxlab.notemark.presentation.screens.signup.SignupViewModel
 import com.tonyxlab.notemark.util.Constants
 import org.koin.android.ext.koin.androidContext
@@ -58,7 +57,6 @@ val useCasesModule = module {
     single { DeleteNoteUseCase(get()) }
     single { LogOutUseCase(get(), get(), get()) }
 }
-
 
 val repositoryModule = module {
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }

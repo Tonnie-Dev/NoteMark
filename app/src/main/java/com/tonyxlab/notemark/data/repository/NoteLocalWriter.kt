@@ -3,9 +3,9 @@ package com.tonyxlab.notemark.data.repository
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
 import com.tonyxlab.notemark.data.local.database.entity.NoteEntity
 import com.tonyxlab.notemark.data.local.datastore.DataStore
-import com.tonyxlab.notemark.data.local.sync.dao.SyncDao
-import com.tonyxlab.notemark.data.local.sync.entity.SyncOperation
-import com.tonyxlab.notemark.data.local.sync.entity.SyncRecord
+import com.tonyxlab.notemark.data.remote.sync.dao.SyncDao
+import com.tonyxlab.notemark.data.remote.sync.entity.SyncOperation
+import com.tonyxlab.notemark.data.remote.sync.entity.SyncRecord
 import com.tonyxlab.notemark.domain.json.JsonSerializer
 import java.util.UUID
 

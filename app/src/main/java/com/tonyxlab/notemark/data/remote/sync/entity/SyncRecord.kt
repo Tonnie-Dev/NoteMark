@@ -1,4 +1,4 @@
-package com.tonyxlab.notemark.data.local.sync.entity
+package com.tonyxlab.notemark.data.remote.sync.entity
 
 import androidx.room.Entity
 import java.util.UUID
