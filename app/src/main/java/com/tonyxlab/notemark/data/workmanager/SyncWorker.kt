@@ -2,16 +2,23 @@ package com.tonyxlab.notemark.data.workmanager
 
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
+import com.tonyxlab.notemark.data.local.database.entity.NoteEntity
 import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.data.remote.sync.dao.SyncDao
-import com.tonyxlab.notemark.data.remote.sync.dto.SyncRemote
-import com.tonyxlab.notemark.data.remote.sync.dto.UploadRequest
-import com.tonyxlab.notemark.data.remote.sync.mapper.toUploadItem
+import com.tonyxlab.notemark.data.remote.sync.dto.NotesRemote
+import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNote
+import com.tonyxlab.notemark.data.remote.sync.dto.toEntity
+import com.tonyxlab.notemark.data.remote.sync.dto.toRemote
+import com.tonyxlab.notemark.data.remote.sync.entity.SyncOperation
+import com.tonyxlab.notemark.domain.json.JsonSerializer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.io.IOException
 
 
 class SyncWorker(
@@ -20,49 +27,92 @@ class SyncWorker(
     private val syncDao: SyncDao,
     private val noteDao: NoteDao,
     private val dataStore: DataStore,
-    private val remote: SyncRemote
+    private val jsonSerializer: JsonSerializer,
+  private val remote: NotesRemote
 ) : CoroutineWorker(
         context, workerParams
 ) {
+    @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun doWork(): Result = withContext(context = Dispatchers.IO) {
 
-        // Need Access Token and internal user Id
-
-        val accessToken = dataStore.getAccessToken() ?: return@withContext Result.failure()
-
-        val internalUserId = dataStore.getOrCreateInternalUserId()
+        // 0) Guard: need auth and our internal user
+        val token = dataStore.getAccessToken() ?: return@withContext Result.failure()
+        // token is assumed injected by an interceptor; if not, pass it to remote calls.
+        val userId = dataStore.getOrCreateInternalUserId()
 
         try {
-            //upload Sync Queue
+            // === 1) UPLOAD QUEUE (record-by-record) ===
+            val batch = syncDao.loadBatch(userId = userId, limit = 100)
+            for (rec in batch) {
+                val localNote: NoteEntity =
+                    jsonSerializer.fromJson(NoteEntity.serializer(), rec.payload)
 
-            val batch = syncDao.loadBatch(userId = internalUserId, limit = 100)
-            if (batch.isNotEmpty()) {
+                when (rec.operation) {
+                    SyncOperation.CREATE -> {
+                        val created = remote.create(localNote.toRemote())
+                        // Write back server id + timestamps, keep local id for continuity
+                        noteDao.upsert(
+                                created.toEntity()
+                                        .copy(id = localNote.id)
+                        )
+                        syncDao.deleteByIds(listOf(rec.id))
+                    }
 
-                val uploadRequestRequest = UploadRequest(
-                        userId = internalUserId,
-                        items = batch.map { syncRecord -> syncRecord.toUploadItem() }
-                )
+                    SyncOperation.UPDATE -> {
+                        val body = if (localNote.remoteId == null) {
+                            // No remoteId? Promote to create.
+                            localNote.toRemote()
+                        } else {
+                            localNote.toRemote()
+                                    .copy(id = localNote.remoteId)
+                        }
 
-                val response = remote.upload(
-                        accessToken = accessToken,
-                        body = uploadRequestRequest
-                )
+                        val saved = if (localNote.remoteId == null) {
+                            remote.create(body)
+                        } else {
+                            remote.update(body)
+                        }
 
-                val succeded =
-                    response.items.filter { response -> response.status == "OK" }
-                            .map { it.localId }
+                        noteDao.upsert(
+                                saved.toEntity()
+                                        .copy(id = localNote.id)
+                        )
+                        syncDao.deleteByIds(listOf(rec.id))
+                    }
 
-                if (succeded.isNotEmpty()){
-                    syncDao.deleteByIds(succeded)
+                    SyncOperation.DELETE -> {
+                        val remoteId = localNote.remoteId
+                        if (remoteId != null) {
+                            // if server call fails, throw to let WM retry
+                            remote.delete(remoteId)
+                        }
+                        // local already deleted; drop queue entry either way
+                        syncDao.deleteByIds(listOf(rec.id))
+                    }
                 }
             }
 
-val inToken = dataStore.getDeltaToken
+            // === 2) DOWNLOAD FULL SNAPSHOT & RECONCILE ===
+            val remoteNotes: List<RemoteNote> = remote.getAll()
 
-        } catch ()
+            // upsert all server items locally
+            if (remoteNotes.isNotEmpty()) {
+                noteDao.upsertAll(remoteNotes.map { it.toEntity() })
+            }
 
-        Result.Success()
+            // delete locals that vanished on server (but keep local-only notes still queued)
+            val serverIds = remoteNotes.map { it.id }
+                    .toSet()
+            noteDao.deleteMissingRemoteIds(serverIds)
 
+            Result.success()
+        } catch (e: IOException) {
+            // network/timeouts/transient -> retry with backoff
+            Result.retry()
+        } catch (e: Exception) {
+            // unexpected error -> fail and surface in WorkManager
+            Result.failure()
+        }
     }
 
 }

@@ -1,11 +1,13 @@
 package com.tonyxlab.notemark.data.remote.sync.entity
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.UUID
 
 @Entity(tableName = "sync_record")
 data class SyncRecord(
-    val id: UUID,
+    @PrimaryKey
+    val id: String,
     val userId: String,
     val noteId: String,
     val operation: SyncOperation,

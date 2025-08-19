@@ -11,6 +11,8 @@ data class NoteEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     val id: Long,
+    @ColumnInfo(name = "remote_id")
+    val remoteId:String? = null,
     @ColumnInfo(name = "title")
     val title: String,
     @ColumnInfo(name = "content")

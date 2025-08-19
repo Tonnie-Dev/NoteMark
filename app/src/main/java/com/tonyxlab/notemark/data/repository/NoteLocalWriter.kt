@@ -17,16 +17,16 @@ class NoteLocalWriter(
     private val clock: () -> Long = { System.currentTimeMillis() }
 ) {
 
-    suspend fun create(noteEntity: NoteEntity): Long {
+    suspend fun upsert(noteEntity: NoteEntity): Long {
         val exists = noteEntity.id != 0L && noteDao.getNoteById(noteEntity.id) != null
 
         val syncOp = if (exists) SyncOperation.UPDATE else SyncOperation.CREATE
 
-        val id = noteDao.insertAndReturnId(noteEntity)
+        val id = noteDao.upsert(noteEntity)
 
         queue(
                 localNoteId = id,
-                noteEntity = noteEntity,
+                noteEntity = noteEntity.copy(id = id),
                 syncOp = syncOp
         )
 
@@ -52,7 +52,7 @@ class NoteLocalWriter(
         val userId = dataStore.getOrCreateInternalUserId()
 
         val record = SyncRecord(
-                id = UUID.randomUUID(),
+                id = UUID.randomUUID().toString(),
                 userId = userId,
                 noteId = localNoteId.toString(),
                 operation = syncOp,

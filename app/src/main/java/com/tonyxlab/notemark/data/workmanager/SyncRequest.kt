@@ -65,7 +65,7 @@ class SyncRequest(private val workManager: WorkManager) {
         )
     }
 
-    fun cancelPeriodic() {
+    private fun cancelPeriodic() {
         workManager.cancelUniqueWork(UNIQUE_PERIODIC)
     }
 }

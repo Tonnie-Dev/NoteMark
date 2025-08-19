@@ -27,7 +27,7 @@ class NoteRepositoryImpl(
     }
 
     override suspend fun upsertNote(noteItem: NoteItem): Resource<Long> =
-        safeIoCall { localWriter.create(noteEntity = noteItem.toEntity()) }
+        safeIoCall { localWriter.upsert(noteEntity = noteItem.toEntity()) }
 
     override suspend fun getNoteById(id: Long): Resource<NoteItem> =
 
