@@ -1,22 +1,13 @@
 @file:RequiresApi(Build.VERSION_CODES.O)
+
 package com.tonyxlab.notemark.data.remote.sync.dto
 
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.tonyxlab.notemark.data.local.database.entity.NoteEntity
+import kotlinx.serialization.Serializable
 
 
-interface NotesRemote {
-    suspend fun create(body: RemoteNote): RemoteNote
-    suspend fun update(body: RemoteNote): RemoteNote
-    suspend fun delete(remoteId: String)
-    suspend fun getAll(): List<RemoteNote>   // returns full snapshot
-}
-
-data class RemoteNote(
-    val id: String, val title: String, val content: String,
-    val createdAt: String, val lastEditedAt: String
-)
 
 fun Long.toIso(): String = java.time.Instant.ofEpochMilli(this).toString()
 
@@ -32,6 +23,24 @@ fun RemoteNote.toEntity(): NoteEntity = NoteEntity(
         createdOn = createdAt.isoToMillis(), lastEditedOn = lastEditedAt.isoToMillis()
 )
 
+
+
+
+
+@Serializable
+data class RemoteNote(
+    val id: String,            // server UUID
+    val title: String,
+    val content: String,
+    val createdAt: String,     // ISO 8601 (e.g., 2025-08-19T07:00:00Z)
+    val lastEditedAt: String
+)
+
+@Serializable
+data class NotesPage(
+    val notes: List<RemoteNote>,
+    val total: Int
+)
 
 
 

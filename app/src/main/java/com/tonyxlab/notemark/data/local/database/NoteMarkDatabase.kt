@@ -5,8 +5,9 @@ import androidx.room.RoomDatabase
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
 import com.tonyxlab.notemark.data.local.database.entity.NoteEntity
 import com.tonyxlab.notemark.data.remote.sync.dao.SyncDao
+import com.tonyxlab.notemark.data.remote.sync.entity.SyncRecord
 
-@Database(entities = [NoteEntity::class], version = 1, exportSchema = false)
+@Database(entities = [NoteEntity::class, SyncRecord::class], version = 1, exportSchema = false)
 abstract class NoteMarkDatabase: RoomDatabase(){
 
     abstract val noteDao: NoteDao

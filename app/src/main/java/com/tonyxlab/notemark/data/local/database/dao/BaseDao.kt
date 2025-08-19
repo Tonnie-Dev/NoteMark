@@ -22,15 +22,8 @@ interface BaseDao<T> {
     @Upsert
     suspend fun upsertAll(values:List<T>)
 
-    @Query("""
-        
-        DELETE FROM notes_table
-        WHERE remote_id IS NOT NULL
-        AND
-        remote_id NOT IN (:serverIds)
-        AND id NOT IN (SELECT CAST (noteId AS INTEGER) FROM sync_record)
-    """)
 
-    suspend fun deleteMissingIds(serverIds:Set<String>)
+
+    //suspend fun deleteMissingIds(serverIds:Set<String>)
 
 }

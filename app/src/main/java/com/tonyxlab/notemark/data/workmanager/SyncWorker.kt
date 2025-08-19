@@ -9,8 +9,8 @@ import androidx.work.WorkerParameters
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
 import com.tonyxlab.notemark.data.local.database.entity.NoteEntity
 import com.tonyxlab.notemark.data.local.datastore.DataStore
+import com.tonyxlab.notemark.data.remote.sync.client.NotesRemote
 import com.tonyxlab.notemark.data.remote.sync.dao.SyncDao
-import com.tonyxlab.notemark.data.remote.sync.dto.NotesRemote
 import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNote
 import com.tonyxlab.notemark.data.remote.sync.dto.toEntity
 import com.tonyxlab.notemark.data.remote.sync.dto.toRemote
