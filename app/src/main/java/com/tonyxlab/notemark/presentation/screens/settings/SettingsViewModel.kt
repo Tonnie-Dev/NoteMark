@@ -30,6 +30,7 @@ class SettingsViewModel(
     }
 
     override fun onEvent(event: SettingsUiEvent) {
+
         when (event) {
             SettingsUiEvent.LogOut -> logout()
             SettingsUiEvent.ExitSettings -> exitSettings()
@@ -62,8 +63,6 @@ class SettingsViewModel(
 
         setSyncInterval(interval)
 
-
-
         launch {
             dataStore.saveSyncInterval(interval)
             syncRequest.enqueuePeriodicSync(interval)
@@ -72,8 +71,6 @@ class SettingsViewModel(
 
     private fun observeActiveSyncInterval() {
         launch {
-
-
             val activeInterval = dataStore.getSyncInterval()
             setSyncInterval(activeInterval)
 
@@ -90,7 +87,6 @@ class SettingsViewModel(
                     )
             )
         }
-
     }
 
     private fun exitSettings() {
@@ -105,7 +101,6 @@ class SettingsViewModel(
                             labelRes = R.string.snack_text_retry
                     )
             )
-
         }
         ) {
             when (val result = logOutUseCase()) {

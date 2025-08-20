@@ -183,7 +183,7 @@ fun SettingsSection(
                 modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            onEvent(SettingsUiEvent.ShowSyncIntervalSettings)
+                            onEvent(SettingsUiEvent.SyncData)
                         }
                         .padding(vertical = MaterialTheme.spacing.spaceMedium),
                 verticalAlignment = Alignment.CenterVertically

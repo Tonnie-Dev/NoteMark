@@ -1,4 +1,4 @@
-package com.tonyxlab.notemark.data.remote.sync.dao
+package com.tonyxlab.notemark.data.local.database.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -9,10 +9,10 @@ import com.tonyxlab.notemark.data.remote.sync.entity.SyncRecord
 @Dao
 interface SyncDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insert(syncRecord: SyncRecord)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertAll(syncRecords: List<SyncRecord>)
 
     @Query("""

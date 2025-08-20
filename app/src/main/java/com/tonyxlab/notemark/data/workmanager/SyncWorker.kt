@@ -7,10 +7,10 @@ import androidx.annotation.RequiresApi
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
+import com.tonyxlab.notemark.data.local.database.dao.SyncDao
 import com.tonyxlab.notemark.data.local.database.entity.NoteEntity
 import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.data.remote.sync.client.NotesRemote
-import com.tonyxlab.notemark.data.remote.sync.dao.SyncDao
 import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNote
 import com.tonyxlab.notemark.data.remote.sync.dto.toEntity
 import com.tonyxlab.notemark.data.remote.sync.dto.toRemote
@@ -18,7 +18,8 @@ import com.tonyxlab.notemark.data.remote.sync.entity.SyncOperation
 import com.tonyxlab.notemark.domain.json.JsonSerializer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.io.IOException
+import timber.log.Timber
+import java.io.IOException
 
 
 class SyncWorker(
@@ -28,21 +29,25 @@ class SyncWorker(
     private val noteDao: NoteDao,
     private val dataStore: DataStore,
     private val jsonSerializer: JsonSerializer,
-  private val remote: NotesRemote
+    private val remote: NotesRemote
 ) : CoroutineWorker(
         context, workerParams
 ) {
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun doWork(): Result = withContext(context = Dispatchers.IO) {
 
+        Timber.tag("SyncWorker").i("do work called")
         // 0) Guard: need auth and our internal user
         val token = dataStore.getAccessToken() ?: return@withContext Result.failure()
         // token is assumed injected by an interceptor; if not, pass it to remote calls.
         val userId = dataStore.getOrCreateInternalUserId()
 
+        Timber.tag("SyncWorker").i("Step 1 - UserId is: $userId")
         try {
             // === 1) UPLOAD QUEUE (record-by-record) ===
             val batch = syncDao.loadBatch(userId = userId, limit = 100)
+
+            Timber.tag("SyncWorker").i("Step 2 - batch size: ${batch.size}")
             for (rec in batch) {
                 val localNote: NoteEntity =
                     jsonSerializer.fromJson(NoteEntity.serializer(), rec.payload)
@@ -107,9 +112,12 @@ class SyncWorker(
 
             Result.success()
         } catch (e: IOException) {
+            Timber.tag("SyncWorker").i("IO Exception - ${e.message}")
             // network/timeouts/transient -> retry with backoff
             Result.retry()
         } catch (e: Exception) {
+
+            Timber.tag("SyncWorker").i("Other Exception - ${e.message}")
             // unexpected error -> fail and surface in WorkManager
             Result.failure()
         }

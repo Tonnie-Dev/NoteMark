@@ -2,20 +2,24 @@
 
 package com.tonyxlab.notemark.di
 
+import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.room.Room
 import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import com.tonyxlab.notemark.data.json.JsonSerializerImpl
 import com.tonyxlab.notemark.data.local.database.NoteMarkDatabase
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
+import com.tonyxlab.notemark.data.local.database.dao.SyncDao
 import com.tonyxlab.notemark.data.local.datastore.DataStore
-import com.tonyxlab.notemark.data.remote.sync.dao.SyncDao
 import com.tonyxlab.notemark.data.network.HttpClientFactory
 import com.tonyxlab.notemark.data.remote.auth.AuthRepositoryImpl
 import com.tonyxlab.notemark.data.remote.connectivity.ConnectivityObserverImpl
+import com.tonyxlab.notemark.data.remote.sync.client.NotesRemote
+import com.tonyxlab.notemark.data.remote.sync.client.NotesRemoteKtor
 import com.tonyxlab.notemark.data.repository.NoteLocalWriter
 import com.tonyxlab.notemark.data.repository.NoteRepositoryImpl
 import com.tonyxlab.notemark.data.workmanager.SyncRequest
@@ -35,8 +39,11 @@ import com.tonyxlab.notemark.presentation.screens.landing.LandingViewModel
 import com.tonyxlab.notemark.presentation.screens.login.LoginViewModel
 import com.tonyxlab.notemark.presentation.screens.settings.SettingsViewModel
 import com.tonyxlab.notemark.presentation.screens.signup.SignupViewModel
+import com.tonyxlab.notemark.util.ApiEndpoints.BASE_URL
 import com.tonyxlab.notemark.util.Constants
+import io.ktor.client.HttpClient
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.workmanager.dsl.worker
 import org.koin.androidx.workmanager.dsl.workerOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -86,7 +93,7 @@ val databaseModule = module {
 }
 
 val dataStoreModule = module {
-    single{ DataStore(androidContext()) }
+    single { DataStore(androidContext()) }
 }
 
 val syncWorkModule = module {
@@ -94,6 +101,8 @@ val syncWorkModule = module {
     single { WorkManager.getInstance(androidContext()) }
 
     single { SyncRequest(get()) }
+
+
 
     workerOf(::SyncWorker)
 
@@ -105,6 +114,19 @@ val serializationModule = module {
 val networkModule = module {
     single {
         HttpClientFactory(get())
+    }
+
+
+    // Expose a singleton HttpClient built by the factory (so others can use it too)
+    single<HttpClient> { get<HttpClientFactory>().provideMainHttpClient() }
+
+    // Finally, bind NotesRemote (this is what SyncWorker needs)
+    single<NotesRemote> {
+        NotesRemoteKtor(
+                client = get<HttpClient>(),
+                baseUrl = BASE_URL,
+                tokenProvider = { get<DataStore>().getAccessToken() }
+        )
     }
 }
 
