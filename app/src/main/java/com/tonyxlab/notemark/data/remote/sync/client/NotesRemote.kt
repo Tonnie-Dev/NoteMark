@@ -7,4 +7,5 @@ interface NotesRemote {
     suspend fun update(body: RemoteNote): RemoteNote
     suspend fun delete(remoteId: String)
     suspend fun getAll(): List<RemoteNote> // full snapshot
+    suspend fun ping(): Boolean
 }

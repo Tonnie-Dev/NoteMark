@@ -38,11 +38,21 @@ class SyncWorker(
 
         Timber.tag("SyncWorker").i("do work called")
         // 0) Guard: need auth and our internal user
-        val token = dataStore.getAccessToken() ?: return@withContext Result.failure()
+        val token = dataStore.getAccessToken()
+        if (token.isNullOrEmpty()){
+            Timber.tag("SyncWorker").i("No access token; skipping sync.")
+            return@withContext Result.success()
+        }
         // token is assumed injected by an interceptor; if not, pass it to remote calls.
         val userId = dataStore.getOrCreateInternalUserId()
 
         Timber.tag("SyncWorker").i("Step 1 - UserId is: $userId")
+
+        if (!remote.ping()) {
+            Timber.tag("SyncWorker").i("Ping failed — baseUrl unreachable")
+            return@withContext Result.retry()
+        }
+
         try {
             // === 1) UPLOAD QUEUE (record-by-record) ===
             val batch = syncDao.loadBatch(userId = userId, limit = 100)
@@ -117,7 +127,7 @@ class SyncWorker(
             Result.retry()
         } catch (e: Exception) {
 
-            Timber.tag("SyncWorker").i("Other Exception - ${e.message}")
+            Timber.tag("SyncWorker").i("Other Exception - ${e.message}, ${e.toString()}, ${e.cause}, ${e.stackTrace}")
             // unexpected error -> fail and surface in WorkManager
             Result.failure()
         }

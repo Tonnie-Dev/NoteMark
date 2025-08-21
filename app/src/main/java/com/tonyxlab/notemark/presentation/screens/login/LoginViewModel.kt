@@ -4,11 +4,13 @@ package com.tonyxlab.notemark.presentation.screens.login
 
 import androidx.compose.runtime.snapshotFlow
 import com.tonyxlab.notemark.R
+import com.tonyxlab.notemark.data.workmanager.SyncRequest
 import com.tonyxlab.notemark.domain.auth.AuthRepository
 import com.tonyxlab.notemark.domain.model.Credentials
 
 
 import com.tonyxlab.notemark.domain.model.Resource
+import com.tonyxlab.notemark.domain.model.SyncInterval
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.core.utils.allFieldsFilled
 import com.tonyxlab.notemark.presentation.core.utils.checkIfError
@@ -26,7 +28,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 typealias LoginBaseViewModel = BaseViewModel<LoginUiState, LoginUiEvent, LoginActionEvent>
 
-class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseViewModel() {
+class LoginViewModel(
+    private val authRepository: AuthRepository,
+    private val syncRequest: SyncRequest
+) : LoginBaseViewModel() {
 
     init {
         observeFieldsInput()
@@ -94,16 +99,20 @@ class LoginViewModel(private val authRepository: AuthRepository) : LoginBaseView
         ) {
             updateState { it.copy(loginStatus = Resource.Loading) }
 
-            val credentials = Credentials(
-                    email = currentState.fieldTextState.emailTextFieldState.toText.lowercase(),
+            val creds = Credentials(
+                    email = currentState.fieldTextState.emailTextFieldState.toText
+                            .trim()
+                            .lowercase(),
                     password = currentState.fieldTextState.passwordTextFieldState.toText
+                            .trim()
             )
 
-            val result = authRepository.login(credentials = credentials)
+            val result = authRepository.login(credentials = creds)
 
             when (result) {
                 is Resource.Success -> {
                     updateState { it.copy(loginStatus = Resource.Success(result.data)) }
+                    syncRequest.enqueuePeriodicSync(SyncInterval.MANUAL)
                     sendActionEvent(LoginActionEvent.NavigateToHomeScreen)
                 }
 
