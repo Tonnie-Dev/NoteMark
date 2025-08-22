@@ -1,6 +1,7 @@
 package com.tonyxlab.notemark.data.remote.sync.client
 
 import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNote
+import com.tonyxlab.notemark.domain.model.Resource
 
 interface NotesRemote {
     suspend fun create(body: RemoteNote): RemoteNote

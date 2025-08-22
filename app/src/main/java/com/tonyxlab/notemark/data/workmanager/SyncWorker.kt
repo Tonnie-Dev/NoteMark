@@ -16,6 +16,7 @@ import com.tonyxlab.notemark.data.remote.sync.dto.toEntity
 import com.tonyxlab.notemark.data.remote.sync.dto.toRemote
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncOperation
 import com.tonyxlab.notemark.domain.json.JsonSerializer
+import com.tonyxlab.notemark.domain.model.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -66,11 +67,6 @@ class SyncWorker(
                     SyncOperation.CREATE -> {
                         val created = remote.create(localNote.toRemote())
                         // Write back server id + timestamps, keep local id for continuity
-                        noteDao.upsert(
-                                created.toEntity()
-                                        .copy(id = localNote.id)
-                        )
-                        syncDao.deleteByIds(listOf(rec.id))
                     }
 
                     SyncOperation.UPDATE -> {

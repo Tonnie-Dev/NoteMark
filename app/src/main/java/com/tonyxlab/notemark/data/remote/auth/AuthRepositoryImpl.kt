@@ -25,6 +25,7 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class AuthRepositoryImpl(
     private val httpClientFactory: HttpClientFactory,
@@ -78,7 +79,8 @@ class AuthRepositoryImpl(
                 when (result.status.value) {
                     200 -> {
                         val accessTokenResponse = result.body<AccessTokenResponse>()
-
+                        Timber.tag("AuthRepositoryImpl")
+                                .i("AccessToken ${accessTokenResponse.accessToken}")
                         dataStore.saveTokens(
                                 accessToken = accessTokenResponse.accessToken,
                                 refreshToken = accessTokenResponse.refreshToken,

@@ -1,13 +1,17 @@
 package com.tonyxlab.notemark.data.remote.sync.client
 
 
-import com.tonyxlab.notemark.data.local.datastore.DataStore
+import com.tonyxlab.notemark.BuildConfig
 import com.tonyxlab.notemark.data.remote.sync.dto.NotesPage
 import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNote
+import com.tonyxlab.notemark.domain.model.Resource
+import com.tonyxlab.notemark.util.ApiEndpoints
+import com.tonyxlab.notemark.util.Constants.EMAIL_HEADER_KEY
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -19,49 +23,60 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
+
+private const val EMAIL_HEADER_KEY = "X-User-Email"
 
 class NotesRemoteKtor(
     private val client: HttpClient,
-    private val baseUrl: String,                         // e.g., BuildConfig.API_BASE_URL
-    private val tokenProvider: suspend () -> String?     // from DataStore
+    private val baseUrl: String,
+    private val tokenProvider: suspend () -> String?,   // DataStore::getAccessToken
+    private val emailProvider: (suspend () -> String?)? = null  // DataStore::getUsername or BuildConfig
 ) : NotesRemote {
 
-    override suspend fun create(body: RemoteNote): RemoteNote = requestWithHeaders(requireAuth = false) {
+    override suspend fun create(body: RemoteNote): RemoteNote = withHeaders { token, email ->
         client.post("$baseUrl/api/notes") {
+            if (!token.isNullOrBlank()) bearerAuth(token)
+            if (email != null) header(EMAIL_HEADER_KEY, email)
             contentType(ContentType.Application.Json)
             setBody(body)
         }.body()
     }
 
-    override suspend fun update(body: RemoteNote): RemoteNote = requestWithHeaders(requireAuth = false) {
+    override suspend fun update(body: RemoteNote): RemoteNote = withHeaders { token, email ->
         client.put("$baseUrl/api/notes") {
+            if (!token.isNullOrBlank()) bearerAuth(token)
+            if (email != null) header(EMAIL_HEADER_KEY, email)
             contentType(ContentType.Application.Json)
             setBody(body)
         }.body()
     }
 
-    override suspend fun delete(remoteId: String) {
-        requestWithHeaders(requireAuth = false) {
-            client.delete("$baseUrl/api/notes/$remoteId")
+    override suspend fun delete(remoteId: String): Unit = withHeaders { token, email ->
+        client.delete("$baseUrl/api/notes/$remoteId") {
+            if (!token.isNullOrBlank()) bearerAuth(token)
+            if (email != null) header(EMAIL_HEADER_KEY, email)
         }
     }
 
-    override suspend fun getAll(): List<RemoteNote> = requestWithHeaders(requireAuth = false) {
-        // Try single-shot page=-1 first
+    override suspend fun getAll(): List<RemoteNote> = withHeaders { token, email ->
+        // Try single-shot page=-1
         val first: NotesPage = client.get("$baseUrl/api/notes") {
+            if (!token.isNullOrBlank()) bearerAuth(token)
+            if (email != null) header(EMAIL_HEADER_KEY, email)
             parameter("page", -1)
         }.body()
 
-        if (first.total <= first.notes.size) {
-            first.notes
-        } else {
-            // Fallback: page through
+        if (first.total <= first.notes.size) first.notes else {
             val all = first.notes.toMutableList()
             var page = 0
-            val size = 50 // pick a sensible page size
+            val size = 50
             while (all.size < first.total) {
                 val p: NotesPage = client.get("$baseUrl/api/notes") {
+                    if (!token.isNullOrBlank()) bearerAuth(token)
+                    if (email != null) header(EMAIL_HEADER_KEY, email)
                     parameter("page", page)
                     parameter("size", size)
                 }.body()
@@ -73,46 +88,30 @@ class NotesRemoteKtor(
         }
     }
 
-    override suspend fun ping(): Boolean =try {
-        client.get("$baseUrl/health")  // or /api/notes?page=0 if no health route
-
-        Timber.tag("NotesRemoteKtor").i("True")
-        Timber.tag("NotesRemoteKtor").i("Health: $baseUrl")
+    override suspend fun ping(): Boolean = try {
+        client.get("$baseUrl/health")
+        Timber.tag("NotesRemoteKtor").i("Health OK: $baseUrl")
         true
     } catch (e: Exception) {
-        Timber.tag("NotesRemoteKtor").i( "Ping failed to BaseUrl: $baseUrl")
-        Timber.tag("NotesRemoteKtor").i( "Ping failed with $e")
+        Timber.tag("NotesRemoteKtor").i("Ping failed: $baseUrl -> $e")
         false
     }
 
     /**
-     * Wrap each call to attach Authorization and normalize transient errors.
-     * - Adds Bearer token per request (fresh from DataStore).
-     * - Rethrows 5xx/timeout as IOException so WorkManager will RETRY.
-     * - 4xx bubble up as-is -> Worker will FAIL (good, usually caller/auth issue).
+     * Obtain fresh token/email for this call; map 5xx/timeout to IOException so WM retries.
+     * IMPORTANT: We pass token/email into the request builder itself; no separate client.request().
      */
-    private suspend fun <T> requestWithHeaders(
-        requireAuth: Boolean = false,
-        block: suspend () -> T
+    private suspend inline fun <T> withHeaders(
+        crossinline call: suspend (token: String?, email: String?) -> T
     ): T {
-        val token = tokenProvider()
+        val token = tokenProvider() ?: throw IllegalStateException("Missing access token")
+        val email = emailProvider?.invoke()
         return try {
-            client.request {
-                // attach Bearer only if required or available
-                if (requireAuth || !token.isNullOrBlank()) {
-                    header(HttpHeaders.Authorization, "Bearer $token")
-                }
-                // your API also uses an email header like AuthRepositoryImpl
-                header(
-                        com.tonyxlab.notemark.util.Constants.EMAIL_HEADER_KEY,
-                        com.tonyxlab.notemark.BuildConfig.USER_EMAIL
-                )
-            }
-            block()
-        } catch (e: io.ktor.client.plugins.HttpRequestTimeoutException) {
+            call(token, email)
+        } catch (e: HttpRequestTimeoutException) {
             throw java.io.IOException(e)
-        } catch (e: io.ktor.client.plugins.ResponseException) {
-            val status = e.response.status.value
-            if (status >= 500) throw java.io.IOException(e) else throw e
+        } catch (e: ResponseException) {
+            if (e.response.status.value >= 500) throw java.io.IOException(e) else throw e
         }
-    }}
+    }
+}
