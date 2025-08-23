@@ -10,6 +10,8 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
+private val ABSOLUTE_TIME_FORMAT: DateTimeFormatter =
+    DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm")
 
 fun LocalDateTime.toHomeDisplayDate(): String {
     val currentYear = LocalDateTime.now().year
@@ -57,3 +59,35 @@ fun LocalDateTime.toLastEditedMetaData(): String {
 }
 
 
+fun LocalDateTime.lastSyncLabel(): String {
+
+    val now = LocalDateTime.now()
+    val duration = Duration.between(this, now)
+
+    val elapsedMinutes = duration.toMinutes()
+
+    if (elapsedMinutes < 0) return ABSOLUTE_TIME_FORMAT.format(this)
+
+    return when {
+        elapsedMinutes < 5 -> "Just Now"
+        elapsedMinutes < 60 -> "$elapsedMinutes ago"
+        elapsedMinutes < 60 * 24 -> {
+            val h = duration.toHours()
+            "$h hour" + if (h == 1L) "" else "s ago"
+        }
+
+        elapsedMinutes < 60 * 24 * 7 -> {
+            val d = duration.toDays()
+            "$d day" + if (d == 1L) "" else "s ago"
+        }
+
+        else -> ABSOLUTE_TIME_FORMAT.format(this)
+    }
+}
+
+fun Long.toLastSyncLabel(): String = this.toLocalDateTime()
+        .lastSyncLabel()
+
+fun LocalDateTime.toLocalMillis(): Long = this.atZone(ZoneId.systemDefault())
+        .toInstant()
+        .toEpochMilli()
