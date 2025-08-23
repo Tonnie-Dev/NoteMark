@@ -7,6 +7,7 @@ import android.net.ConnectivityManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.datastore.dataStore
 import androidx.room.Room
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -125,6 +126,7 @@ val networkModule = module {
         NotesRemoteKtor(
                 client = get<HttpClient>(),
                 baseUrl = BASE_URL,
+
                 tokenProvider = { get<DataStore>().getAccessToken() }
         )
     }

@@ -10,6 +10,7 @@ import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsActionEvent
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiEvent
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiState
+import timber.log.Timber
 
 
 typealias SettingsBaseViewModel =
@@ -27,6 +28,9 @@ class SettingsViewModel(
 
     init {
         observeActiveSyncInterval()
+        launch {
+            Timber.tag("SettingsViewModel").i("Access Token is ${dataStore.getAccessToken()}")
+        }
     }
 
     override fun onEvent(event: SettingsUiEvent) {

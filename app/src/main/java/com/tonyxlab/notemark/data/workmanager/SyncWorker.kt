@@ -16,7 +16,6 @@ import com.tonyxlab.notemark.data.remote.sync.dto.toEntity
 import com.tonyxlab.notemark.data.remote.sync.dto.toRemote
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncOperation
 import com.tonyxlab.notemark.domain.json.JsonSerializer
-import com.tonyxlab.notemark.domain.model.Resource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -30,46 +29,66 @@ class SyncWorker(
     private val noteDao: NoteDao,
     private val dataStore: DataStore,
     private val jsonSerializer: JsonSerializer,
-    private val remote: NotesRemote
+    private val notesRemote: NotesRemote
 ) : CoroutineWorker(
         context, workerParams
 ) {
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun doWork(): Result = withContext(context = Dispatchers.IO) {
 
-        Timber.tag("SyncWorker").i("do work called")
+        val email = "vontonnie@gmail.com"
+        Timber.tag("SyncWorker")
+                .i("do work called")
         // 0) Guard: need auth and our internal user
         val token = dataStore.getAccessToken()
-        if (token.isNullOrEmpty()){
-            Timber.tag("SyncWorker").i("No access token; skipping sync.")
+        if (token.isNullOrEmpty()) {
+            Timber.tag("SyncWorker")
+                    .i("No access token; skipping sync.")
             return@withContext Result.success()
         }
         // token is assumed injected by an interceptor; if not, pass it to remote calls.
         val userId = dataStore.getOrCreateInternalUserId()
 
-        Timber.tag("SyncWorker").i("Step 1 - UserId is: $userId")
+        Timber.tag("SyncWorker")
+                .i("Step 1 - UserId is: $userId")
 
-        if (!remote.ping()) {
-            Timber.tag("SyncWorker").i("Ping failed — baseUrl unreachable")
-            return@withContext Result.retry()
-        }
+        /*  if (!remote.ping()) {
+              Timber.tag("SyncWorker").i("Ping failed — baseUrl unreachable")
+              return@withContext Result.retry()
+          }*/
 
         try {
             // === 1) UPLOAD QUEUE (record-by-record) ===
             val batch = syncDao.loadBatch(userId = userId, limit = 100)
 
-            Timber.tag("SyncWorker").i("Step 2 - batch size: ${batch.size}")
+            Timber.tag("SyncWorker")
+                    .i("Step 2 - batch size: ${batch.size}")
             for (rec in batch) {
                 val localNote: NoteEntity =
                     jsonSerializer.fromJson(NoteEntity.serializer(), rec.payload)
 
+                Timber.tag("SyncWorker")
+                        .i("Step 3 - operation is: ${rec.operation.name}")
                 when (rec.operation) {
                     SyncOperation.CREATE -> {
-                        val created = remote.create(localNote.toRemote())
+                        Timber.tag("SyncWorker")
+                                .i("Step 4 - entering CREATE")
+                        //  val remote =rec.payload // RemoteNote
+
+                        val remote = notesRemote.create(token, email, localNote.toRemote())
+                        Timber.tag("SyncWorker")
+                                .i("Step 5 - remote note created: ${remote.id}")
                         // Write back server id + timestamps, keep local id for continuity
+                        noteDao.upsert(
+                                remote.toEntity()
+                                        .copy(id = localNote.id)
+                        )
+                        syncDao.deleteByIds(listOf(rec.id))
                     }
 
                     SyncOperation.UPDATE -> {
+                        Timber.tag("SyncWorker")
+                                .i("Step 6 - entering UPDATE")
                         val body = if (localNote.remoteId == null) {
                             // No remoteId? Promote to create.
                             localNote.toRemote()
@@ -78,24 +97,42 @@ class SyncWorker(
                                     .copy(id = localNote.remoteId)
                         }
 
+                        with(body) {
+                            Timber.tag("SyncWorker")
+                                    .i(
+                                            """
+                            
+                              Id is:$id 
+                              title is:$title
+                              content is: $content
+                              createdAt is:$createdAt
+                            lastEditedAt is: $lastEditedAt
+                        """.trimIndent()
+                                    )
+                        }
                         val saved = if (localNote.remoteId == null) {
-                            remote.create(body)
+                            notesRemote.create(token, email, body)
                         } else {
-                            remote.update(body)
+                            notesRemote.update(token, email, body)
                         }
 
                         noteDao.upsert(
                                 saved.toEntity()
                                         .copy(id = localNote.id)
                         )
+                        Timber.tag("SyncWorker")
+                                .i("Step 8 - upsert Done")
                         syncDao.deleteByIds(listOf(rec.id))
                     }
 
                     SyncOperation.DELETE -> {
+
+                        Timber.tag("SyncWorker")
+                                .i("Step 7 - entering DELETE")
                         val remoteId = localNote.remoteId
                         if (remoteId != null) {
                             // if server call fails, throw to let WM retry
-                            remote.delete(remoteId)
+                            notesRemote.delete(token, email, remoteId)
                         }
                         // local already deleted; drop queue entry either way
                         syncDao.deleteByIds(listOf(rec.id))
@@ -104,7 +141,7 @@ class SyncWorker(
             }
 
             // === 2) DOWNLOAD FULL SNAPSHOT & RECONCILE ===
-            val remoteNotes: List<RemoteNote> = remote.getAll()
+            val remoteNotes: List<RemoteNote> = notesRemote.getAll(token, email)
 
             // upsert all server items locally
             if (remoteNotes.isNotEmpty()) {
@@ -118,12 +155,14 @@ class SyncWorker(
 
             Result.success()
         } catch (e: IOException) {
-            Timber.tag("SyncWorker").i("IO Exception - ${e.message}")
+            Timber.tag("SyncWorker")
+                    .i("IO Exception - ${e.message}")
             // network/timeouts/transient -> retry with backoff
             Result.retry()
         } catch (e: Exception) {
 
-            Timber.tag("SyncWorker").i("Other Exception - ${e.message}, ${e.toString()}, ${e.cause}, ${e.stackTrace}")
+            Timber.tag("SyncWorker")
+                    .i("Other Exception - ${e.message}, ${e.toString()}, ${e.cause}, ${e.stackTrace}")
             // unexpected error -> fail and surface in WorkManager
             Result.failure()
         }

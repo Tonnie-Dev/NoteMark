@@ -1,12 +1,11 @@
 package com.tonyxlab.notemark.data.remote.sync.client
 
 import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNote
-import com.tonyxlab.notemark.domain.model.Resource
+import io.ktor.client.statement.HttpResponse
 
 interface NotesRemote {
-    suspend fun create(body: RemoteNote): RemoteNote
-    suspend fun update(body: RemoteNote): RemoteNote
-    suspend fun delete(remoteId: String)
-    suspend fun getAll(): List<RemoteNote> // full snapshot
-    suspend fun ping(): Boolean
+    suspend fun create(token: String, email: String?, body: RemoteNote): RemoteNote
+    suspend fun update(token: String, email: String?, body: RemoteNote): RemoteNote
+    suspend fun delete(token: String, email: String?, remoteId: String): HttpResponse
+    suspend fun getAll(token: String, email: String?): List<RemoteNote>
 }
