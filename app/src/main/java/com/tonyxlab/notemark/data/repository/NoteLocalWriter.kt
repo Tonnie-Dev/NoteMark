@@ -1,9 +1,9 @@
 package com.tonyxlab.notemark.data.repository
 
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
+import com.tonyxlab.notemark.data.local.database.dao.SyncDao
 import com.tonyxlab.notemark.data.local.database.entity.NoteEntity
 import com.tonyxlab.notemark.data.local.datastore.DataStore
-import com.tonyxlab.notemark.data.local.database.dao.SyncDao
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncOperation
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncRecord
 import com.tonyxlab.notemark.domain.json.JsonSerializer
@@ -17,30 +17,45 @@ class NoteLocalWriter(
     private val clock: () -> Long = { System.currentTimeMillis() }
 ) {
 
-    suspend fun upsert(noteEntity: NoteEntity): Long {
+    suspend fun upsert(
+        noteEntity: NoteEntity,
+        queueDelete: Boolean = true
+    ): Long {
+
         val exists = noteEntity.id != 0L && noteDao.getNoteById(noteEntity.id) != null
 
         val syncOp = if (exists) SyncOperation.UPDATE else SyncOperation.CREATE
 
         val id = noteDao.upsert(noteEntity)
 
-        queue(
-                localNoteId = id,
-                noteEntity = noteEntity.copy(id = id),
-                syncOp = syncOp
-        )
+        if (exists || queueDelete) {
+            queue(
+                    localNoteId = id,
+                    noteEntity = noteEntity.copy(id = id),
+                    syncOp = syncOp
+            )
+        }
 
         return id
     }
 
-    suspend fun delete(noteEntity: NoteEntity): Boolean {
-        val rowsDeleted = noteDao.delete(noteEntity)
+    suspend fun delete(noteEntity: NoteEntity, queueDelete: Boolean = true): Boolean {
 
-        if (rowsDeleted > 0) queue(
-                localNoteId = noteEntity.id,
-                noteEntity = noteEntity,
-                syncOp = SyncOperation.DELETE
-        )
+        val latestLocalNoteSnapshot =
+            noteDao.getNoteById(noteEntity.id) ?: return false
+
+        val hasRemoteId = latestLocalNoteSnapshot.remoteId.isNullOrBlank()
+                .not()
+
+        if (queueDelete && hasRemoteId) {
+            queue(
+                    localNoteId = latestLocalNoteSnapshot.id,
+                    noteEntity = latestLocalNoteSnapshot,
+                    syncOp = SyncOperation.DELETE
+            )
+        }
+
+        val rowsDeleted = noteDao.deleteById(latestLocalNoteSnapshot.id)
         return rowsDeleted > 0
     }
 
@@ -52,7 +67,8 @@ class NoteLocalWriter(
         val userId = dataStore.getOrCreateInternalUserId()
 
         val record = SyncRecord(
-                id = UUID.randomUUID().toString(),
+                id = UUID.randomUUID()
+                        .toString(),
                 userId = userId,
                 noteId = localNoteId.toString(),
                 operation = syncOp,

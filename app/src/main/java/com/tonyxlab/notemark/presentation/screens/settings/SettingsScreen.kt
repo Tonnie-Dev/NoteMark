@@ -205,7 +205,7 @@ fun SettingsSection(
                         )
                 )
                 Text(
-                        text = stringResource(id = R.string.settings_last_sync),
+                        text = stringResource(id = R.string.settings_last_sync, uiState.lastSyncTime),
                         style = MaterialTheme.typography.bodySmall.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

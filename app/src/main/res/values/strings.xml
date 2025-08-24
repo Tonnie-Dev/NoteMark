@@ -26,7 +26,7 @@
     <!--Settings Presets-->
     <string name="settings_sync_interval">Sync Interval</string>
     <string name="settings_sync_data">Sync Data</string>
-    <string name="settings_last_sync">Last Sync:</string>
+    <string name="settings_last_sync">Last Sync: %s</string>
     <string name="settings_log_out">Log Out</string>
     <string name="settings_manual_only">Manual Only</string>
     <string name="settings_fifteen_mins">15 Minutes</string>

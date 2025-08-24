@@ -129,7 +129,7 @@ class SyncWorker(
 
                         Timber.tag("SyncWorker")
                                 .i("Step 9 - entering DELETE")
-                       val remoteId = localNote.remoteId
+                        val remoteId = localNote.remoteId
                         if (remoteId != null) {
                             Timber.tag("SyncWorker")
                                     .i("Step 10 - RemoteId is non-null- $remoteId")
@@ -154,7 +154,8 @@ class SyncWorker(
             if (remoteNotes.isNotEmpty()) {
                 val toUpsert = remoteNotes.map { rn ->
                     val localId = noteDao.findIdByRemoteId(rn.id) ?: 0L
-                    rn.toEntity().copy(id = localId)      // preserve existing local id
+                    rn.toEntity()
+                            .copy(id = localId)      // preserve existing local id
                 }
                 noteDao.upsertAll(toUpsert)
                 Timber.tag("SyncWorker")
@@ -165,7 +166,7 @@ class SyncWorker(
             val serverIds = remoteNotes.map { it.id }
                     .toSet()
             noteDao.deleteMissingRemoteIds(serverIds)
-
+            dataStore.saveLastSyncTimeInMillis(System.currentTimeMillis())
             Result.success()
         } catch (e: IOException) {
             Timber.tag("SyncWorker")

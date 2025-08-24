@@ -2,14 +2,16 @@ package com.tonyxlab.notemark.data.local.datastore
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.tonyxlab.notemark.domain.model.SyncInterval
-import com.tonyxlab.notemark.domain.model.toPrefsInt
+import com.tonyxlab.notemark.domain.model.toPrefsLong
 import com.tonyxlab.notemark.domain.model.toSyncInterval
 import com.tonyxlab.notemark.util.Constants
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import java.util.UUID
 
 
@@ -24,8 +26,11 @@ class DataStore(context: Context) {
         private val ACCESS_TOKEN = stringPreferencesKey(Constants.ACCESS_TOKEN)
         private val REFRESH_TOKEN = stringPreferencesKey(Constants.REFRESH_TOKEN)
         private val USERNAME = stringPreferencesKey(Constants.USERNAME_KEY)
-        private val SYNC_INTERVAL = intPreferencesKey(Constants.SYNC_INTERVAL_KEY)
+        private val SYNC_INTERVAL = longPreferencesKey(Constants.SYNC_INTERVAL_KEY)
         private val INTERNAL_USER_ID = stringPreferencesKey(Constants.INTERNAL_USER_ID)
+
+        private val LAST_SYNC_TIMESTAMP = longPreferencesKey(Constants.LAST_SYNC_TIMESTAMP_KEY)
+
     }
 
 
@@ -61,7 +66,7 @@ class DataStore(context: Context) {
 
     suspend fun saveSyncInterval(interval: SyncInterval) {
 
-        dataStore.edit { prefs -> prefs[SYNC_INTERVAL] = interval.toPrefsInt() }
+        dataStore.edit { prefs -> prefs[SYNC_INTERVAL] = interval.toPrefsLong() }
     }
 
 
@@ -95,5 +100,15 @@ class DataStore(context: Context) {
             prefs.remove(REFRESH_TOKEN)
             prefs.remove(USERNAME)
         }
+    }
+
+    suspend fun saveLastSyncTimeInMillis(timestamp: Long){
+
+        dataStore.edit { prefs -> prefs [LAST_SYNC_TIMESTAMP] = timestamp  }
+    }
+
+    suspend fun getLastSyncTimeInMillis(): Flow<Long?>{
+        return dataStore.data.map {
+            prefs -> prefs[LAST_SYNC_TIMESTAMP] }
     }
 }

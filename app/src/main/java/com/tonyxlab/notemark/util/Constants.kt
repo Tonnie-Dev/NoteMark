@@ -11,6 +11,8 @@ object Constants {
     const val SYNC_INTERVAL_KEY = "sync_interval_key"
     const val INTERNAL_USER_ID = "internal_user_id"
 
+    const val LAST_SYNC_TIMESTAMP_KEY = "sync_interval_key"
+
     const val EMAIL_HEADER_KEY = "X-User-Email"
 
     const val DEFAULT_TITLE_VALUE = "New Note"
