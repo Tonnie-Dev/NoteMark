@@ -29,7 +29,7 @@ class NoteRepositoryImpl(
     override suspend fun upsertNote(noteItem: NoteItem, queueCreate: Boolean): Resource<Long> =
         safeIoCall { localWriter.upsert(
                 noteEntity = noteItem.toEntity(),
-                queueDelete = queueCreate
+                queueCreate = queueCreate
         ) }
 
     override suspend fun getNoteById(id: Long): Resource<NoteItem> =

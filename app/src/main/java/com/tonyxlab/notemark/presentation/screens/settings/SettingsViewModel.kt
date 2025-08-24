@@ -1,4 +1,3 @@
-
 @file:RequiresApi(Build.VERSION_CODES.O)
 
 package com.tonyxlab.notemark.presentation.screens.settings
@@ -6,6 +5,7 @@ package com.tonyxlab.notemark.presentation.screens.settings
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkManager
 import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.data.workmanager.SyncRequest
@@ -18,10 +18,9 @@ import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsActi
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiEvent
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiState
 import com.tonyxlab.notemark.util.toLastSyncLabel
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.onEach
 
 
 typealias SettingsBaseViewModel =
@@ -32,6 +31,7 @@ class SettingsViewModel(
     private val logOutUseCase: LogOutUseCase,
     private val dataStore: DataStore,
     private val syncRequest: SyncRequest,
+    private val workManager: WorkManager
 ) : SettingsBaseViewModel() {
 
     override val initialState: SettingsUiState
@@ -41,6 +41,12 @@ class SettingsViewModel(
     init {
         observeActiveSyncInterval()
         updateLastSyncTimeLabel()
+        //in case we enter the settings screens while syncing
+        syncRequest.manualSyncInfosFlow().onEach { infos ->
+
+            val syncing = infos.any { !it.state.isFinished }
+            updateState { it.copy(isSyncing = syncing) }
+        }.launchIn(viewModelScope)
     }
 
     override fun onEvent(event: SettingsUiEvent) {
@@ -65,7 +71,23 @@ class SettingsViewModel(
 
     private fun syncData() {
 
-        syncRequest.enqueueManualSync()
+        updateState { it.copy(isSyncing = true) }
+        val requestId = syncRequest.enqueueManualSync()
+
+        workManager.getWorkInfoByIdFlow(requestId).onEach { info ->
+
+            when{
+                info?.state?.isFinished == true -> {
+
+                    updateState { it.copy(isSyncing = false) }
+                }
+            }
+
+
+        }.launchIn(viewModelScope)
+
+
+
     }
 
     private fun showSyncIntervalMenu() {
@@ -111,10 +133,12 @@ class SettingsViewModel(
             val tickerFlow = tickerFlow(emitAfter = 60_000L)
             combine(lastSyncFlow, tickerFlow) { lastSyncMillis, _ ->
 
-                updateState { it.copy(lastSyncTime = lastSyncMillis?.toLastSyncLabel()?: "Never Synced") }
+                updateState {
+                    it.copy(
+                            lastSyncTime = lastSyncMillis?.toLastSyncLabel() ?: "Never Synced"
+                    )
+                }
             }.launchIn(viewModelScope)
-
-                    //.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "Never Synced")
 
         }
     }

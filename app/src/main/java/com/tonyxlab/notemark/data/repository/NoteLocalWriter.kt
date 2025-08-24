@@ -7,6 +7,7 @@ import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncOperation
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncRecord
 import com.tonyxlab.notemark.domain.json.JsonSerializer
+import timber.log.Timber
 import java.util.UUID
 
 class NoteLocalWriter(
@@ -19,21 +20,18 @@ class NoteLocalWriter(
 
     suspend fun upsert(
         noteEntity: NoteEntity,
-        queueDelete: Boolean = true
+        queueCreate: Boolean = true
     ): Long {
-
         val exists = noteEntity.id != 0L && noteDao.getNoteById(noteEntity.id) != null
 
-        val syncOp = if (exists) SyncOperation.UPDATE else SyncOperation.CREATE
+        Timber.tag("NoteLocalWriter").i("The Id is: ${noteEntity.id}")
+        val syncOp = if (queueCreate) SyncOperation.UPDATE else SyncOperation.CREATE
 
         val id = noteDao.upsert(noteEntity)
 
-        if (exists || queueDelete) {
-            queue(
-                    localNoteId = id,
-                    noteEntity = noteEntity.copy(id = id),
-                    syncOp = syncOp
-            )
+        if (exists || queueCreate) {
+
+            queue(localNoteId = id, noteEntity = noteEntity.copy(id = id), syncOp = syncOp)
         }
 
         return id

@@ -7,7 +7,8 @@ import com.tonyxlab.notemark.presentation.core.base.handling.UiState
 data class SettingsUiState(
     val id: Long = -1L,
     val syncMenuState: SyncMenuState = SyncMenuState(),
-    val lastSyncTime: String = ""
+    val lastSyncTime: String = "",
+    val isSyncing: Boolean = false
 ) : UiState {
 
     @Stable

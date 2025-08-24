@@ -73,7 +73,7 @@ fun LocalDateTime.lastSyncLabel(): String {
         elapsedMinutes < 60 -> "$elapsedMinutes minutes ago"
         elapsedMinutes < 60 * 24 -> {
             val h = duration.toHours()
-            "$h hour" + if (h == 1L) "" else "s ago"
+            "$h hour" + if (h == 1L) " ago" else "s ago"
         }
 
         elapsedMinutes < 60 * 24 * 7 -> {

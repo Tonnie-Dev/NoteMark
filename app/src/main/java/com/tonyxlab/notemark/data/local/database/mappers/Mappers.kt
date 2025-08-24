@@ -11,7 +11,7 @@ import com.tonyxlab.notemark.util.toLocalDateTime
 
 
 fun NoteItem.toEntity() = NoteEntity(
-        id = id,
+        id = if (id> 0L)id else 0L,
         title = title,
         content = content,
         createdOn = createdOn.localDateTimeToMillis(),

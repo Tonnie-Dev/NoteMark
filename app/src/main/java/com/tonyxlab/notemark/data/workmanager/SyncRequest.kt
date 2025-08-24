@@ -7,24 +7,27 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.tonyxlab.notemark.domain.model.SyncInterval
 import com.tonyxlab.notemark.domain.model.toMinutes
+import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 class SyncRequest(private val workManager: WorkManager) {
 
     companion object {
-        private const val UNIQUE_MANUAL = "notemark:sync:manual"
+         const val UNIQUE_MANUAL = "notemark:sync:manual"
         private const val UNIQUE_PERIODIC = "notemark:sync:periodic"
 
-        val DEFAULT_CONSTRAINTS: Constraints = Constraints.Builder()
+        private val DEFAULT_CONSTRAINTS: Constraints = Constraints.Builder()
                 .setRequiredNetworkType(networkType = NetworkType.CONNECTED)
                 .setRequiresBatteryNotLow(true)
                 .build()
     }
 
-    fun enqueueManualSync() {
+    fun enqueueManualSync(): UUID {
         val request = OneTimeWorkRequestBuilder<SyncWorker>()
                 .setConstraints(DEFAULT_CONSTRAINTS)
                 .setBackoffCriteria(
@@ -39,7 +42,12 @@ class SyncRequest(private val workManager: WorkManager) {
                 existingWorkPolicy = ExistingWorkPolicy.KEEP,
                 request = request
         )
+
+        return request.id
     }
+
+    fun manualSyncInfosFlow(): Flow<List<WorkInfo>> =
+        workManager.getWorkInfosForUniqueWorkFlow(UNIQUE_MANUAL)
 
     fun enqueuePeriodicSync(interval: SyncInterval) {
 

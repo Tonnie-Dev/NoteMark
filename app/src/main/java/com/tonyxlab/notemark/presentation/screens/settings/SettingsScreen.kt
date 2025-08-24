@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -71,7 +74,6 @@ fun SettingsScreen(
             onActionClick = { snackbarController.actionEvent?.let { viewModel.onEvent(it) } },
             onDismiss = { snackbarController.dismissSnackbar() }
     )
-
     BaseContentLayout(
             viewModel = viewModel,
             topBar = {
@@ -104,11 +106,25 @@ fun SettingsScreen(
             },
             onBackPressed = { viewModel.onEvent(SettingsUiEvent.ExitSettings) }
     ) {
-        SettingsScreenContent(
-                modifier = modifier,
-                uiState = it,
-                onEvent = viewModel::onEvent
-        )
+
+        Box (modifier = Modifier.fillMaxSize()){
+            if (it.isSyncing) {
+                Box(
+                        modifier = Modifier
+                                .fillMaxSize()
+                                .background(color = Color.Black.copy(alpha = 0.04f)),
+                        contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
+
+            }
+            SettingsScreenContent(
+                    modifier = modifier,
+                    uiState = it,
+                    onEvent = viewModel::onEvent
+            )
+        }
 
     }
 }
@@ -205,7 +221,10 @@ fun SettingsSection(
                         )
                 )
                 Text(
-                        text = stringResource(id = R.string.settings_last_sync, uiState.lastSyncTime),
+                        text = stringResource(
+                                id = R.string.settings_last_sync,
+                                uiState.lastSyncTime
+                        ),
                         style = MaterialTheme.typography.bodySmall.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
