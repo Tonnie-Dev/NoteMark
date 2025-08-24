@@ -26,10 +26,10 @@ class NoteRepositoryImpl(
                 .map { notes -> notes.map { it.toModel() } }
     }
 
-    override suspend fun upsertNote(noteItem: NoteItem, canQueueCreate: Boolean): Resource<Long> =
+    override suspend fun upsertNote(noteItem: NoteItem, queueCreate: Boolean): Resource<Long> =
         safeIoCall { localWriter.upsert(
                 noteEntity = noteItem.toEntity(),
-                canQueueCreate = canQueueCreate
+                queueDelete = queueCreate
         ) }
 
     override suspend fun getNoteById(id: Long): Resource<NoteItem> =
@@ -39,10 +39,13 @@ class NoteRepositoryImpl(
             note?.toModel() ?: throw NoteNotFoundException(id)
         }
 
-    override suspend fun deleteNote(noteItem: NoteItem): Resource<Boolean> =
+    override suspend fun deleteNote(noteItem: NoteItem, queueDelete: Boolean): Resource<Boolean> =
 
         safeIoCall {
-          localWriter.delete(noteItem.toEntity())
+          localWriter.delete(
+                  noteEntity = noteItem.toEntity(),
+                  queueDelete = queueDelete
+          )
         }
 
     override suspend fun clearAllNotes(): Resource<Boolean> = safeIoCall {

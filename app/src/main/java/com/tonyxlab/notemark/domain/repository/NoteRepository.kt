@@ -8,11 +8,11 @@ interface NoteRepository {
 
     fun getAllNotes(): Flow<List<NoteItem>>
 
-    suspend fun upsertNote(noteItem: NoteItem, canQueueCreate: Boolean): Resource<Long>
+    suspend fun upsertNote(noteItem: NoteItem, queueCreate: Boolean): Resource<Long>
 
     suspend fun getNoteById(id: Long) : Resource<NoteItem>
 
-    suspend fun deleteNote(noteItem: NoteItem): Resource<Boolean>
+    suspend fun deleteNote(noteItem: NoteItem, queueDelete: Boolean): Resource<Boolean>
 
     suspend fun clearAllNotes(): Resource<Boolean>
 }

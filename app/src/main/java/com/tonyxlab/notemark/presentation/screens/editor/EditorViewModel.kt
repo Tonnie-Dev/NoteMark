@@ -282,7 +282,7 @@ class EditorViewModel(
         }
     }
 
-    private fun deleteNote(noteItem: NoteItem) {
+    private fun deleteNote(noteItem: NoteItem, queueDelete: Boolean = true) {
 
         launchCatching(
                 onError = {
@@ -294,7 +294,7 @@ class EditorViewModel(
                     )
                 }
         ) {
-            deleteNoteUseCase(noteItem = noteItem)
+            deleteNoteUseCase(noteItem = noteItem, queueDelete =  queueDelete)
         }
     }
 
@@ -321,7 +321,7 @@ class EditorViewModel(
                 EditorUiState.EditorMode.ViewMode -> {
 
                     if (currentNoteItem.isBlankNote()) {
-                        deleteNote(noteItem = currentNoteItem)
+                        deleteNote(noteItem = currentNoteItem, queueDelete = false)
                     }
                     sendActionEvent(EditorActionEvent.NavigateToHome)
                     return@launchCatching
