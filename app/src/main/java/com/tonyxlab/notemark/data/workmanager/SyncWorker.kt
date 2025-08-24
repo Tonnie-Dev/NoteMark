@@ -128,14 +128,21 @@ class SyncWorker(
                     SyncOperation.DELETE -> {
 
                         Timber.tag("SyncWorker")
-                                .i("Step 7 - entering DELETE")
-                        val remoteId = localNote.remoteId
+                                .i("Step 9 - entering DELETE")
+                       val remoteId = localNote.remoteId
                         if (remoteId != null) {
+                            Timber.tag("SyncWorker")
+                                    .i("Step 10 - RemoteId is non-null- $remoteId")
                             // if server call fails, throw to let WM retry
                             notesRemote.delete(token, email, remoteId)
                         }
+
+
                         // local already deleted; drop queue entry either way
                         syncDao.deleteByIds(listOf(rec.id))
+
+                        Timber.tag("SyncWorker")
+                                .i("Step 11 - Sync Queue Cleared")
                     }
                 }
             }
@@ -145,7 +152,13 @@ class SyncWorker(
 
             // upsert all server items locally
             if (remoteNotes.isNotEmpty()) {
-                noteDao.upsertAll(remoteNotes.map { it.toEntity() })
+                val toUpsert = remoteNotes.map { rn ->
+                    val localId = noteDao.findIdByRemoteId(rn.id) ?: 0L
+                    rn.toEntity().copy(id = localId)      // preserve existing local id
+                }
+                noteDao.upsertAll(toUpsert)
+                Timber.tag("SyncWorker")
+                        .i("Step 12 - Download and upsert notes, length is: ${remoteNotes.size} items")
             }
 
             // delete locals that vanished on server (but keep local-only notes still queued)

@@ -1,7 +1,9 @@
 package com.tonyxlab.notemark.data.local.database.entity
 
+import android.R.attr.data
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 
