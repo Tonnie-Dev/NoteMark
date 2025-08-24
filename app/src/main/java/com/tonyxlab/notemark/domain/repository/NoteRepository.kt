@@ -8,7 +8,7 @@ interface NoteRepository {
 
     fun getAllNotes(): Flow<List<NoteItem>>
 
-    suspend fun upsertNote(noteItem: NoteItem): Resource<Long>
+    suspend fun upsertNote(noteItem: NoteItem, canQueueCreate: Boolean): Resource<Long>
 
     suspend fun getNoteById(id: Long) : Resource<NoteItem>
 

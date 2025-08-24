@@ -119,7 +119,7 @@ class HomeViewModel(
                     createdOn = now,
                     lastEditedOn = now
             )
-            val result = upsertNoteUseCase(noteItem = newNote)
+            val result = upsertNoteUseCase(noteItem = newNote, queueCreate = false)
             val noteId = result
             sendActionEvent(HomeActionEvent.NavigateToEditorScreen(noteId))
         }
