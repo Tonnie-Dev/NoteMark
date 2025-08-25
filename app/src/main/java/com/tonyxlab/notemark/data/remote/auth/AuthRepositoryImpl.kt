@@ -64,8 +64,8 @@ class AuthRepositoryImpl(
     override suspend fun login(credentials: Credentials): Resource<Int> =
 
         withContext(Dispatchers.IO) {
-            try {
 
+            try {
                 val client = httpClientFactory.provideMainHttpClient()
 
                 val result = client.post {
@@ -100,7 +100,6 @@ class AuthRepositoryImpl(
                     }
                 }
 
-
             } catch (e: Exception) {
                 Resource.Error(e)
             }
@@ -124,14 +123,12 @@ class AuthRepositoryImpl(
 
             val client = httpClientFactory.provideMainHttpClient()
 
-            client.post(ApiEndpoints.LOGIN_ENDPOINT) {
+            client.post(ApiEndpoints.LOGOUT_ENDPOINT) {
                 contentType(ContentType.Application.Json)
-                header("X-User-Email", BuildConfig.USER_EMAIL)
+                header(ApiEndpoints.EMAIL_HEADER, BuildConfig.USER_EMAIL)
                 setBody(LogoutRequest(refreshToken = refreshToken))
             }
-
             Unit
-
         }
 
 

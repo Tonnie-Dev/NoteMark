@@ -69,7 +69,21 @@
     <string name="dialog_text_delete">Delete</string>
     <string name="dialog_text_cancel">Cancel</string>
     <string name="dialog_text_discard">Discard</string>
+    <string name="dialog_text_ok">OK</string>
+    <string name="dialog_text_sync_error">Sync Error</string>
+    <string name="dialog_text_log_out">Log Out</string>
+    <string name="dialog_text_no_internet">No Internet Connection</string>
+    <string name="dialog_text_no_internet_msg">You need an internet connection to log out</string>
 
+    <string name="dialog_text_sync_now">Sync now</string>
+    <string name="dialog_text_log_out_without_syncing">Log out without syncing</string>
+    <string name="dialog_text_unsynced_changes">Unsynced Changes</string>
+    <string name="dialog_text_unsynced_changes_msg">You have unsynced changes. What would you like
+        to do before logging out?</string>
+
+    <string name="dialog_text_sync_error_msg">An Error Occurred during Sync.
+        You can try again or log out without syncing. Your changes will remain saved locally
+    </string>
     <!--Supporting Texts-->
     <string name="sup_text_blank" />
     <string name="sup_text_def_username">Use between 3 and 20 characters for your username.</string>

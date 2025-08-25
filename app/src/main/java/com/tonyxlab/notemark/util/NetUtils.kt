@@ -12,9 +12,10 @@ object ApiEndpoints {
 
     const val CREATE_ENDPOINT = "$BASE_URL/api/notes"
 
-
-
     const val LOGOUT_ENDPOINT = "$BASE_URL/api/auth/logout"
+
+    //Header
+    const val EMAIL_HEADER = "X-User-Email"
 }
 
 
