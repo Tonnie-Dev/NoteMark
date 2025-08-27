@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -50,6 +51,7 @@ import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 import com.tonyxlab.notemark.util.DeviceType
 import com.tonyxlab.notemark.util.SetStatusBarIconsColor
 import org.koin.androidx.compose.koinViewModel
+import timber.log.Timber
 
 @Composable
 fun SettingsScreen(
@@ -109,14 +111,32 @@ fun SettingsScreen(
     ) {
 
         Box(modifier = Modifier.fillMaxSize()) {
-            if (it.isSyncing) {
+            if (it.syncInProgress || it.isLoggingOut) {
                 Box(
                         modifier = Modifier
                                 .fillMaxSize()
                                 .background(color = Color.Black.copy(alpha = 0.04f)),
                         contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                    Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                    ) {
+                        CircularProgressIndicator(
+                                modifier = Modifier.size(MaterialTheme.spacing.spaceLarge),
+                                color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceSmall))
+                        Text(
+                                text = if (it.isLoggingOut)
+                                    stringResource(id = R.string.cap_text_logging_out)
+                                else
+                                    stringResource(id = R.string.cap_text_syncing),
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                        )
+                    }
                 }
 
             }

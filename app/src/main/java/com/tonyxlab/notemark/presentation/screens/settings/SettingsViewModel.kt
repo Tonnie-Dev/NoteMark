@@ -24,12 +24,13 @@ import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiEv
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiState
 import com.tonyxlab.notemark.util.toLastSyncLabel
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withTimeout
+import timber.log.Timber
 
 typealias SettingsBaseViewModel =
         BaseViewModel<SettingsUiState, SettingsUiEvent, SettingsActionEvent>
@@ -48,7 +49,7 @@ class SettingsViewModel(
 
     init {
         updateLastSyncTimeLabel()
-        observerNetwork()
+        observeNetwork()
         observeActiveSyncInterval()
         observeSyncProgressOnEntry()
     }
@@ -56,20 +57,26 @@ class SettingsViewModel(
     override fun onEvent(event: SettingsUiEvent) {
 
         when (event) {
-            SettingsUiEvent.LogOut -> initiateLogoutSequence()
-            SettingsUiEvent.ExitSettings -> exitSettings()
             is SettingsUiEvent.SelectSyncInterval -> {
                 selectSyncInterval(event.syncInterval)
             }
 
             SettingsUiEvent.ShowSyncIntervalSettings -> showSyncIntervalMenu()
-            SettingsUiEvent.SyncData -> syncData()
 
             SettingsUiEvent.PositiveButtonClick -> onClickDialogPositiveButton()
             SettingsUiEvent.NegativeButtonClick -> onClickDialogNegativeButton()
 
             SettingsUiEvent.DismissSyncMenu -> dismissSyncMenu()
             SettingsUiEvent.DismissDialog -> dismissDialog()
+
+            SettingsUiEvent.SyncData -> syncData()
+
+            SettingsUiEvent.ExitSettings -> exitSettings()
+
+            SettingsUiEvent.LogOut -> {
+                if (currentState.isSyncing) return
+                initiateLogoutSequence()
+            }
         }
     }
 
@@ -82,7 +89,6 @@ class SettingsViewModel(
             is SettingsDialogType.UnSyncedChanges -> logoutWithoutSyncing()
             SettingsDialogType.SyncError -> logoutWithoutSyncing()
             SettingsDialogType.NoInternet, null -> Unit
-
         }
     }
 
@@ -93,7 +99,7 @@ class SettingsViewModel(
 
         when (dialogType) {
             is SettingsDialogType.UnSyncedChanges -> logoutWithSync()
-            SettingsDialogType.SyncError -> dismissDialog()
+            SettingsDialogType.SyncError -> Unit
             SettingsDialogType.NoInternet, null -> Unit
         }
     }
@@ -102,20 +108,18 @@ class SettingsViewModel(
         //in case we enter the settings screens while syncing
         syncRequest.manualSyncInfosFlow()
                 .onEach { infos ->
-
                     val syncing = infos.any { !it.state.isFinished }
                     updateState { it.copy(isSyncing = syncing) }
                 }
                 .launchIn(viewModelScope)
     }
 
-    private fun observerNetwork() {
+    private fun observeNetwork() {
 
         connectivityObserver.isOnline()
+                .distinctUntilChanged()
                 .onEach { status ->
-
                     updateState { it.copy(isOnline = status) }
-
                 }
                 .launchIn(viewModelScope)
     }
@@ -125,7 +129,6 @@ class SettingsViewModel(
             val activeInterval = dataStore.getSyncInterval()
             setSyncInterval(activeInterval)
         }
-
     }
 
     private fun updateDialogState(
@@ -138,7 +141,7 @@ class SettingsViewModel(
 
         updateState {
             it.copy(
-                    dialogState = currentState.dialogState.copy(
+                    dialogState = it.dialogState.copy(
                             showDialog = true,
                             dialogTitle = title,
                             dialogText = message,
@@ -148,7 +151,6 @@ class SettingsViewModel(
                     )
             )
         }
-
     }
 
     private fun showDialog(dialogType: SettingsDialogType) {
@@ -184,8 +186,6 @@ class SettingsViewModel(
                 )
             }
         }
-
-
     }
 
     private fun showSyncIntervalMenu() {
@@ -229,41 +229,8 @@ class SettingsViewModel(
         }
     }
 
-    private fun syncData() {
-
-        updateState { it.copy(isSyncing = true) }
-        val requestId = syncRequest.enqueueManualSync()
-
-        workManager.getWorkInfoByIdFlow(requestId)
-                .onEach { info ->
-                    when {
-                        info?.state?.isFinished == true -> {
-
-                            updateState { it.copy(isSyncing = false) }
-                        }
-                    }
-
-                }
-                .launchIn(viewModelScope)
-
-    }
-
-    suspend fun runManualSyncAndAwait(timeoutMillis: Long = 60_000): Boolean {
-
-        val workId = syncRequest.enqueueManualSync()
-
-        return withTimeout(timeMillis = timeoutMillis) {
-            workManager.getWorkInfoByIdFlow(workId)
-                    .filter { it != null }
-                    .map { it!! }
-                    .first { it.state.isFinished }
-                    .state == WorkInfo.State.SUCCEEDED
-        }
-    }
-
     private fun updateLastSyncTimeLabel() {
         launch {
-
             val lastSyncFlow = dataStore.getLastSyncTimeInMillis()
             val tickerFlow = tickerFlow(emitAfter = 60_000L)
             combine(lastSyncFlow, tickerFlow) { lastSyncMillis, _ ->
@@ -278,13 +245,42 @@ class SettingsViewModel(
         }
     }
 
-    private fun exitSettings() {
-        sendActionEvent(SettingsActionEvent.ExitSettings)
+    private fun syncData() {
+        updateState { it.copy(syncInProgress = true) }
+        val workId = syncRequest.enqueueManualSync()
+
+        workManager.getWorkInfoByIdFlow(workId)
+                .filterNotNull()
+                .onEach { info ->
+                    if (info.state.isFinished) {
+                        updateState { it.copy(syncInProgress = false) }
+                    }
+                }
+                .launchIn(viewModelScope)
+
     }
 
-    private fun exitSettingsAndClearBackStack() {
-        sendActionEvent(SettingsActionEvent.Logout)
+    suspend fun runManualSyncAndAwait(timeoutMillis: Long = 60_000): Boolean {
+
+        val workId = syncRequest.enqueueManualSync()
+
+        return withTimeout(timeMillis = timeoutMillis) {
+            workManager.getWorkInfoByIdFlow(workId)
+                    .filterNotNull()
+                    .first { it.state.isFinished }
+                    .state == WorkInfo.State.SUCCEEDED
+        }
     }
+
+
+    private suspend fun isSyncQueueEmpty(): Boolean {
+        return when (val result = syncQueueReaderUseCase()) {
+            is Resource.Success -> result.data
+            is Resource.Error -> throw result.exception
+            else -> false
+        }
+    }
+
     private fun initiateLogoutSequence() = launchCatching(
             onStart = { updateState { it.copy(isLoggingOut = true) } },
             onCompletion = { updateState { it.copy(isLoggingOut = false) } },
@@ -293,6 +289,7 @@ class SettingsViewModel(
                 return@launchCatching
             }
     ) {
+        val status = currentState.isSyncing
         if (!currentState.isOnline) {
             showDialog(dialogType = SettingsDialogType.NoInternet)
             return@launchCatching
@@ -300,16 +297,17 @@ class SettingsViewModel(
 
         val hasUnSyncedChanges = isSyncQueueEmpty().not()
 
+        Timber.tag("SettingsViewModel")
+                .i("hasUnSynced: $hasUnSyncedChanges ")
         if (hasUnSyncedChanges) {
             showDialog(dialogType = SettingsDialogType.UnSyncedChanges())
             return@launchCatching
         }
+
         logoutWithSync()
     }
 
     private fun logoutWithSync() = launchCatching(
-            onStart = { updateState { it.copy(isLoggingOut = true) } },
-            onCompletion = { updateState { it.copy(isLoggingOut = false) } },
             onError = {
                 showDialog(dialogType = SettingsDialogType.SyncError)
                 return@launchCatching
@@ -324,12 +322,9 @@ class SettingsViewModel(
         }
 
         logoutHelper(preserveSyncQueue = false)
-
     }
 
     private fun logoutWithoutSyncing() = launchCatching(
-            onStart = { updateState { it.copy(isLoggingOut = true) } },
-            onCompletion = { updateState { it.copy(isLoggingOut = false) } },
             onError = {
                 showDialog(dialogType = SettingsDialogType.SyncError)
                 return@launchCatching
@@ -338,20 +333,14 @@ class SettingsViewModel(
         logoutHelper(preserveSyncQueue = true)
     }
 
-    private suspend fun isSyncQueueEmpty(): Boolean {
-
-        return when (val result = syncQueueReaderUseCase()) {
-            is Resource.Success -> result.data
-            is Resource.Error -> throw result.exception
-            else -> false
-        }
-    }
-
     private suspend fun logoutHelper(preserveSyncQueue: Boolean) {
 
         when (val result = logOutUseCase(preserveSyncQueue = preserveSyncQueue)) {
 
-            is Resource.Success -> if (result.data) exitSettingsAndClearBackStack()
+            is Resource.Success -> if (result.data) {
+                exitSettingsAndClearBackStack()
+            }
+
             is Resource.Error -> {
                 showDialog(dialogType = SettingsDialogType.SyncError)
             }
@@ -361,67 +350,11 @@ class SettingsViewModel(
 
     }
 
-    /*private fun logout() {
-        launchCatching(
-                onStart = { updateState { it.copy(isLoggingOut = true) } },
-                onCompletion = { updateState { it.copy(isLoggingOut = false) } },
-                onError = {
+    private fun exitSettings() {
+        sendActionEvent(SettingsActionEvent.ExitSettings)
+    }
 
-                    showDialog(
-                            title = R.string.dialog_text_sync_error,
-                            message = R.string.dialog_text_sync_error_msg,
-                            positiveButtonText = R.string.dialog_text_log_out,
-                            negativeButtonText = R.string.dialog_text_cancel,
-                            dialogType = SettingsDialogType.SyncError
-
-                    )
-
-                }
-        ) {
-
-            if (!currentState.isOnline) {
-
-                showDialog(
-                        title = R.string.dialog_text_no_internet,
-                        message = R.string.dialog_text_no_internet_msg,
-                        positiveButtonText = R.string.dialog_text_ok,
-                        dialogType = SettingsDialogType.NoInternet
-                )
-
-                return@launchCatching
-            }
-
-            val isSyncFinished = runManualSyncAndAwait()
-
-            if (!isSyncFinished) {
-
-                showDialog(
-                        title = R.string.dialog_text_unsynced_changes,
-                        message = R.string.dialog_text_unsynced_changes_msg,
-                        positiveButtonText = R.string.dialog_text_log_out_without_syncing,
-                        negativeButtonText = R.string.dialog_text_sync_now,
-                        dialogType = SettingsDialogType.UnSyncedChanges()
-                )
-            }
-            when (val result = logOutUseCase()) {
-
-                is Resource.Success -> {
-                    if (result.data) {
-                        exitSettings()
-                    } else {
-                        sendActionEvent(
-                                SettingsActionEvent.ShowSnackbar(
-                                        messageRes = R.string.snack_text_logout_incomplete,
-                                        labelRes = R.string.snack_text_ok
-                                )
-                        )
-                    }
-
-                }
-
-                is Resource.Error -> throw result.exception
-                else -> Unit
-            }
-        }*/
-
+    private fun exitSettingsAndClearBackStack() {
+        sendActionEvent(SettingsActionEvent.Logout)
+    }
 }

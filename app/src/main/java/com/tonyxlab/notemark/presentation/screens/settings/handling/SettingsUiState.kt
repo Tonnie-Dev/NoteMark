@@ -10,6 +10,7 @@ data class SettingsUiState(
     val id: Long = -1L,
     val syncMenuState: SyncMenuState = SyncMenuState(),
     val lastSyncTime: String = "",
+    val syncInProgress: Boolean = false,
     val isSyncing: Boolean = false,
     val isOnline: Boolean = true,
     val isLoggingOut: Boolean = false,
