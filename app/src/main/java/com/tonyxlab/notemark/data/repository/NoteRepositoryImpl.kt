@@ -4,7 +4,6 @@ package com.tonyxlab.notemark.data.repository
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.datastore.dataStore
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
 import com.tonyxlab.notemark.data.local.database.dao.SyncDao
 import com.tonyxlab.notemark.data.local.database.mappers.toEntity
@@ -32,10 +31,12 @@ class NoteRepositoryImpl(
     }
 
     override suspend fun upsertNote(noteItem: NoteItem, queueCreate: Boolean): Resource<Long> =
-        safeIoCall { localWriter.upsert(
-                noteEntity = noteItem.toEntity(),
-                queueCreate = queueCreate
-        ) }
+        safeIoCall {
+            localWriter.upsert(
+                    noteEntity = noteItem.toEntity(),
+                    queueCreate = queueCreate
+            )
+        }
 
 
     override suspend fun getNoteById(id: Long): Resource<NoteItem> =
@@ -45,21 +46,20 @@ class NoteRepositoryImpl(
             note?.toModel() ?: throw NoteNotFoundException(id)
         }
 
-    override suspend fun isSyncQueueEmpty(): Resource<Boolean> = safeIoCall{
-         dataStore.getInternalUserId()?.let {
-
-            syncDao.isSyncQueueEmpty(it)
-        } == true
+    override suspend fun isSyncQueueEmpty(): Boolean {
+        return dataStore.getInternalUserId()
+                ?.let {
+                    syncDao.isSyncQueueEmpty(it)
+                } == true
     }
-
 
     override suspend fun deleteNote(noteItem: NoteItem, queueDelete: Boolean): Resource<Boolean> =
 
         safeIoCall {
-          localWriter.delete(
-                  noteEntity = noteItem.toEntity(),
-                  queueDelete = queueDelete
-          )
+            localWriter.delete(
+                    noteEntity = noteItem.toEntity(),
+                    queueDelete = queueDelete
+            )
         }
 
     override suspend fun clearAllNotes(): Resource<Boolean> = safeIoCall {

@@ -23,7 +23,6 @@ import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsDial
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiEvent
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiState
 import com.tonyxlab.notemark.util.toLastSyncLabel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -261,7 +260,7 @@ class SettingsViewModel(
 
     }
 
-    suspend fun runManualSyncAndAwait(timeoutMillis: Long = 60_000): Boolean {
+    private suspend fun runManualSyncAndAwait(timeoutMillis: Long = 60_000): Boolean {
 
         val workId = syncRequest.enqueueManualSync()
 
@@ -273,12 +272,8 @@ class SettingsViewModel(
         }
     }
 
- private suspend fun isSyncQueueEmpty(): Boolean {
-        return when (val result = syncQueueReaderUseCase()) {
-            is Resource.Success -> result.data
-            is Resource.Error -> throw result.exception
-            else -> false
-        }
+    private suspend fun isSyncQueueEmpty(): Boolean {
+        return syncQueueReaderUseCase()
     }
 
     private fun initiateLogoutSequence() = launchCatching(
