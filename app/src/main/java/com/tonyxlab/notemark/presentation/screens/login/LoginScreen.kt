@@ -55,6 +55,7 @@ import com.tonyxlab.notemark.presentation.theme.getClippingShape
 import com.tonyxlab.notemark.util.DeviceType
 import com.tonyxlab.notemark.util.SetStatusBarIconsColor
 import org.koin.androidx.compose.koinViewModel
+import timber.log.Timber
 
 @Composable
 fun LoginScreen(
@@ -64,7 +65,7 @@ fun LoginScreen(
 ) {
 
     SetStatusBarIconsColor(darkIcons = false)
-
+    Timber.tag("LoginScreen").i("Entering Login Screen")
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 

@@ -45,6 +45,7 @@ import com.tonyxlab.notemark.util.DeviceType
 import com.tonyxlab.notemark.util.SetStatusBarIconsColor
 import com.tonyxlab.notemark.util.formatUserInitials
 import org.koin.androidx.compose.koinViewModel
+import timber.log.Timber
 
 @Composable
 fun HomeScreen(

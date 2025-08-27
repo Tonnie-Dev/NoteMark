@@ -282,6 +282,9 @@ class SettingsViewModel(
         sendActionEvent(SettingsActionEvent.ExitSettings)
     }
 
+    private fun exitSettingsAndClearBackStack() {
+        sendActionEvent(SettingsActionEvent.Logout)
+    }
     private fun initiateLogoutSequence() = launchCatching(
             onStart = { updateState { it.copy(isLoggingOut = true) } },
             onCompletion = { updateState { it.copy(isLoggingOut = false) } },
@@ -348,7 +351,7 @@ class SettingsViewModel(
 
         when (val result = logOutUseCase(preserveSyncQueue = preserveSyncQueue)) {
 
-            is Resource.Success -> if (result.data) exitSettings()
+            is Resource.Success -> if (result.data) exitSettingsAndClearBackStack()
             is Resource.Error -> {
                 showDialog(dialogType = SettingsDialogType.SyncError)
             }
