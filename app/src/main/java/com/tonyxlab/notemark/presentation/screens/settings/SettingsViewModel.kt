@@ -23,6 +23,7 @@ import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsDial
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiEvent
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiState
 import com.tonyxlab.notemark.util.toLastSyncLabel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
@@ -272,8 +273,7 @@ class SettingsViewModel(
         }
     }
 
-
-    private suspend fun isSyncQueueEmpty(): Boolean {
+ private suspend fun isSyncQueueEmpty(): Boolean {
         return when (val result = syncQueueReaderUseCase()) {
             is Resource.Success -> result.data
             is Resource.Error -> throw result.exception
@@ -289,16 +289,17 @@ class SettingsViewModel(
                 return@launchCatching
             }
     ) {
-        val status = currentState.isSyncing
+
         if (!currentState.isOnline) {
             showDialog(dialogType = SettingsDialogType.NoInternet)
             return@launchCatching
         }
 
         val hasUnSyncedChanges = isSyncQueueEmpty().not()
-
         Timber.tag("SettingsViewModel")
-                .i("hasUnSynced: $hasUnSyncedChanges ")
+                .i("is queue empty?: ${isSyncQueueEmpty()} ")
+        Timber.tag("SettingsViewModel")
+                .i("hasUnSynced: $hasUnSyncedChanges")
         if (hasUnSyncedChanges) {
             showDialog(dialogType = SettingsDialogType.UnSyncedChanges())
             return@launchCatching
@@ -325,6 +326,8 @@ class SettingsViewModel(
     }
 
     private fun logoutWithoutSyncing() = launchCatching(
+            onStart = { updateState { it.copy(isLoggingOut = true) } },
+            onCompletion = { updateState { it.copy(isLoggingOut = false) } },
             onError = {
                 showDialog(dialogType = SettingsDialogType.SyncError)
                 return@launchCatching

@@ -4,10 +4,12 @@ package com.tonyxlab.notemark.data.repository
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.datastore.dataStore
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
 import com.tonyxlab.notemark.data.local.database.dao.SyncDao
 import com.tonyxlab.notemark.data.local.database.mappers.toEntity
 import com.tonyxlab.notemark.data.local.database.mappers.toModel
+import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.domain.exception.NoteNotFoundException
 import com.tonyxlab.notemark.domain.model.NoteItem
 import com.tonyxlab.notemark.domain.model.Resource
@@ -19,6 +21,7 @@ import kotlinx.coroutines.flow.map
 
 class NoteRepositoryImpl(
     private val noteDao: NoteDao,
+    private val dataStore: DataStore,
     private val syncDao: SyncDao,
     private val localWriter: NoteLocalWriter
 ) : NoteRepository {
@@ -42,10 +45,13 @@ class NoteRepositoryImpl(
             note?.toModel() ?: throw NoteNotFoundException(id)
         }
 
-    override suspend fun isSyncQueueEmpty(): Resource<Boolean >{
+    override suspend fun isSyncQueueEmpty(): Resource<Boolean> = safeIoCall{
+         dataStore.getInternalUserId()?.let {
 
-        return safeIoCall { syncDao.isSyncQueueEmpty() }
+            syncDao.isSyncQueueEmpty(it)
+        } == true
     }
+
 
     override suspend fun deleteNote(noteItem: NoteItem, queueDelete: Boolean): Resource<Boolean> =
 

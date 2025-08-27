@@ -74,7 +74,7 @@ val repositoryModule = module {
                 dataStore = get()
         )
     }
-    single<NoteRepository> { NoteRepositoryImpl(get(), get(),get()) }
+    single<NoteRepository> { NoteRepositoryImpl(get(), get(),get(), get()) }
 }
 
 val databaseModule = module {

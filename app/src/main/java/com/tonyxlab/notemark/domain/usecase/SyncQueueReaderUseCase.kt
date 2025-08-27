@@ -10,3 +10,4 @@ class SyncQueueReaderUseCase(private val repository: NoteRepository) {
         Resource.Success(true)
     }.getOrElse { exception -> Resource.Error(exception = Exception(exception.message)) }
 }
+
