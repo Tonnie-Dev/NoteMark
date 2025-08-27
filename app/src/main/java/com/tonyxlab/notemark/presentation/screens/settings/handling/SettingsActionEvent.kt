@@ -1,7 +1,6 @@
 package com.tonyxlab.notemark.presentation.screens.settings.handling
 
 import androidx.annotation.StringRes
-import com.tonyxlab.notemark.R
 import com.tonyxlab.notemark.presentation.core.base.handling.ActionEvent
 
 sealed interface SettingsActionEvent : ActionEvent {

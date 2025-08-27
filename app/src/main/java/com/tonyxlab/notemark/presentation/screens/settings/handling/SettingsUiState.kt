@@ -26,11 +26,18 @@ data class SettingsUiState(
     @Stable
     data class DialogState(
         val showDialog: Boolean = false,
-        @StringRes val title: Int = R.string.dialog_text_ok,
-        @StringRes val message: Int = R.string.dialog_text_ok,
-        @StringRes val positiveText: Int = R.string.dialog_text_ok,
-        @StringRes val negativeText: Int = R.string.dialog_text_ok,
-        val showNegativeButton: Boolean = false
+        @StringRes val dialogTitle: Int = R.string.dialog_text_ok,
+        @StringRes val dialogText: Int = R.string.dialog_text_ok,
+        @StringRes val positiveButtonText: Int = R.string.dialog_text_ok,
+        @StringRes val negativeButtonText: Int = R.string.blank_text,
+        val dialogType: SettingsDialogType? = null
     )
+
+}
+
+sealed interface SettingsDialogType {
+    data object NoInternet : SettingsDialogType
+    data object SyncError : SettingsDialogType
+    data class UnSyncedChanges(val pendingCount: Int? = null) : SettingsDialogType
 
 }

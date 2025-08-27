@@ -12,7 +12,11 @@ interface NoteRepository {
 
     suspend fun getNoteById(id: Long) : Resource<NoteItem>
 
+    suspend fun isSyncQueueEmpty(): Resource<Boolean>
+
     suspend fun deleteNote(noteItem: NoteItem, queueDelete: Boolean): Resource<Boolean>
 
     suspend fun clearAllNotes(): Resource<Boolean>
+
+    suspend fun clearSyncQueue(): Resource<Boolean>
 }

@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">NoteMark</string>
 
+    <!-- Blank Text-->
+    <string name="blank_text"/>
+
     <!-- Top Bar Texts-->
     <string name="topbar_text_all_notes">ALL NOTES</string>
     <string name="topbar_text_settings">SETTINGS</string>

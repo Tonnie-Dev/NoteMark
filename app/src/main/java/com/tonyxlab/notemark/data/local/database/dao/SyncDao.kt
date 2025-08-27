@@ -27,7 +27,13 @@ interface SyncDao {
    @Query("DELETE FROM sync_record WHERE id IN (:ids)")
    suspend fun deleteByIds(ids:List<String>)
 
+    @Query("SELECT EXISTS(SELECT 1 FROM sync_record LIMIT 1)")
+    suspend fun isSyncQueueEmpty(): Boolean
+
    @Query("SELECT COUNT(*) FROM sync_record WHERE userId =:userId")
    suspend fun countForUser(userId: String): Int
+
+   @Query("DELETE FROM sync_record")
+   suspend fun clearSyncQueue()
 
 }

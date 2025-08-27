@@ -42,7 +42,6 @@ import com.tonyxlab.notemark.presentation.core.components.AppTopBar
 import com.tonyxlab.notemark.presentation.core.components.ShowAppSnackbar
 import com.tonyxlab.notemark.presentation.core.components.SnackbarController
 import com.tonyxlab.notemark.presentation.core.utils.spacing
-import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiEvent
 import com.tonyxlab.notemark.presentation.screens.settings.components.SyncIntervalRow
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsActionEvent
 import com.tonyxlab.notemark.presentation.screens.settings.handling.SettingsUiEvent
@@ -109,7 +108,7 @@ fun SettingsScreen(
             onBackPressed = { viewModel.onEvent(SettingsUiEvent.ExitSettings) }
     ) {
 
-        Box (modifier = Modifier.fillMaxSize()){
+        Box(modifier = Modifier.fillMaxSize()) {
             if (it.isSyncing) {
                 Box(
                         modifier = Modifier
@@ -126,21 +125,17 @@ fun SettingsScreen(
                     uiState = it,
                     onEvent = viewModel::onEvent
             )
-if (it.dialogState.showDialog){
+            if (it.dialogState.showDialog) {
 
-    AppDialog(
-            dialogTitle = stringResource(id = it.dialogState.title),
-            dialogText = stringResource(id =it.dialogState.message),
-            positiveButtonText = stringResource(id = it.dialogState.positiveText),
-            negativeButtonText = stringResource(id = it.dialogState.negativeText),
-            onDismissRequest = {
-                viewModel.onEvent(SettingsUiEvent.DismissDialog)
-            },
-            onConfirm = {
-
+                AppDialog(
+                        dialogTitle = stringResource(id = it.dialogState.dialogTitle),
+                        dialogText = stringResource(id = it.dialogState.dialogText),
+                        positiveButtonText = stringResource(id = it.dialogState.positiveButtonText),
+                        negativeButtonText = stringResource(id = it.dialogState.negativeButtonText),
+                        onDismissRequest = { viewModel.onEvent(SettingsUiEvent.NegativeButtonClick) },
+                        onConfirm = { viewModel.onEvent(SettingsUiEvent.PositiveButtonClick) }
+                )
             }
-    )
-}
         }
 
     }

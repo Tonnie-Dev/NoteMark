@@ -2,15 +2,12 @@
 
 package com.tonyxlab.notemark.di
 
-import android.content.Context
 import android.net.ConnectivityManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import androidx.datastore.dataStore
 import androidx.room.Room
 import androidx.work.WorkManager
-import androidx.work.WorkerParameters
 import com.tonyxlab.notemark.data.json.JsonSerializerImpl
 import com.tonyxlab.notemark.data.local.database.NoteMarkDatabase
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
@@ -32,7 +29,8 @@ import com.tonyxlab.notemark.domain.repository.NoteRepository
 import com.tonyxlab.notemark.domain.usecase.DeleteNoteUseCase
 import com.tonyxlab.notemark.domain.usecase.GetAllNotesUseCase
 import com.tonyxlab.notemark.domain.usecase.GetNoteByIdUseCase
-import com.tonyxlab.notemark.domain.usecase.LogOutUseCase
+import com.tonyxlab.notemark.domain.usecase.LogoutUseCase
+import com.tonyxlab.notemark.domain.usecase.SyncQueueReaderUseCase
 import com.tonyxlab.notemark.domain.usecase.UpsertNoteUseCase
 import com.tonyxlab.notemark.presentation.screens.editor.EditorViewModel
 import com.tonyxlab.notemark.presentation.screens.home.HomeViewModel
@@ -44,7 +42,6 @@ import com.tonyxlab.notemark.util.ApiEndpoints.BASE_URL
 import com.tonyxlab.notemark.util.Constants
 import io.ktor.client.HttpClient
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.workmanager.dsl.worker
 import org.koin.androidx.workmanager.dsl.workerOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -63,7 +60,8 @@ val useCasesModule = module {
     single { GetNoteByIdUseCase(get()) }
     single { UpsertNoteUseCase(get()) }
     single { DeleteNoteUseCase(get()) }
-    single { LogOutUseCase(get(), get(), get()) }
+    single { LogoutUseCase(get(), get(), get()) }
+    single { SyncQueueReaderUseCase(get()) }
 }
 
 val repositoryModule = module {
@@ -76,7 +74,7 @@ val repositoryModule = module {
                 dataStore = get()
         )
     }
-    single<NoteRepository> { NoteRepositoryImpl(get(), get()) }
+    single<NoteRepository> { NoteRepositoryImpl(get(), get(),get()) }
 }
 
 val databaseModule = module {
