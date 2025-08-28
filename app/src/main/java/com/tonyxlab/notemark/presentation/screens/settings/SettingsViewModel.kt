@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withTimeout
-import timber.log.Timber
 
 typealias SettingsBaseViewModel =
         BaseViewModel<SettingsUiState, SettingsUiEvent, SettingsActionEvent>
@@ -74,33 +73,9 @@ class SettingsViewModel(
             SettingsUiEvent.ExitSettings -> exitSettings()
 
             SettingsUiEvent.LogOut -> {
-                if (currentState.isSyncing) return
+                if (currentState.syncInProgress) return
                 initiateLogoutSequence()
             }
-        }
-    }
-
-    private fun onClickDialogPositiveButton() {
-
-        val dialogType = currentState.dialogState.dialogType
-        dismissDialog()
-
-        when (dialogType) {
-            is SettingsDialogType.UnSyncedChanges -> logoutWithoutSyncing()
-            SettingsDialogType.SyncError -> logoutWithoutSyncing()
-            SettingsDialogType.NoInternet, null -> Unit
-        }
-    }
-
-    private fun onClickDialogNegativeButton() {
-
-        val dialogType = currentState.dialogState.dialogType
-        dismissDialog()
-
-        when (dialogType) {
-            is SettingsDialogType.UnSyncedChanges -> logoutWithSync()
-            SettingsDialogType.SyncError -> Unit
-            SettingsDialogType.NoInternet, null -> Unit
         }
     }
 
@@ -109,7 +84,7 @@ class SettingsViewModel(
         syncRequest.manualSyncInfosFlow()
                 .onEach { infos ->
                     val syncing = infos.any { !it.state.isFinished }
-                    updateState { it.copy(isSyncing = syncing) }
+                    updateState { it.copy(syncInProgress = syncing) }
                 }
                 .launchIn(viewModelScope)
     }
@@ -128,6 +103,32 @@ class SettingsViewModel(
         launch {
             val activeInterval = dataStore.getSyncInterval()
             setSyncInterval(activeInterval)
+        }
+    }
+
+    private fun showSyncIntervalMenu() {
+
+        updateState { it.copy(syncMenuState = currentState.syncMenuState.copy(isMenuOpen = true)) }
+    }
+
+    private fun selectSyncInterval(interval: SyncInterval) {
+
+        setSyncInterval(interval)
+
+        launch {
+            dataStore.saveSyncInterval(interval)
+            syncRequest.enqueuePeriodicSync(interval)
+        }
+    }
+
+    private fun setSyncInterval(interval: SyncInterval) {
+
+        updateState {
+            it.copy(
+                    syncMenuState = currentState.syncMenuState.copy(
+                            activeInterval = interval
+                    )
+            )
         }
     }
 
@@ -172,7 +173,7 @@ class SettingsViewModel(
                         message = R.string.dialog_text_unsynced_changes_msg,
                         positiveButtonText = R.string.dialog_text_log_out_without_syncing,
                         negativeButtonText = R.string.dialog_text_sync_now,
-                        dialogType = SettingsDialogType.UnSyncedChanges()
+                        dialogType = SettingsDialogType.UnSyncedChanges
                 )
             }
 
@@ -188,34 +189,28 @@ class SettingsViewModel(
         }
     }
 
-    private fun showSyncIntervalMenu() {
+    private fun onClickDialogPositiveButton() {
 
-        updateState { it.copy(syncMenuState = currentState.syncMenuState.copy(isMenuOpen = true)) }
-    }
+        val dialogType = currentState.dialogState.dialogType
+        dismissDialog()
 
-    private fun selectSyncInterval(interval: SyncInterval) {
-
-        setSyncInterval(interval)
-
-        launch {
-            dataStore.saveSyncInterval(interval)
-            syncRequest.enqueuePeriodicSync(interval)
+        when (dialogType) {
+            is SettingsDialogType.UnSyncedChanges -> logoutWithoutSyncing()
+            SettingsDialogType.SyncError -> logoutWithoutSyncing()
+            SettingsDialogType.NoInternet, null -> Unit
         }
     }
 
-    private fun setSyncInterval(interval: SyncInterval) {
+    private fun onClickDialogNegativeButton() {
 
-        updateState {
-            it.copy(
-                    syncMenuState = currentState.syncMenuState.copy(
-                            activeInterval = interval
-                    )
-            )
+        val dialogType = currentState.dialogState.dialogType
+        dismissDialog()
+
+        when (dialogType) {
+            is SettingsDialogType.UnSyncedChanges -> logoutWithSync()
+            SettingsDialogType.SyncError -> Unit
+            SettingsDialogType.NoInternet, null -> Unit
         }
-    }
-
-    private fun dismissSyncMenu() {
-        updateState { it.copy(syncMenuState = currentState.syncMenuState.copy(isMenuOpen = false)) }
     }
 
     private fun dismissDialog() {
@@ -227,6 +222,10 @@ class SettingsViewModel(
                     )
             )
         }
+    }
+
+    private fun dismissSyncMenu() {
+        updateState { it.copy(syncMenuState = currentState.syncMenuState.copy(isMenuOpen = false)) }
     }
 
     private fun updateLastSyncTimeLabel() {
@@ -291,12 +290,9 @@ class SettingsViewModel(
         }
 
         val hasUnSyncedChanges = isSyncQueueEmpty().not()
-        Timber.tag("SettingsViewModel")
-                .i("is queue empty?: ${isSyncQueueEmpty()} ")
-        Timber.tag("SettingsViewModel")
-                .i("hasUnSynced: $hasUnSyncedChanges")
+
         if (hasUnSyncedChanges) {
-            showDialog(dialogType = SettingsDialogType.UnSyncedChanges())
+            showDialog(dialogType = SettingsDialogType.UnSyncedChanges)
             return@launchCatching
         }
 
@@ -304,6 +300,8 @@ class SettingsViewModel(
     }
 
     private fun logoutWithSync() = launchCatching(
+            onStart = { updateState { it.copy(isLoggingOut = true) } },
+            onCompletion = { updateState { it.copy(isLoggingOut = false) } },
             onError = {
                 showDialog(dialogType = SettingsDialogType.SyncError)
                 return@launchCatching
@@ -345,7 +343,6 @@ class SettingsViewModel(
 
             else -> Unit
         }
-
     }
 
     private fun exitSettings() {

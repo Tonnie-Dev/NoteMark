@@ -8,15 +8,6 @@ sealed interface SettingsActionEvent : ActionEvent {
     data object ExitSettings : SettingsActionEvent
     data object Logout : SettingsActionEvent
     data object ShowSyncIntervalContextMenu : SettingsActionEvent
-    //data object ShowDialog: SettingsActionEvent
- /*   data class ShowDialog(
-        @StringRes val title: Int,
-        @StringRes val message: Int,
-        @StringRes val positiveText: Int,
-        @StringRes val negativeText: Int = R.string.dialog_text_cancel,
-        val showNegativeButton: Boolean = false
-    ) : SettingsActionEvent*/
-
     data class ShowSnackbar(
         @StringRes val messageRes: Int,
         @StringRes val labelRes: Int,

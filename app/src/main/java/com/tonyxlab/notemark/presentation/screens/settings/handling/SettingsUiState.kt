@@ -11,7 +11,6 @@ data class SettingsUiState(
     val syncMenuState: SyncMenuState = SyncMenuState(),
     val lastSyncTime: String = "",
     val syncInProgress: Boolean = false,
-    val isSyncing: Boolean = false,
     val isOnline: Boolean = true,
     val isLoggingOut: Boolean = false,
     val dialogState: DialogState = DialogState()
@@ -33,12 +32,10 @@ data class SettingsUiState(
         @StringRes val negativeButtonText: Int = R.string.blank_text,
         val dialogType: SettingsDialogType? = null
     )
-
 }
 
 sealed interface SettingsDialogType {
     data object NoInternet : SettingsDialogType
     data object SyncError : SettingsDialogType
-    data class UnSyncedChanges(val pendingCount: Int? = null) : SettingsDialogType
-
+    data object UnSyncedChanges : SettingsDialogType
 }
