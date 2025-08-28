@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
 class SyncRequest(private val workManager: WorkManager) {
 
     companion object {
-         const val UNIQUE_MANUAL = "notemark:sync:manual"
+        const val UNIQUE_MANUAL = "notemark:sync:manual"
         private const val UNIQUE_PERIODIC = "notemark:sync:periodic"
 
         private val DEFAULT_CONSTRAINTS: Constraints = Constraints.Builder()
@@ -57,7 +57,7 @@ class SyncRequest(private val workManager: WorkManager) {
         }
 
         val minutes = interval.toMinutes()
-        val safeMinutes = maxOf(15,minutes)
+        val safeMinutes = maxOf(15, minutes)
 
         val request =
             PeriodicWorkRequestBuilder<SyncWorker>(
@@ -71,6 +71,12 @@ class SyncRequest(private val workManager: WorkManager) {
                 existingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE,
                 request = request
         )
+    }
+
+    suspend fun isSyncWorkActive(): Boolean {
+        val states = workManager.getWorkInfosForUniqueWork(UNIQUE_MANUAL)
+                .get() // Blocking call to retrieve the result
+        return states.any { it.state == WorkInfo.State.ENQUEUED || it.state == WorkInfo.State.RUNNING }
     }
 
     private fun cancelPeriodic() {

@@ -6,20 +6,21 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.viewModelScope
 import com.tonyxlab.notemark.R
+import com.tonyxlab.notemark.data.workmanager.SyncRequest
 import com.tonyxlab.notemark.domain.auth.AuthRepository
 import com.tonyxlab.notemark.domain.connectivity.ConnectivityObserver
 import com.tonyxlab.notemark.domain.model.NoteItem
 import com.tonyxlab.notemark.domain.usecase.DeleteNoteUseCase
 import com.tonyxlab.notemark.domain.usecase.GetAllNotesUseCase
 import com.tonyxlab.notemark.domain.usecase.GetNoteByIdUseCase
+import com.tonyxlab.notemark.domain.usecase.SyncQueueReaderUseCase
 import com.tonyxlab.notemark.domain.usecase.UpsertNoteUseCase
 import com.tonyxlab.notemark.presentation.core.base.BaseViewModel
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeActionEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiState
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import timber.log.Timber
 import java.time.LocalDateTime
@@ -32,7 +33,9 @@ class HomeViewModel(
     private val getNoteByIdUseCase: GetNoteByIdUseCase,
     private val upsertNoteUseCase: UpsertNoteUseCase,
     private val deleteNoteUseCase: DeleteNoteUseCase,
-    private val connectivityObserver: ConnectivityObserver
+    private val connectivityObserver: ConnectivityObserver,
+    private val syncRequest: SyncRequest,
+    private val syncQueueReaderUseCase: SyncQueueReaderUseCase
 ) : HomeViewModelBaseClass() {
 
     override val initialState: HomeUiState
@@ -42,6 +45,7 @@ class HomeViewModel(
         updateUsername()
         retrieveSavedNotes()
         observeNetwork()
+        syncNotesInBackground()
     }
 
     override fun onEvent(event: HomeUiEvent) {
@@ -143,9 +147,33 @@ class HomeViewModel(
 
     private fun observeNetwork() {
 
-        connectivityObserver.isOnline().onEach {
-            isOnline -> updateState { it.copy(isOffline = !isOnline) }
-        }.launchIn(viewModelScope)
+        connectivityObserver.isOnline()
+                .onEach { isOnline ->
+                    updateState { it.copy(isOffline = !isOnline) }
+                }
+                .launchIn(viewModelScope)
 
+    }
+
+    private fun syncNotesInBackground() {
+
+        launchCatching(onError = {
+            Timber.e(it, "Unknow Sync Error, see logs")
+        }) {
+
+            if (!authRepository.isSignedIn()) return@launchCatching
+
+            val isOnline = connectivityObserver.isOnline()
+                    .first()
+
+            if (!isOnline) return@launchCatching
+
+            val isSyncQueueEmpty = syncQueueReaderUseCase()
+            if (isSyncQueueEmpty) return@launchCatching
+
+            if (!syncRequest.isSyncWorkActive()){
+                syncRequest.enqueueManualSync()
+            }
+        }
     }
 }
