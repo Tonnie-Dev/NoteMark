@@ -23,8 +23,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,10 +37,8 @@ import com.tonyxlab.notemark.presentation.screens.editor.component.EditorAppBar
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
-import com.tonyxlab.notemark.presentation.theme.textButtonStyle
 import com.tonyxlab.notemark.util.DeviceType
 import com.tonyxlab.notemark.util.generateLoremIpsum
-
 
 @Composable
 fun EditModeScreenContent(
@@ -62,11 +58,9 @@ fun EditModeScreenContent(
                 EditorAppBar(onEvent = onEvent)
                 TitleAndContentEditBoxes(modifier, uiState, onEvent)
             }
-
         }
 
         DeviceType.MOBILE_LANDSCAPE -> {
-
             Row(
                     modifier = Modifier
                             .fillMaxSize()
@@ -85,18 +79,7 @@ fun EditModeScreenContent(
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                TitleAndContentEditBoxes(modifier.weight(6f), uiState, onEvent)
-                TextButton(
-                        modifier = Modifier.weight(2f),
-
-                        onClick = { onEvent(EditorUiEvent.SaveNote) }) {
-
-                    Text(
-                            text = stringResource(id = R.string.txt_btn_save_note),
-                            color = MaterialTheme.colorScheme.primary,
-                            style = MaterialTheme.typography.textButtonStyle
-                    )
-                }
+                TitleAndContentEditBoxes(modifier.weight(8f), uiState, onEvent)
             }
         }
 
@@ -111,27 +94,8 @@ fun EditModeScreenContent(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.Top
                 ) {
-                    IconButton(
-                            onClick = { onEvent(EditorUiEvent.ExitEditor) }) {
-
-                        Icon(
-                                modifier = Modifier.size(MaterialTheme.spacing.spaceTen * 2),
-                                imageVector = Icons.Default.Close,
-                                contentDescription = stringResource(id = R.string.cds_text_cancel),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    TextButton(
-                            onClick = { onEvent(EditorUiEvent.SaveNote) }) {
-
-                        Text(
-                                text = stringResource(id = R.string.txt_btn_save_note),
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.textButtonStyle
-                        )
-                    }
+                    EditorAppBar(onEvent = onEvent)
                 }
-
                 TitleAndContentEditBoxes(
                         modifier = modifier.weight(6f),
                         uiState = uiState,
@@ -152,7 +116,6 @@ fun EditModeScreenContent(
                 negativeButtonText = stringResource(id = R.string.dialog_text_keep_editing)
         )
     }
-
 }
 
 @Composable
@@ -164,7 +127,6 @@ private fun TitleAndContentEditBoxes(
     Column(
             modifier = modifier
                     .animateContentSize()
-
     ) {
 
         Row(modifier = Modifier.padding(horizontal = MaterialTheme.spacing.spaceMedium)) {
@@ -205,8 +167,6 @@ private fun ViewModeScreenContent_Preview() {
                 ),
                 onEvent = {}
         )
-
     }
-
 }
 

@@ -47,10 +47,8 @@ class EditorViewModel(
     private var timer: CountdownTimer? = null
 
     init {
-
         val navigationId = savedStateHandle.toRoute<EditorScreenDestination>().id
         loadNote(navigationId)
-
     }
 
     override val initialState: EditorUiState
@@ -116,40 +114,20 @@ class EditorViewModel(
 
     private fun loadNote(noteId: Long) {
 
-        launchCatching(onError = {
-            sendActionEvent(
-                    EditorActionEvent.ShowSnackbar(
-                            messageRes = R.string.snack_text_note_not_found,
-                            actionLabelRes = R.string.snack_text_exit
+        launchCatching(
+                onError = {
+                    sendActionEvent(
+                            EditorActionEvent.ShowSnackbar(
+                                    messageRes = R.string.snack_text_note_not_found,
+                                    actionLabelRes = R.string.snack_text_exit
+                            )
                     )
-            )
-        }
+                }
         ) {
             val currentNoteItem = getNoteByIdUseCase(id = noteId)
             populateOldNote(currentNoteItem)
             observeTitleAndContentFields(currentNoteItem)
         }
-    }
-
-    private fun startTimer() {
-
-        timer?.stop() //Clean up the old timer
-        timer = CountdownTimer().also { timer ->
-            timer.start()
-            timer.remainingSecs.onEach { secs ->
-
-
-                updateState { it.copy(remainingSecs = secs) }
-            }
-                    .launchIn(viewModelScope)
-        }
-
-    }
-
-    private fun stopTimer() {
-
-        timer?.stop()
-        updateState { it.copy(remainingSecs = 0) }
     }
 
     private fun populateOldNote(oldNote: NoteItem) {
@@ -174,6 +152,17 @@ class EditorViewModel(
 
     }
 
+    private fun enterViewMode() {
+        updateState { it.copy(editorMode = EditorUiState.EditorMode.ViewMode) }
+
+    }
+
+    private fun enterEditMode() {
+        exitReadMode()
+        updateState { it.copy(editorMode = EditorUiState.EditorMode.EditMode) }
+
+    }
+
     private fun enterReadMode() {
 
         if (currentState.editorMode == EditorUiState.EditorMode.ReadMode) {
@@ -187,24 +176,31 @@ class EditorViewModel(
 
     }
 
+    private fun startTimer() {
+
+        timer?.stop() //Clean up the old timer
+        timer = CountdownTimer().also { timer ->
+            timer.start()
+            timer.remainingSecs.onEach { secs ->
+
+                updateState { it.copy(remainingSecs = secs) }
+            }
+                    .launchIn(viewModelScope)
+        }
+    }
+
+    private fun stopTimer() {
+
+        timer?.stop()
+        updateState { it.copy(remainingSecs = 0) }
+    }
+
     private fun exitReadMode() {
 
         updateState { it.copy(editorMode = EditorUiState.EditorMode.ViewMode) }
         sendActionEvent(EditorActionEvent.ExitReadMode)
 
     }
-
-    private fun enterViewMode() {
-        updateState { it.copy(editorMode = EditorUiState.EditorMode.ViewMode) }
-
-    }
-
-    private fun enterEditMode() {
-        exitReadMode()
-        updateState { it.copy(editorMode = EditorUiState.EditorMode.EditMode) }
-
-    }
-
 
     private fun editNoteTitle() {
 
@@ -229,7 +225,6 @@ class EditorViewModel(
     private fun keepEditing() {
 
         updateState { it.copy(showDialog = false) }
-
     }
 
     private fun discardChanges() {
@@ -294,10 +289,9 @@ class EditorViewModel(
                     )
                 }
         ) {
-            deleteNoteUseCase(noteItem = noteItem, queueDelete =  queueDelete)
+            deleteNoteUseCase(noteItem = noteItem, queueDelete = queueDelete)
         }
     }
-
 
     private fun handleEditorExit() {
         launchCatching(
