@@ -54,8 +54,8 @@ class HomeViewModel(
             is HomeUiEvent.ClickNote -> editNote(event.noteId)
             is HomeUiEvent.LongPressNote -> showDialog(noteId = event.noteId)
             is HomeUiEvent.ConfirmDeleteNote -> {
-                Timber.tag("HomeViewModel").i("confirmDelete() called with Id: ${event.notedId}")
-                confirmDelete(event.notedId)}
+                confirmDelete(event.notedId)
+            }
             HomeUiEvent.DismissDialog -> dismissDialog()
             HomeUiEvent.ClickSettingsIcon -> navigateToSettings()
         }
@@ -135,7 +135,6 @@ class HomeViewModel(
         launchCatching(
                 onError = {
 
-                    Timber.tag("HomeViewModel").i("Delete Error: ${it.message}")
                     sendActionEvent(
                             HomeActionEvent.ShowToast(
                                     messageRes = R.string.snack_text_note_not_found
@@ -145,8 +144,7 @@ class HomeViewModel(
                 }
         ) {
 
-            Timber.tag("HomeViewModel").i("Delete Called")
-            deleteNoteUseCase(id= noteId)
+            deleteNoteUseCase(id = noteId)
         }
     }
 

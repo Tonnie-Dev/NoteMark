@@ -79,8 +79,6 @@ class AuthRepositoryImpl(
                 when (result.status.value) {
                     200 -> {
                         val accessTokenResponse = result.body<AccessTokenResponse>()
-                        Timber.tag("AuthRepositoryImpl")
-                                .i("AccessToken ${accessTokenResponse.accessToken}")
                         dataStore.saveTokens(
                                 accessToken = accessTokenResponse.accessToken,
                                 refreshToken = accessTokenResponse.refreshToken,

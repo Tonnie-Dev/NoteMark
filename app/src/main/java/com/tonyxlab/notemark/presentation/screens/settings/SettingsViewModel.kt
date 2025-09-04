@@ -280,7 +280,6 @@ class SettingsViewModel(
             onStart = { updateState { it.copy(isLoggingOut = true) } },
             onCompletion = { updateState { it.copy(isLoggingOut = false) } },
             onError = {
-                Timber.tag("SettingsViewModel").i("Error${it.message}")
                 showDialog(dialogType = SettingsDialogType.SyncError)
                 return@launchCatching
             }

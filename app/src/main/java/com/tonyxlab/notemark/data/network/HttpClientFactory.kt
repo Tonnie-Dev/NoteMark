@@ -54,8 +54,6 @@ class HttpClientFactory(private val dataStore: DataStore) {
             install(Logging) {
                 logger = object : Logger {
                     override fun log(message: String) {
-                        Timber.tag("ApiRequest")
-                                .d(message)
                     }
 
                 }

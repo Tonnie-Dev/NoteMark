@@ -20,8 +20,6 @@ inline fun Modifier.ifThen(flag: Boolean, modifierBuilder: Modifier.() -> Modifi
 
 @Composable
 fun SetStatusBarIconsColor(darkIcons: Boolean) {
-    Timber.tag("ComposeUtils")
-            .i("SetStatusBarIconsColor called with darkIcons = $darkIcons")
 
     val view = LocalView.current
 
@@ -33,8 +31,6 @@ fun SetStatusBarIconsColor(darkIcons: Boolean) {
 
     SideEffect {
         insetsController?.isAppearanceLightStatusBars = darkIcons
-        Timber.tag("ComposeUtils")
-                .i("Status bar icons set to ${if (darkIcons) "DARK" else "LIGHT"}")
     }
 }
 

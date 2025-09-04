@@ -52,7 +52,6 @@ class EditorViewModel(
     private var lastEnqueuedHash:Int? = null
     init {
         val navigationId = savedStateHandle.toRoute<EditorScreenDestination>().id
-        Timber.tag("EditorViewModel").i("Navigated with Id: $navigationId")
         loadNote(navigationId)
     }
 
@@ -158,7 +157,6 @@ class EditorViewModel(
         launchCatching(
                 onError = {
 
-                    Timber.tag("EditorViewModel").i("Load Error")
                     sendActionEvent(
                             EditorActionEvent.ShowSnackbar(
                                     messageRes = R.string.snack_text_note_not_found,
@@ -170,8 +168,6 @@ class EditorViewModel(
             val currentNoteItem = getNoteByIdUseCase(id = noteId)
             populateOldNote(currentNoteItem)
             observeTitleAndContentFields(currentNoteItem)
-
-            Timber.tag("EditorViewModel").i("Load Note Called with Id:$noteId")
         }
     }
 
@@ -335,8 +331,6 @@ class EditorViewModel(
     private fun handleEditorExit() {
         launchCatching(
                 onError = {
-                    Timber.tag("EditorViewModel")
-                            .i("Error Hit! ${it.message}")
                     sendActionEvent(
                             EditorActionEvent.ShowSnackbar(
                                     messageRes = R.string.snack_text_note_not_found,

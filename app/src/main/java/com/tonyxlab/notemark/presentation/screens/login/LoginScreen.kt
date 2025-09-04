@@ -65,7 +65,6 @@ fun LoginScreen(
 ) {
 
     SetStatusBarIconsColor(darkIcons = false)
-    Timber.tag("LoginScreen").i("Entering Login Screen")
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 

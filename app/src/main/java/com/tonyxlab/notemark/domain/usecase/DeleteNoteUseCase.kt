@@ -11,12 +11,11 @@ class DeleteNoteUseCase(private val repository: NoteRepository) {
         when (val result = repository.deleteNote(id = id, queueDelete)) {
 
             is Resource.Success -> {
-                Timber.tag("DeleteNoteUseCase").i("DUC - Success")
-                result.data}
+                result.data
+            }
 
             is Resource.Error -> {
 
-                Timber.tag("DeleteNoteUseCase").i("DUC - Error")
                 throw result.exception
             }
 
