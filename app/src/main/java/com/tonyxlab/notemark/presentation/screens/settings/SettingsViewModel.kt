@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withTimeout
+import timber.log.Timber
 
 typealias SettingsBaseViewModel =
         BaseViewModel<SettingsUiState, SettingsUiEvent, SettingsActionEvent>
@@ -279,6 +280,7 @@ class SettingsViewModel(
             onStart = { updateState { it.copy(isLoggingOut = true) } },
             onCompletion = { updateState { it.copy(isLoggingOut = false) } },
             onError = {
+                Timber.tag("SettingsViewModel").i("Error${it.message}")
                 showDialog(dialogType = SettingsDialogType.SyncError)
                 return@launchCatching
             }

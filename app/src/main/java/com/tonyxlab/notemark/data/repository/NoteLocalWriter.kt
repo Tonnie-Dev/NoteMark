@@ -7,7 +7,6 @@ import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncOperation
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncRecord
 import com.tonyxlab.notemark.domain.json.JsonSerializer
-import timber.log.Timber
 import java.util.UUID
 
 class NoteLocalWriter(
@@ -20,11 +19,29 @@ class NoteLocalWriter(
 
     suspend fun upsert(
         noteEntity: NoteEntity,
-        queueCreate: Boolean = true
+        queueSync: Boolean = true
     ): Long {
+
+        val id = noteDao.upsert(noteEntity)
+        val noteWithId = noteEntity.copy(id = id)
+
+        if (queueSync){
+            val syncOp = if (noteWithId.remoteId.isNullOrBlank())
+                SyncOperation.CREATE
+            else
+                SyncOperation.UPDATE
+
+            queue(
+                    localNoteId = id,
+                    noteEntity = noteWithId,
+                    syncOp = syncOp
+            )
+        }
+        return id
+/*
         val exists = noteEntity.id != 0L && noteDao.getNoteById(noteEntity.id) != null
 
-        Timber.tag("NoteLocalWriter").i("The Id is: ${noteEntity.id}")
+
         val syncOp = if (queueCreate) SyncOperation.UPDATE else SyncOperation.CREATE
 
         val id = noteDao.upsert(noteEntity)
@@ -35,12 +52,13 @@ class NoteLocalWriter(
         }
 
         return id
+*/
     }
 
-    suspend fun delete(noteEntity: NoteEntity, queueDelete: Boolean = true): Boolean {
+    suspend fun delete(id: Long, queueDelete: Boolean = true): Boolean {
 
         val latestLocalNoteSnapshot =
-            noteDao.getNoteById(noteEntity.id) ?: return false
+            noteDao.getNoteById(id =id) ?: return false
 
         val hasRemoteId = latestLocalNoteSnapshot.remoteId.isNullOrBlank()
                 .not()
@@ -73,6 +91,7 @@ class NoteLocalWriter(
                 payload = payloadJsonSnapshot, // JSON snapshot at time of change
                 timestamp = clock()
         )
-        syncDao.insert(record)
+        syncDao.upsertLatest(record)
+        //syncDao.insert(record)
     }
 }

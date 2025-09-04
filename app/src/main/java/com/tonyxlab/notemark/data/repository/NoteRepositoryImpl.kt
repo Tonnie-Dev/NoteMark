@@ -24,20 +24,20 @@ class NoteRepositoryImpl(
     private val syncDao: SyncDao,
     private val localWriter: NoteLocalWriter
 ) : NoteRepository {
+
     override fun getAllNotes(): Flow<List<NoteItem>> {
         return noteDao.getAllNotes()
                 .filterNotNull()
                 .map { notes -> notes.map { it.toModel() } }
     }
 
-    override suspend fun upsertNote(noteItem: NoteItem, queueCreate: Boolean): Resource<Long> =
+    override suspend fun upsertNote(noteItem: NoteItem, queueSync: Boolean): Resource<Long> =
         safeIoCall {
             localWriter.upsert(
                     noteEntity = noteItem.toEntity(),
-                    queueCreate = queueCreate
+                    queueSync = queueSync
             )
         }
-
 
     override suspend fun getNoteById(id: Long): Resource<NoteItem> =
 
@@ -53,11 +53,11 @@ class NoteRepositoryImpl(
                 } == true
     }
 
-    override suspend fun deleteNote(noteItem: NoteItem, queueDelete: Boolean): Resource<Boolean> =
+    override suspend fun deleteNote(id: Long, queueDelete: Boolean): Resource<Boolean> =
 
         safeIoCall {
             localWriter.delete(
-                    noteEntity = noteItem.toEntity(),
+                    id = id,
                     queueDelete = queueDelete
             )
         }

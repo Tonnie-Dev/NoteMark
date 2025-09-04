@@ -4,6 +4,7 @@ import com.tonyxlab.notemark.domain.exception.NoteNotFoundException
 import com.tonyxlab.notemark.domain.model.NoteItem
 import com.tonyxlab.notemark.domain.model.Resource
 import com.tonyxlab.notemark.domain.repository.NoteRepository
+import timber.log.Timber
 
 class GetNoteByIdUseCase(private val repository: NoteRepository) {
 

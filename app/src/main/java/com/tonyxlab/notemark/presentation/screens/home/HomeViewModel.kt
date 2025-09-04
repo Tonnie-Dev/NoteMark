@@ -53,7 +53,9 @@ class HomeViewModel(
             HomeUiEvent.CreateNewNote -> createNote()
             is HomeUiEvent.ClickNote -> editNote(event.noteId)
             is HomeUiEvent.LongPressNote -> showDialog(noteId = event.noteId)
-            is HomeUiEvent.ConfirmDeleteNote -> confirmDelete(event.notedId)
+            is HomeUiEvent.ConfirmDeleteNote -> {
+                Timber.tag("HomeViewModel").i("confirmDelete() called with Id: ${event.notedId}")
+                confirmDelete(event.notedId)}
             HomeUiEvent.DismissDialog -> dismissDialog()
             HomeUiEvent.ClickSettingsIcon -> navigateToSettings()
         }
@@ -123,7 +125,7 @@ class HomeViewModel(
                     createdOn = now,
                     lastEditedOn = now
             )
-            val result = upsertNoteUseCase(noteItem = newNote, queueCreate = false)
+            val result = upsertNoteUseCase(noteItem = newNote, queueSync = false)
             val noteId = result
             sendActionEvent(HomeActionEvent.NavigateToEditorScreen(noteId))
         }
@@ -132,6 +134,8 @@ class HomeViewModel(
     private fun deleteNote(noteId: Long) {
         launchCatching(
                 onError = {
+
+                    Timber.tag("HomeViewModel").i("Delete Error: ${it.message}")
                     sendActionEvent(
                             HomeActionEvent.ShowToast(
                                     messageRes = R.string.snack_text_note_not_found
@@ -140,8 +144,9 @@ class HomeViewModel(
 
                 }
         ) {
-            val noteItem = getNoteByIdUseCase(id = noteId)
-            deleteNoteUseCase(noteItem = noteItem)
+
+            Timber.tag("HomeViewModel").i("Delete Called")
+            deleteNoteUseCase(id= noteId)
         }
     }
 
@@ -157,9 +162,11 @@ class HomeViewModel(
 
     private fun syncNotesInBackground() {
 
-        launchCatching(onError = {
-            Timber.e(it, "Unknow Sync Error, see logs")
-        }) {
+        launchCatching(
+                onError = {
+                    Timber.e(it, "Unknow Sync Error, see logs")
+                }
+        ) {
 
             if (!authRepository.isSignedIn()) return@launchCatching
 
@@ -171,7 +178,7 @@ class HomeViewModel(
             val isSyncQueueEmpty = syncQueueReaderUseCase()
             if (isSyncQueueEmpty) return@launchCatching
 
-            if (!syncRequest.isSyncWorkActive()){
+            if (!syncRequest.isSyncWorkActive()) {
                 syncRequest.enqueueManualSync()
             }
         }

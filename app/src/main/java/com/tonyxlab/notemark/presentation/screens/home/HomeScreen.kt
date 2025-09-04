@@ -157,7 +157,7 @@ fun HomeScreenContent(
             verticalItemSpacing = MaterialTheme.spacing.spaceMedium,
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium),
     ) {
-        items(state.notes) { note ->
+        items(items =state.notes, key = {it.id}) { note ->
             NotePreview(
                     noteItem = note,
                     onEvent = onEvent

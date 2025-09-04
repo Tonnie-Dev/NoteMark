@@ -9,7 +9,7 @@ data class NoteItem(
     val title: String = DEFAULT_TITLE_VALUE,
     val content: String = "",
     val createdOn: LocalDateTime,
-        val lastEditedOn: LocalDateTime
+    val lastEditedOn: LocalDateTime
 )
 
 fun NoteItem.isBlankNote(): Boolean = title == DEFAULT_TITLE_VALUE && content.isBlank()

@@ -7,6 +7,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -24,12 +25,14 @@ import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
 import com.tonyxlab.notemark.presentation.screens.editor.handling.toActiveNote
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.shareIn
 import timber.log.Timber
 import java.time.LocalDateTime
 
@@ -46,8 +49,10 @@ class EditorViewModel(
     private lateinit var newNotePair: Pair<String, String>
     private var timer: CountdownTimer? = null
 
+    private var lastEnqueuedHash:Int? = null
     init {
         val navigationId = savedStateHandle.toRoute<EditorScreenDestination>().id
+        Timber.tag("EditorViewModel").i("Navigated with Id: $navigationId")
         loadNote(navigationId)
     }
 
@@ -59,7 +64,7 @@ class EditorViewModel(
         when (event) {
             EditorUiEvent.EditNoteTitle -> editNoteTitle()
             EditorUiEvent.EditNoteContent -> editNoteContent()
-            EditorUiEvent.SaveNote -> saveNote()
+            //   EditorUiEvent.SaveNote -> saveNote()
             EditorUiEvent.ExitEditor -> handleEditorExit()
             EditorUiEvent.ShowDialog -> updateState { it.copy(showDialog = true) }
             EditorUiEvent.KeepEditing -> keepEditing()
@@ -77,22 +82,58 @@ class EditorViewModel(
 
         launch {
 
-            val titleSnapshotFlow =
+            val titleFlow =
                 snapshotFlow { currentState.titleNoteState.titleTextFieldState.text }
                         .debounce(300)
                         .distinctUntilChanged()
 
-            val contentSnapshotFlow =
+            val contentFlow =
                 snapshotFlow { currentState.contentNoteState.contentTextFieldState.text }
                         .debounce(300)
                         .distinctUntilChanged()
 
-            combine(titleSnapshotFlow, contentSnapshotFlow) { title, content ->
-                initializeOldAndNewNotePairs(
-                        oldNote = oldNote,
-                        newNote = Pair(title, content)
-                )
-            }.collect()
+            combine(titleFlow, contentFlow) { t, c -> t to c }
+                    .debounce(400)
+                    .distinctUntilChanged()
+                    .onEach { (t, c) ->
+
+
+                        initializeOldAndNewNotePairs(oldNote, t to c)
+
+
+                        saveNote(queueSync = false)
+
+
+                    }
+                    .launchIn(viewModelScope)
+
+/*
+            combine(titleFlow, contentFlow) { t, c -> t to c }
+                    .debounce(400)
+                    .distinctUntilChanged()
+                    .onEach { (t, c) ->
+                        initializeOldAndNewNotePairs(oldNote, t to c)
+                        saveNote(queueSync = false)
+                    }
+                    .launchIn(viewModelScope)
+
+
+            combine(titleFlow, contentFlow){t,c -> t to c}
+                    .debounce (2000)
+                    .distinctUntilChanged()
+                    .onEach { (t,c) ->
+                     //   initializeOldAndNewNotePairs(oldNote, t to c)
+                        saveNote(queueSync = true)
+
+                    }.launchIn(viewModelScope)*/
+            /*  combine(titleFlow, contentFlow) { title, content ->
+                  initializeOldAndNewNotePairs(
+                          oldNote = oldNote,
+                          newNote = Pair(title, content)
+                  )
+
+                  saveNote()
+              }.collect()*/
         }
     }
 
@@ -116,6 +157,8 @@ class EditorViewModel(
 
         launchCatching(
                 onError = {
+
+                    Timber.tag("EditorViewModel").i("Load Error")
                     sendActionEvent(
                             EditorActionEvent.ShowSnackbar(
                                     messageRes = R.string.snack_text_note_not_found,
@@ -127,6 +170,8 @@ class EditorViewModel(
             val currentNoteItem = getNoteByIdUseCase(id = noteId)
             populateOldNote(currentNoteItem)
             observeTitleAndContentFields(currentNoteItem)
+
+            Timber.tag("EditorViewModel").i("Load Note Called with Id:$noteId")
         }
     }
 
@@ -241,13 +286,14 @@ class EditorViewModel(
         enterViewMode()
     }
 
-    private fun saveNote() {
+    private fun saveNote(queueSync: Boolean) {
 
-        if (!isNoteEdited()) {
-            enterViewMode()
-            return
-        }
+        /*  if (!isNoteEdited()) {
+              enterViewMode()
+              return
+          }
 
+  */
         val now = LocalDateTime.now()
         val noteItem = NoteItem(
                 id = currentState.activeNote.id,
@@ -257,23 +303,16 @@ class EditorViewModel(
                 lastEditedOn = now
         )
 
-        upsertNote(noteItem = noteItem)
-        enterViewMode()
+        upsertNote(noteItem = noteItem, queueSync = queueSync)
+        //enterViewMode()
     }
 
-    private fun upsertNote(noteItem: NoteItem) {
+    private fun upsertNote(noteItem: NoteItem, queueSync: Boolean) {
 
         launchCatching(
-                onError = {
-                    sendActionEvent(
-                            EditorActionEvent.ShowSnackbar(
-                                    messageRes = R.string.snack_text_note_not_saved,
-                                    actionLabelRes = R.string.snack_text_exit
-                            )
-                    )
-                }
+
         ) {
-            upsertNoteUseCase(noteItem = noteItem)
+            upsertNoteUseCase(noteItem = noteItem, queueSync = queueSync)
         }
     }
 
@@ -289,7 +328,7 @@ class EditorViewModel(
                     )
                 }
         ) {
-            deleteNoteUseCase(noteItem = noteItem, queueDelete = queueDelete)
+            deleteNoteUseCase(id = noteItem.id, queueDelete = queueDelete)
         }
     }
 
@@ -297,7 +336,7 @@ class EditorViewModel(
         launchCatching(
                 onError = {
                     Timber.tag("EditorViewModel")
-                            .i("HEE - Step 6 ${it.message}")
+                            .i("Error Hit! ${it.message}")
                     sendActionEvent(
                             EditorActionEvent.ShowSnackbar(
                                     messageRes = R.string.snack_text_note_not_found,
@@ -307,8 +346,8 @@ class EditorViewModel(
                     )
                 }
         ) {
-            val currentNoteItem = getNoteByIdUseCase(id = currentState.activeNote.id)
 
+            val currentNoteItem = getNoteByIdUseCase(id = currentState.activeNote.id)
 
             when (currentState.editorMode) {
 
@@ -317,6 +356,8 @@ class EditorViewModel(
                     if (currentNoteItem.isBlankNote()) {
                         deleteNote(noteItem = currentNoteItem, queueDelete = false)
                     }
+
+
                     sendActionEvent(EditorActionEvent.NavigateToHome)
                     return@launchCatching
                 }
@@ -328,12 +369,16 @@ class EditorViewModel(
                 }
 
                 EditorUiState.EditorMode.EditMode -> {
-                    if (isNoteEdited()) {
-                        sendActionEvent(EditorActionEvent.ShowDialog)
-                    } else {
-                        enterViewMode()
-                    }
+                    saveNote(queueSync = true)
+                    enterViewMode()
                     return@launchCatching
+                    /*
+                                        if (isNoteEdited()) {
+                                            sendActionEvent(EditorActionEvent.ShowDialog)
+                                        } else {
+                                            enterViewMode()
+                                        }
+                    */
                 }
 
             }

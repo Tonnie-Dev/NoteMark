@@ -6,8 +6,8 @@ import com.tonyxlab.notemark.domain.repository.NoteRepository
 
 class UpsertNoteUseCase(private val repository: NoteRepository) {
 
-    suspend operator fun invoke(noteItem: NoteItem, queueCreate: Boolean = true): Long {
-        return when (val result = repository.upsertNote(noteItem, queueCreate)
+    suspend operator fun invoke(noteItem: NoteItem, queueSync: Boolean = true): Long {
+        return when (val result = repository.upsertNote(noteItem, queueSync)
         ) {
             is Resource.Success -> result.data
             is Resource.Error -> throw result.exception
