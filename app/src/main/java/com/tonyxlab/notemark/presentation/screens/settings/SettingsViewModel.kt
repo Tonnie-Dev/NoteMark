@@ -159,11 +159,11 @@ class SettingsViewModel(
 
         when (dialogType) {
             SettingsDialogType.NoInternet -> {
-
                 updateDialogState(
                         title = R.string.dialog_text_no_internet,
                         message = R.string.dialog_text_no_internet_msg,
                         positiveButtonText = R.string.dialog_text_ok,
+                        negativeButtonText = R.string.blank_text,
                         dialogType = SettingsDialogType.NoInternet
                 )
             }
@@ -246,6 +246,11 @@ class SettingsViewModel(
     }
 
     private fun syncData() {
+
+        if (!currentState.isOnline) {
+            showDialog(dialogType = SettingsDialogType.NoInternet)
+            return
+        }
         updateState { it.copy(syncInProgress = true) }
         val workId = syncRequest.enqueueManualSync()
 
@@ -285,7 +290,9 @@ class SettingsViewModel(
             }
     ) {
 
+        Timber.tag("SettingsViewMode").i("Loqout Sequeence initiated")
         if (!currentState.isOnline) {
+            Timber.tag("SettingsViewMode").i("Offline Node Hit")
             showDialog(dialogType = SettingsDialogType.NoInternet)
             return@launchCatching
         }

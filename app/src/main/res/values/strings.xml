@@ -78,7 +78,7 @@
     <string name="dialog_text_sync_error">Sync Error</string>
     <string name="dialog_text_log_out">Log Out</string>
     <string name="dialog_text_no_internet">No Internet Connection</string>
-    <string name="dialog_text_no_internet_msg">You need an internet connection to log out</string>
+    <string name="dialog_text_no_internet_msg">You need an internet connection to Sync or Logout</string>
 
     <string name="dialog_text_sync_now">Sync now</string>
     <string name="dialog_text_log_out_without_syncing">Log out without syncing</string>
