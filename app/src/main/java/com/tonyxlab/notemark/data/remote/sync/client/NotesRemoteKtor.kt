@@ -1,9 +1,8 @@
 package com.tonyxlab.notemark.data.remote.sync.client
 
 
-import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.data.remote.sync.dto.NotesPage
-import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNote
+import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNoteDto
 import com.tonyxlab.notemark.util.Constants.EMAIL_HEADER_KEY
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -22,7 +21,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentLength
 import io.ktor.http.contentType
-import timber.log.Timber
 
 private const val EMAIL_HEADER_KEY = "X-User-Email"
 
@@ -37,7 +35,7 @@ class NotesRemoteKtor(
 
 
     // ---------------- Worker-passed-token overloads (the robust path) ----------------
-    override suspend fun create(token: String, email: String?, body: RemoteNote): RemoteNote =
+    override suspend fun create(token: String, email: String?, body: RemoteNoteDto): RemoteNoteDto =
         mapNetworkErrors {
             client.post("$baseUrl/api/notes") {
                 attachAuth(token, email)
@@ -46,7 +44,7 @@ class NotesRemoteKtor(
             }.body()
         }
 
-    override suspend fun update(token: String, email: String?, body: RemoteNote): RemoteNote =
+    override suspend fun update(token: String, email: String?, body: RemoteNoteDto): RemoteNoteDto =
         mapNetworkErrors {
             val response = client.put("$baseUrl/api/notes") {
                 attachAuth(token, email)
@@ -75,7 +73,7 @@ class NotesRemoteKtor(
             }
         }
 
-    override suspend fun getAll(token: String, email: String?): List<RemoteNote> =
+    override suspend fun getAll(token: String, email: String?): List<RemoteNoteDto> =
         mapNetworkErrors {
             // single-shot first
             val first: NotesPage = client.get("$baseUrl/api/notes") {

@@ -11,9 +11,9 @@ import com.tonyxlab.notemark.data.local.database.dao.SyncDao
 import com.tonyxlab.notemark.data.local.database.entity.NoteEntity
 import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.data.remote.sync.client.NotesRemote
-import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNote
+import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNoteDto
 import com.tonyxlab.notemark.data.remote.sync.dto.toEntity
-import com.tonyxlab.notemark.data.remote.sync.dto.toRemote
+import com.tonyxlab.notemark.data.remote.sync.dto.toRemoteDto
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncOperation
 import com.tonyxlab.notemark.domain.json.JsonSerializer
 import kotlinx.coroutines.Dispatchers
@@ -75,7 +75,7 @@ class SyncWorker(
                                 .i("Step 4 - entering CREATE")
                         //  val remote =rec.payload // RemoteNote
 
-                        val remote = notesRemote.create(token, email, localNote.toRemote())
+                        val remote = notesRemote.create(token, email, localNote.toRemoteDto())
                         Timber.tag("SyncWorker")
                                 .i("Step 5 - remote note created: ${remote.id}")
                         // Write back server id + timestamps, keep local id for continuity
@@ -91,9 +91,9 @@ class SyncWorker(
                                 .i("Step 6 - entering UPDATE")
                         val body = if (localNote.remoteId == null) {
                             // No remoteId? Promote to create.
-                            localNote.toRemote()
+                            localNote.toRemoteDto()
                         } else {
-                            localNote.toRemote()
+                            localNote.toRemoteDto()
                                     .copy(id = localNote.remoteId)
                         }
 
@@ -148,22 +148,22 @@ class SyncWorker(
             }
 
             // === 2) DOWNLOAD FULL SNAPSHOT & RECONCILE ===
-            val remoteNotes: List<RemoteNote> = notesRemote.getAll(token, email)
+            val remoteNoteDtos: List<RemoteNoteDto> = notesRemote.getAll(token, email)
 
             // upsert all server items locally
-            if (remoteNotes.isNotEmpty()) {
-                val toUpsert = remoteNotes.map { rn ->
+            if (remoteNoteDtos.isNotEmpty()) {
+                val toUpsert = remoteNoteDtos.map { rn ->
                     val localId = noteDao.findIdByRemoteId(rn.id) ?: 0L
                     rn.toEntity()
                             .copy(id = localId)      // preserve existing local id
                 }
                 noteDao.upsertAll(toUpsert)
                 Timber.tag("SyncWorker")
-                        .i("Step 12 - Download and upsert notes, length is: ${remoteNotes.size} items")
+                        .i("Step 12 - Download and upsert notes, length is: ${remoteNoteDtos.size} items")
             }
 
             // delete locals that vanished on server (but keep local-only notes still queued)
-            val serverIds = remoteNotes.map { it.id }
+            val serverIds = remoteNoteDtos.map { it.id }
                     .toSet()
             noteDao.deleteMissingRemoteIds(serverIds)
             dataStore.saveLastSyncTimeInMillis(System.currentTimeMillis())

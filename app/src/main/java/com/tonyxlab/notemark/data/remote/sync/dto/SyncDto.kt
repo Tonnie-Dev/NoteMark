@@ -13,12 +13,12 @@ fun Long.toIso(): String = java.time.Instant.ofEpochMilli(this).toString()
 
 fun String.isoToMillis(): Long = java.time.Instant.parse(this).toEpochMilli()
 
-fun NoteEntity.toRemote(): RemoteNote = RemoteNote(
+fun NoteEntity.toRemoteDto(): RemoteNoteDto = RemoteNoteDto(
         id = remoteId ?: java.util.UUID.randomUUID().toString(),
         title = title, content = content,
         createdAt = createdOn.toIso(), lastEditedAt = lastEditedOn.toIso()
 )
-fun RemoteNote.toEntity(): NoteEntity = NoteEntity(
+fun RemoteNoteDto.toEntity(): NoteEntity = NoteEntity(
         id = 0L, remoteId = id, title = title, content = content,
         createdOn = createdAt.isoToMillis(), lastEditedOn = lastEditedAt.isoToMillis()
 )
@@ -28,7 +28,7 @@ fun RemoteNote.toEntity(): NoteEntity = NoteEntity(
 
 
 @Serializable
-data class RemoteNote(
+data class RemoteNoteDto(
     val id: String,            // server UUID
     val title: String,
     val content: String,
@@ -38,49 +38,9 @@ data class RemoteNote(
 
 @Serializable
 data class NotesPage(
-    val notes: List<RemoteNote>,
+    val notes: List<RemoteNoteDto>,
     val total: Int
 )
 
 
 
-/*
-data class UploadItem(
-    val localId: String,          // SyncRecord.id as String
-    val operation: String,        // "CREATE" | "UPDATE" | "DELETE"
-    val payload: String,          // JSON snapshot (NoteEntity)
-    val clientTimestamp: Long
-)
-
-data class UploadRequest(
-    val userId: String,
-    val items: List<UploadItem>
-)
-
-data class UploadResultItem(
-    val localId: String,          // echoed back for mapping
-    val status: String,           // "OK" | "FAILED"
-    val message: String? = null
-)
-
-data class UploadResponse(val items: List<UploadResultItem>)
-
-
-data class NoteDeltaDto(         // server -> client
-    val id: String,
-    val title: String,
-    val content: String,
-    val updatedAt: Long,
-    val deleted: Boolean
-)
-
-data class DownloadResponse(
-    val items: List<NoteDeltaDto>,
-    val nextToken: String?
-)
-
-// A very thin abstraction; implement with Ktor/Retrofit as you prefer.
-interface SyncRemote {
-    suspend fun upload(accessToken: String, body: UploadRequest): UploadResponse
-    suspend fun download(accessToken: String, deltaToken: String?): DownloadResponse
-}*/

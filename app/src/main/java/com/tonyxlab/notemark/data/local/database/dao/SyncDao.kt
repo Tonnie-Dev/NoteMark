@@ -1,9 +1,13 @@
 package com.tonyxlab.notemark.data.local.database.dao
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNoteDto
+import com.tonyxlab.notemark.data.remote.sync.dto.toEntity
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncOperation
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncRecord
 
@@ -27,9 +31,6 @@ interface SyncDao {
     )
     suspend fun loadBatch(userId: String, limit: Int): List<SyncRecord>
 
-    @Query("DELETE FROM sync_record WHERE id IN (:ids)")
-    suspend fun deleteByIds(ids: List<String>)
-
     @Query(
             """
         SELECT NOT EXISTS(
@@ -43,9 +44,6 @@ interface SyncDao {
 
     @Query("SELECT COUNT(*) FROM sync_record WHERE userId =:userId")
     suspend fun countForUser(userId: String): Int
-
-    @Query("DELETE FROM sync_record")
-    suspend fun clearSyncQueue()
 
     @Query("SELECT * FROM sync_record WHERE noteId = :noteId LIMIT 1")
     suspend fun findByNoteId(noteId: String): SyncRecord?
@@ -64,6 +62,15 @@ WHERE id = :id
         timestamp: Long
     )
 
+    @Query("DELETE FROM sync_record")
+    suspend fun clearSyncQueue()
+
+    @Query("DELETE FROM sync_record WHERE id =:id")
+    suspend fun deleteByNoteId(id: String)
+
+    @Query("DELETE FROM sync_record WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<String>)
+
     suspend fun upsertLatest(record: SyncRecord) {
         val existing = findByNoteId(record.noteId)
         if (existing == null || existing.operation == SyncOperation.DELETE) {
@@ -77,4 +84,7 @@ WHERE id = :id
             )
         }
     }
+
+
+
 }
