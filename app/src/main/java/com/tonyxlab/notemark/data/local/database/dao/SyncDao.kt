@@ -20,16 +20,15 @@ interface SyncDao {
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertAll(syncRecords: List<SyncRecord>)
 
-    @Query(
+@Query(
             """
-       SELECT * FROM sync_record 
-        WHERE userId = :userId
-        ORDER BY timestamp
-        LIMIT :limit
-        
-    """
-    )
-    suspend fun loadBatch(userId: String, limit: Int): List<SyncRecord>
+            SELECT * FROM sync_record 
+            WHERE userId = :userId
+            ORDER BY timestamp
+            LIMIT :limit
+            """
+        )
+        suspend fun loadBatch(userId: String, limit: Int): List<SyncRecord>
 
     @Query(
             """
