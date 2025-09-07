@@ -18,7 +18,7 @@ import com.tonyxlab.notemark.data.remote.auth.AuthRepositoryImpl
 import com.tonyxlab.notemark.data.remote.connectivity.ConnectivityObserverImpl
 import com.tonyxlab.notemark.data.remote.sync.client.NotesRemote
 import com.tonyxlab.notemark.data.remote.sync.client.NotesRemoteKtor
-import com.tonyxlab.notemark.data.repository.NoteLocalWriter
+import com.tonyxlab.notemark.data.repository.LocalNoteWriter
 import com.tonyxlab.notemark.data.repository.NoteRepositoryImpl
 import com.tonyxlab.notemark.data.workmanager.SyncRequest
 import com.tonyxlab.notemark.data.workmanager.SyncWorker
@@ -67,7 +67,7 @@ val useCasesModule = module {
 val repositoryModule = module {
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single {
-        NoteLocalWriter(
+        LocalNoteWriter(
                 noteDao = get(),
                 syncDao = get(),
                 jsonSerializer = get(),

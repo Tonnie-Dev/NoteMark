@@ -1,23 +1,20 @@
 package com.tonyxlab.notemark.data.repository
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.tonyxlab.notemark.data.local.database.dao.NoteDao
 import com.tonyxlab.notemark.data.local.database.dao.SyncDao
 import com.tonyxlab.notemark.data.local.database.entity.NoteEntity
 import com.tonyxlab.notemark.data.local.datastore.DataStore
-import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNoteDto
-import com.tonyxlab.notemark.data.remote.sync.dto.toEntity
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncOperation
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncRecord
 import com.tonyxlab.notemark.domain.json.JsonSerializer
 import java.util.UUID
 
-class NoteLocalWriter(
+class LocalNoteWriter(
     private val noteDao: NoteDao,
     private val syncDao: SyncDao,
     private val jsonSerializer: JsonSerializer,
     private val dataStore: DataStore,
+    private val clock: () -> Long = { System.currentTimeMillis() }
 ) {
 
     suspend fun upsert(
@@ -88,44 +85,48 @@ class NoteLocalWriter(
         )
         syncDao.upsertLatest(record)
     }
-/*
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun applyRemoteNoteLww(dto: RemoteNoteDto) {
-        // Map remote → local entity fields (including remote.id and lastEditedAtEpochMs)
-        val remoteEntity = dto.toEntity()
 
-        // Find by remoteId first
-        val localId = dto.id.let { noteDao.findIdByRemoteId(it) }
-        val local = localId?.let { noteDao.getNoteById(it) }
+    suspend fun softDelete(localId: Long, queSync: Boolean = true) {
 
-        // If remote is a tombstone (deleted), treat it as a note with isDeleted=true
-        if (dto.isDeleted == true) {
-            if (local == null) return // nothing to do
-            val newerWins = (dto.lastEditedAtEpochMs ?: -1L) > (local.lastEditedAtEpochMs ?: 0L)
-            if (newerWins) {
-                noteDao.deleteById(local.id)
-                syncDao.deleteByNoteId(local.id.toString()) // drop any pending local ops
-            }
-            return
+        val note = noteDao.getNoteById(localId) ?: return
+        val now = clock()
+
+        // Persist tombstone locally - Dead or Deleted Note
+        val tombStone = note.copy(isDeleted = true, lastEditedOn =  now )
+        noteDao.upsert(tombStone)
+
+        if (queSync){
+
+            queueDelete(localId, note)
         }
+    }
 
-        if (local == null) {
-            // New to us, insert as-is
-            noteDao.upsert(remoteEntity)
-            return
-        }
+    private suspend fun queueDelete(localNoteId: Long, tombstone: NoteEntity) {
+        // If your API exposes a DELETE op, use SyncOperation.DELETE.
+        // If it doesn’t, send UPDATE with isDeleted=true (server treats as delete).
+        val op = if (tombstone.remoteId.isNullOrBlank())
+            SyncOperation.UPDATE   // no remote id yet → just send full payload (server decides)
+        else
+            SyncOperation.DELETE   // or UPDATE if your API expects soft delete via update
 
-        val serverNewer =
-            (remoteEntity.lastEditedAtEpochMs ?: -1L) > (local.lastEditedAtEpochMs ?: 0L)
+        // Serialize the full tombstoned note; remote will see isDeleted=true + lastEditedOn
+        val payloadJson = jsonSerializer.toJson(
+                serializer = NoteEntity.serializer(),
+                data = tombstone
+        )
 
-        if (serverNewer) {
-            // Server wins: overwrite local and drop pending local ops for this note
-            noteDao.upsert(remoteEntity.copy(id = local.id))
-            syncDao.deleteByNoteId(local.id.toString())
-        } else {
-            // Local wins: ensure there’s an UPDATE enqueued (if not already)
-            // (Optional if you always enqueue on user edit)
-        }
-    }*/
+        val userId = dataStore.getOrCreateInternalUserId()
+
+        val record = SyncRecord(
+                id = java.util.UUID.randomUUID().toString(),
+                userId = userId,
+                noteId = localNoteId.toString(),
+                operation = op,
+                payload = payloadJson,
+                // 🔑 IMPORTANT: use the NOTE's lastEditedOn for LWW, never "enqueue time"
+                timestamp = tombstone.lastEditedOn
+        )
+        syncDao.upsertLatest(record)
+    }
 
 }

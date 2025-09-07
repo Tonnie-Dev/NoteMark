@@ -1,9 +1,7 @@
 package com.tonyxlab.notemark.data.local.database.entity
 
-import android.R.attr.data
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 
@@ -14,7 +12,7 @@ data class NoteEntity(
     @ColumnInfo(name = "id")
     val id: Long,
     @ColumnInfo(name = "remote_id")
-    val remoteId:String? = null,
+    val remoteId: String? = null,
     @ColumnInfo(name = "title")
     val title: String,
     @ColumnInfo(name = "content")
@@ -22,5 +20,8 @@ data class NoteEntity(
     @ColumnInfo(name = "created_on")
     val createdOn: Long,
     @ColumnInfo(name = "last_edited_on")
-    val lastEditedOn: Long
+    val lastEditedOn: Long,
+    @ColumnInfo(name = "is_deleted")
+    val isDeleted: Boolean = false
+
 )

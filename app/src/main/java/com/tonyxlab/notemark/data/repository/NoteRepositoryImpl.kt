@@ -22,7 +22,7 @@ class NoteRepositoryImpl(
     private val noteDao: NoteDao,
     private val dataStore: DataStore,
     private val syncDao: SyncDao,
-    private val localWriter: NoteLocalWriter
+    private val localWriter: LocalNoteWriter
 ) : NoteRepository {
 
     override fun getAllNotes(): Flow<List<NoteItem>> {
