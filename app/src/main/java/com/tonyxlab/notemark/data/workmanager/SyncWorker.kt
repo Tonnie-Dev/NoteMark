@@ -136,6 +136,26 @@ class SyncWorker(
         }
     }
 
+
+    suspend fun applyRemoteNoteLww(remote: RemoteNoteDto) {
+        val entity = remote.toEntity() // also maps isDeleted + timestamps
+        val local = entity.remoteId?.let { noteDao.getByRemoteId(it) }
+
+        if (local == null) {
+            // New to us → save as-is (tombstone stays tombstone)
+            noteDao.upsert(entity.copy(id = 0L))
+            return
+        }
+
+        val serverNewer = entity.lastEditedOn > local.lastEditedOn
+        if (serverNewer) {
+            // Server wins → overwrite and drop any stale local queue for this note
+            noteDao.upsert(entity.copy(id = local.id))
+            syncDao.deleteByNoteId(local.id.toString())
+        }
+        // else local wins → do nothing (we’ll eventually push our newer local state)
+    }
+
 }
 
 

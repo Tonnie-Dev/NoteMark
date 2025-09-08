@@ -10,6 +10,8 @@ interface NoteDao : BaseDao<NoteEntity> {
 
     @Query("SELECT * FROM notes_table WHERE id =:id")
     suspend fun getNoteById(id: Long): NoteEntity?
+    @Query("SELECT * FROM notes_table WHERE remote_id = :remoteId")
+    suspend fun getByRemoteId(remoteId: String): NoteEntity?
     @Query("SELECT id FROM notes_table WHERE remote_id = :remoteId LIMIT 1")
     suspend fun findIdByRemoteId(remoteId: String): Long?
     @Query("SELECT * FROM notes_table ORDER BY created_on DESC")

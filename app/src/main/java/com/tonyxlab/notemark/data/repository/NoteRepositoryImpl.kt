@@ -25,12 +25,16 @@ class NoteRepositoryImpl(
     private val localWriter: LocalNoteWriter
 ) : NoteRepository {
 
-    override fun getAllNotes(): Flow<List<NoteItem>> {
+  /*  override fun getAllNotes(): Flow<List<NoteItem>> {
         return noteDao.getAllNotes()
                 .filterNotNull()
                 .map { notes -> notes.map { it.toModel() } }
-    }
-
+    }*/
+  override fun getAllNotes(): Flow<List<NoteItem>> {
+      return noteDao.getActiveNotes()
+              .filterNotNull()
+              .map { notes -> notes.map { it.toModel() } }
+  }
     override suspend fun upsertNote(noteItem: NoteItem, queueSync: Boolean): Resource<Long> =
         safeIoCall {
             localWriter.upsert(
@@ -40,7 +44,6 @@ class NoteRepositoryImpl(
         }
 
     override suspend fun getNoteById(id: Long): Resource<NoteItem> =
-
         safeIoCall {
             val note = noteDao.getNoteById(id)
             note?.toModel() ?: throw NoteNotFoundException(id)
@@ -54,13 +57,21 @@ class NoteRepositoryImpl(
     }
 
     override suspend fun deleteNote(id: Long, queueDelete: Boolean): Resource<Boolean> =
-
+        safeIoCall {
+            localWriter.softDelete(
+                    id = id,
+                    queueDelete = queueDelete
+            )
+        }
+/*
+    override suspend fun deleteNote(id: Long, queueDelete: Boolean): Resource<Boolean> =
         safeIoCall {
             localWriter.delete(
                     id = id,
                     queueDelete = queueDelete
             )
         }
+*/
 
     override suspend fun clearAllNotes(): Resource<Boolean> = safeIoCall {
         noteDao.clearAllNotes()
