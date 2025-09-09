@@ -42,31 +42,7 @@ class LocalNoteWriter(
 
 
 
-    private suspend fun queue(
-        localNoteId: Long,
-        noteEntity: NoteEntity,
-        syncOp: SyncOperation
-    ) {
 
-        val payloadJsonSnapshot = jsonSerializer
-                .toJson(
-                        serializer = NoteEntity.serializer(),
-                        data = noteEntity
-                )
-
-        val userId = dataStore.getOrCreateInternalUserId()
-
-        val record = SyncRecord(
-                id = UUID.randomUUID()
-                        .toString(),
-                userId = userId,
-                noteId = localNoteId.toString(),
-                operation = syncOp,
-                payload = payloadJsonSnapshot, // JSON snapshot at time of change
-                timestamp = noteEntity.lastEditedOn
-        )
-        syncDao.upsertLatest(record)
-    }
 
     suspend fun softDelete(localId: Long, queueDelete: Boolean = true) {
 
@@ -132,4 +108,29 @@ class LocalNoteWriter(
         syncDao.upsertLatest(record)
     }
 
+        private suspend fun queue(
+            localNoteId: Long,
+            noteEntity: NoteEntity,
+            syncOp: SyncOperation
+        ) {
+
+            val payloadJsonSnapshot = jsonSerializer
+                    .toJson(
+                            serializer = NoteEntity.serializer(),
+                            data = noteEntity
+                    )
+
+            val userId = dataStore.getOrCreateInternalUserId()
+
+            val record = SyncRecord(
+                    id = UUID.randomUUID()
+                            .toString(),
+                    userId = userId,
+                    noteId = localNoteId.toString(),
+                    operation = syncOp,
+                    payload = payloadJsonSnapshot, // JSON snapshot at time of change
+                    timestamp = noteEntity.lastEditedOn
+            )
+            syncDao.upsertLatest(record)
+        }
 }

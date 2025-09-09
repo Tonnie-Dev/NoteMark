@@ -7,7 +7,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
-import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -25,14 +24,11 @@ import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiEvent
 import com.tonyxlab.notemark.presentation.screens.editor.handling.EditorUiState
 import com.tonyxlab.notemark.presentation.screens.editor.handling.toActiveNote
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.shareIn
 import timber.log.Timber
 import java.time.LocalDateTime
 
@@ -47,9 +43,9 @@ class EditorViewModel(
 
     private lateinit var oldNotePair: Pair<String, String>
     private lateinit var newNotePair: Pair<String, String>
+
     private var timer: CountdownTimer? = null
 
-    private var lastEnqueuedHash:Int? = null
     init {
         val navigationId = savedStateHandle.toRoute<EditorScreenDestination>().id
         loadNote(navigationId)
@@ -96,43 +92,16 @@ class EditorViewModel(
                     .distinctUntilChanged()
                     .onEach { (t, c) ->
 
-
                         initializeOldAndNewNotePairs(oldNote, t to c)
 
-
-                        saveNote(queueSync = false)
-
+                        if (isNoteEdited()) {
+                            saveNote(queueSync = false)
+                        }
 
                     }
                     .launchIn(viewModelScope)
 
-/*
-            combine(titleFlow, contentFlow) { t, c -> t to c }
-                    .debounce(400)
-                    .distinctUntilChanged()
-                    .onEach { (t, c) ->
-                        initializeOldAndNewNotePairs(oldNote, t to c)
-                        saveNote(queueSync = false)
-                    }
-                    .launchIn(viewModelScope)
 
-
-            combine(titleFlow, contentFlow){t,c -> t to c}
-                    .debounce (2000)
-                    .distinctUntilChanged()
-                    .onEach { (t,c) ->
-                     //   initializeOldAndNewNotePairs(oldNote, t to c)
-                        saveNote(queueSync = true)
-
-                    }.launchIn(viewModelScope)*/
-            /*  combine(titleFlow, contentFlow) { title, content ->
-                  initializeOldAndNewNotePairs(
-                          oldNote = oldNote,
-                          newNote = Pair(title, content)
-                  )
-
-                  saveNote()
-              }.collect()*/
         }
     }
 
@@ -166,6 +135,7 @@ class EditorViewModel(
                 }
         ) {
             val currentNoteItem = getNoteByIdUseCase(id = noteId)
+            Timber.tag("EditorViewModel").i("Id is: ${currentNoteItem.id},Title is: ${currentNoteItem.title}, R-Id: ${currentNoteItem.remoteId}")
             populateOldNote(currentNoteItem)
             observeTitleAndContentFields(currentNoteItem)
         }
@@ -284,15 +254,11 @@ class EditorViewModel(
 
     private fun saveNote(queueSync: Boolean) {
 
-        /*  if (!isNoteEdited()) {
-              enterViewMode()
-              return
-          }
 
-  */
         val now = LocalDateTime.now()
         val noteItem = NoteItem(
                 id = currentState.activeNote.id,
+                remoteId = currentState.activeNote.remoteId,
                 title = currentState.titleNoteState.titleTextFieldState.text.toString(),
                 content = currentState.contentNoteState.contentTextFieldState.text.toString(),
                 createdOn = currentState.activeNote.createdOn,
@@ -300,7 +266,7 @@ class EditorViewModel(
         )
 
         upsertNote(noteItem = noteItem, queueSync = queueSync)
-        //enterViewMode()
+       Timber.tag("EditorViewModel").i("upsert() -> id: ${noteItem.id}, R-Id: ${noteItem.remoteId}")
     }
 
     private fun upsertNote(noteItem: NoteItem, queueSync: Boolean) {
@@ -308,11 +274,17 @@ class EditorViewModel(
         launchCatching(
 
         ) {
+            Timber.tag("EditorViewModel")
+                    .i("Upsert Code")
             upsertNoteUseCase(noteItem = noteItem, queueSync = queueSync)
         }
     }
 
-    private fun deleteNote(noteItem: NoteItem, queueDelete: Boolean = true, hardDelete : Boolean =false) {
+    private fun deleteNote(
+        noteItem: NoteItem,
+        queueDelete: Boolean = true,
+        hardDelete: Boolean = false
+    ) {
 
         launchCatching(
                 onError = {
@@ -346,9 +318,13 @@ class EditorViewModel(
             when (currentState.editorMode) {
 
                 EditorUiState.EditorMode.ViewMode -> {
-
+Timber.tag("EditorViewModel").i("Exiting V-Mode - Status: ${currentState.activeNote.remoteId}")
                     if (currentNoteItem.isBlankNote()) {
-                        deleteNote(noteItem = currentNoteItem, queueDelete = false, hardDelete = true)
+                        deleteNote(
+                                noteItem = currentNoteItem,
+                                queueDelete = false,
+                                hardDelete = true
+                        )
                     }
 
 
@@ -363,16 +339,11 @@ class EditorViewModel(
                 }
 
                 EditorUiState.EditorMode.EditMode -> {
+                    Timber.tag("EditorViewModel").i("Exiting Ed-Mode - Status: ${currentState.activeNote.remoteId}")
                     saveNote(queueSync = true)
                     enterViewMode()
                     return@launchCatching
-                    /*
-                                        if (isNoteEdited()) {
-                                            sendActionEvent(EditorActionEvent.ShowDialog)
-                                        } else {
-                                            enterViewMode()
-                                        }
-                    */
+
                 }
 
             }

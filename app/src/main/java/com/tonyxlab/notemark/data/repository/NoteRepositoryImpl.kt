@@ -17,6 +17,7 @@ import com.tonyxlab.notemark.util.safeIoCall
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 
 class NoteRepositoryImpl(
     private val noteDao: NoteDao,
@@ -46,6 +47,7 @@ class NoteRepositoryImpl(
     override suspend fun getNoteById(id: Long): Resource<NoteItem> =
         safeIoCall {
             val note = noteDao.getNoteById(id)
+            Timber.tag("NoteRepositoryImpl").i("Repo - Note Id is ${note?.id}, R-Id is: ${note?.remoteId}")
             note?.toModel() ?: throw NoteNotFoundException(id)
         }
 

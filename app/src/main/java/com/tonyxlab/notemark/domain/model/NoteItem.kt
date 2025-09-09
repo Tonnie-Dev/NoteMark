@@ -6,6 +6,7 @@ import java.time.LocalDateTime
 
 data class NoteItem(
     val id: Long = Constants.INITIAL_DATABASE_ID,
+    val remoteId: String? = null,
     val title: String = DEFAULT_TITLE_VALUE,
     val content: String = "",
     val createdOn: LocalDateTime,

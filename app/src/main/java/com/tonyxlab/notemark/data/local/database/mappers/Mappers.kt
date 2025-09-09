@@ -20,6 +20,7 @@ fun NoteItem.toEntity() = NoteEntity(
 
 fun NoteEntity.toModel() = NoteItem(
         id = id,
+        remoteId = remoteId,
         title = title,
         content = content,
         createdOn = createdOn.toLocalDateTime(),

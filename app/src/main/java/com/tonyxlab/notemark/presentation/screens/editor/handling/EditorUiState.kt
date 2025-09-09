@@ -37,6 +37,7 @@ data class EditorUiState(
     @Stable
     data class ActiveNote(
         val id: Long = -1L,
+        val remoteId: String? = null,
         val createdOn: LocalDateTime = LocalDateTime.now(),
         val lastEditedOn: LocalDateTime = LocalDateTime.now()
     )
@@ -48,6 +49,7 @@ data class EditorUiState(
 
 fun NoteItem.toActiveNote(): EditorUiState.ActiveNote = EditorUiState.ActiveNote(
         id = id,
+        remoteId = remoteId,
         createdOn = createdOn,
         lastEditedOn = lastEditedOn
 )
