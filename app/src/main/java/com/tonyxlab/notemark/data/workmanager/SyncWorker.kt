@@ -11,7 +11,7 @@ import com.tonyxlab.notemark.data.local.database.dao.NoteDao
 import com.tonyxlab.notemark.data.local.database.dao.SyncDao
 import com.tonyxlab.notemark.data.local.database.entity.NoteEntity
 import com.tonyxlab.notemark.data.local.datastore.DataStore
-import com.tonyxlab.notemark.data.remote.sync.client.NotesRemote
+import com.tonyxlab.notemark.data.remote.sync.client.RemoteNoteWriter
 import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNoteDto
 import com.tonyxlab.notemark.data.remote.sync.dto.toEntity
 import com.tonyxlab.notemark.data.remote.sync.dto.toRemoteDto
@@ -28,7 +28,7 @@ class SyncWorker(
     private val noteDao: NoteDao,
     private val dataStore: DataStore,
     private val jsonSerializer: JsonSerializer,
-    private val notesRemote: NotesRemote
+    private val remoteNoteWriter: RemoteNoteWriter
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result = withContext(context = Dispatchers.IO) {
@@ -58,7 +58,7 @@ class SyncWorker(
                 when (rec.operation) {
                     SyncOperation.CREATE -> {
 
-                        val remote = notesRemote.create(token, email, localNote.toRemoteDto())
+                        val remote = remoteNoteWriter.create(token, email, localNote.toRemoteDto())
                         // Write back server id + timestamps, keep local id for continuity
                         noteDao.upsert(
                                 remote.toEntity()
@@ -67,7 +67,7 @@ class SyncWorker(
                         syncDao.deleteByIds(listOf(rec.id))
                     }
 
-                    SyncOperation.UPDATE -> {
+                    /*SyncOperation.UPDATE -> {
                         val body = if (localNote.remoteId == null) {
                             // No remoteId? Promote to create.
                             localNote.toRemoteDto()
@@ -87,26 +87,49 @@ class SyncWorker(
                                         .copy(id = localNote.id)
                         )
                         syncDao.deleteByIds(listOf(rec.id))
-                    }
-
+                    }*/
+                    SyncOperation.UPDATE,
                     SyncOperation.DELETE -> {
 
-                        val remoteId = localNote.remoteId
-                        if (remoteId != null) {
+                        val localNote: NoteEntity =
+                            jsonSerializer.fromJson(
+                                    serializer = NoteEntity.serializer(),
+                                    json = rec.payload
+                            )
 
-                            // if server call fails, throw to let WM retry
-                            notesRemote.delete(token, email, remoteId)
+                        val body = localNote.toRemoteDto()
+                                .copy(
+                                        id = localNote.remoteId ?: localNote.toRemoteDto().id
+                                )
+                        val uploadedNote = if (localNote.remoteId == null){
+                            remoteNoteWriter.create(token, email, body)
+                        }else {
+                            remoteNoteWriter.update(token,email,body)
                         }
 
-                        // local already deleted; drop queue entry either way
+                        noteDao.upsert(uploadedNote.toEntity().copy(id = localNote.id))
                         syncDao.deleteByIds(listOf(rec.id))
+                        /*   val remoteId = localNote.remoteId
+                           if (remoteId != null) {
+
+                               // if server call fails, throw to let WM retry
+                               notesRemote.delete(token, email, remoteId)
+                           }
+
+                           // local already deleted; drop queue entry either way
+                           syncDao.deleteByIds(listOf(rec.id))*/
 
                     }
                 }
             }
 
+            // === 2) DOWNLOAD FULL SNAPSHOT & RECONCILE(LWW) ===
+
+            val remoteItems:List<RemoteNoteDto> = remoteNoteWriter.getAll(token,email)
+            remoteItems.forEach { applyRemoteNoteLww(it) }
             // === 2) DOWNLOAD FULL SNAPSHOT & RECONCILE ===
-            val remoteNoteDtos: List<RemoteNoteDto> = notesRemote.getAll(token, email)
+         /*   val remoteNoteDtos: List<RemoteNoteDto> = remoteNoteWriter.getAll(token, email)
+
 
             // upsert all server items locally
             if (remoteNoteDtos.isNotEmpty()) {
@@ -123,7 +146,7 @@ class SyncWorker(
             val serverIds = remoteNoteDtos.map { it.id }
                     .toSet()
             noteDao.deleteMissingRemoteIds(serverIds)
-            dataStore.saveLastSyncTimeInMillis(System.currentTimeMillis())
+            dataStore.saveLastSyncTimeInMillis(System.currentTimeMillis())*/
             Result.success()
         } catch (e: IOException) {
 
@@ -135,7 +158,6 @@ class SyncWorker(
             Result.failure()
         }
     }
-
 
     suspend fun applyRemoteNoteLww(remote: RemoteNoteDto) {
         val entity = remote.toEntity() // also maps isDeleted + timestamps

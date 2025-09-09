@@ -23,13 +23,13 @@ import io.ktor.http.contentType
 
 private const val EMAIL_HEADER_KEY = "X-User-Email"
 
-class NotesRemoteKtor(
+class RemoteNoteWriterImpl(
     private val client: HttpClient,
     private val baseUrl: String,
         // you can still keep the provider-based ctor if you want both paths available
     private val tokenProvider: (suspend () -> String?)? = null,
     private val emailProvider: (suspend () -> String?)? = null,
-) : NotesRemote {
+) : RemoteNoteWriter {
 
     // ---------------- Worker-passed-token overloads (the robust path) ----------------
     override suspend fun create(token: String, email: String?, body: RemoteNoteDto): RemoteNoteDto =

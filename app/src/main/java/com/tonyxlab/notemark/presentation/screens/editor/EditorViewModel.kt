@@ -312,7 +312,7 @@ class EditorViewModel(
         }
     }
 
-    private fun deleteNote(noteItem: NoteItem, queueDelete: Boolean = true) {
+    private fun deleteNote(noteItem: NoteItem, queueDelete: Boolean = true, hardDelete : Boolean =false) {
 
         launchCatching(
                 onError = {
@@ -324,7 +324,7 @@ class EditorViewModel(
                     )
                 }
         ) {
-            deleteNoteUseCase(id = noteItem.id, queueDelete = queueDelete)
+            deleteNoteUseCase(id = noteItem.id, queueDelete = queueDelete, hardDelete = hardDelete)
         }
     }
 
@@ -348,7 +348,7 @@ class EditorViewModel(
                 EditorUiState.EditorMode.ViewMode -> {
 
                     if (currentNoteItem.isBlankNote()) {
-                        deleteNote(noteItem = currentNoteItem, queueDelete = false)
+                        deleteNote(noteItem = currentNoteItem, queueDelete = false, hardDelete = true)
                     }
 
 

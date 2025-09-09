@@ -16,8 +16,8 @@ import com.tonyxlab.notemark.data.local.datastore.DataStore
 import com.tonyxlab.notemark.data.network.HttpClientFactory
 import com.tonyxlab.notemark.data.remote.auth.AuthRepositoryImpl
 import com.tonyxlab.notemark.data.remote.connectivity.ConnectivityObserverImpl
-import com.tonyxlab.notemark.data.remote.sync.client.NotesRemote
-import com.tonyxlab.notemark.data.remote.sync.client.NotesRemoteKtor
+import com.tonyxlab.notemark.data.remote.sync.client.RemoteNoteWriter
+import com.tonyxlab.notemark.data.remote.sync.client.RemoteNoteWriterImpl
 import com.tonyxlab.notemark.data.repository.LocalNoteWriter
 import com.tonyxlab.notemark.data.repository.NoteRepositoryImpl
 import com.tonyxlab.notemark.data.workmanager.SyncRequest
@@ -120,8 +120,8 @@ val networkModule = module {
     single<HttpClient> { get<HttpClientFactory>().provideMainHttpClient() }
 
     // Finally, bind NotesRemote (this is what SyncWorker needs)
-    single<NotesRemote> {
-        NotesRemoteKtor(
+    single<RemoteNoteWriter> {
+        RemoteNoteWriterImpl(
                 client = get<HttpClient>(),
                 baseUrl = BASE_URL,
 

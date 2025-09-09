@@ -40,25 +40,7 @@ class LocalNoteWriter(
         return id
     }
 
-    suspend fun delete(id: Long, queueDelete: Boolean = true): Boolean {
 
-        val latestLocalNoteSnapshot =
-            noteDao.getNoteById(id = id) ?: return false
-
-        val hasRemoteId = latestLocalNoteSnapshot.remoteId.isNullOrBlank()
-                .not()
-
-        if (queueDelete && hasRemoteId) {
-            queue(
-                    localNoteId = latestLocalNoteSnapshot.id,
-                    noteEntity = latestLocalNoteSnapshot,
-                    syncOp = SyncOperation.DELETE
-            )
-        }
-
-        val rowsDeleted = noteDao.deleteById(latestLocalNoteSnapshot.id)
-        return rowsDeleted > 0
-    }
 
     private suspend fun queue(
         localNoteId: Long,
@@ -86,22 +68,43 @@ class LocalNoteWriter(
         syncDao.upsertLatest(record)
     }
 
-    suspend fun softDelete(localId: Long, queSync: Boolean = true) {
+    suspend fun softDelete(localId: Long, queueDelete: Boolean = true) {
 
         val note = noteDao.getNoteById(localId) ?: return
         val now = clock()
 
         // Persist tombstone locally - Dead or Deleted Note
-        val tombStone = note.copy(isDeleted = true, lastEditedOn =  now )
-        noteDao.upsert(tombStone)
+        val tombstone = note.copy(isDeleted = true, lastEditedOn = now)
+        noteDao.upsert(tombstone)
 
-        if (queSync){
+        if (queueDelete) {
 
-            queueDelete(localId, note)
+            queueDelete(localId = localId, tombstone = tombstone)
         }
     }
 
-    private suspend fun queueDelete(localNoteId: Long, tombstone: NoteEntity) {
+
+    suspend fun hardDelete(localId: Long, queueDelete: Boolean = true): Boolean {
+
+        val latestLocalNoteSnapshot =
+            noteDao.getNoteById(id = localId) ?: return false
+
+        val hasRemoteId = latestLocalNoteSnapshot.remoteId.isNullOrBlank()
+                .not()
+
+        if (queueDelete && hasRemoteId) {
+            queue(
+                    localNoteId = latestLocalNoteSnapshot.id,
+                    noteEntity = latestLocalNoteSnapshot,
+                    syncOp = SyncOperation.DELETE
+            )
+        }
+
+        val rowsDeleted = noteDao.deleteById(latestLocalNoteSnapshot.id)
+        return rowsDeleted > 0
+    }
+
+    private suspend fun queueDelete(localId: Long, tombstone: NoteEntity) {
         // If your API exposes a DELETE op, use SyncOperation.DELETE.
         // If it doesn’t, send UPDATE with isDeleted=true (server treats as delete).
         val op = if (tombstone.remoteId.isNullOrBlank())
@@ -115,15 +118,15 @@ class LocalNoteWriter(
                 data = tombstone
         )
 
-        val userId = dataStore.getOrCreateInternalUserId()
+
 
         val record = SyncRecord(
-                id = java.util.UUID.randomUUID().toString(),
-                userId = userId,
-                noteId = localNoteId.toString(),
-                operation = op,
+                id = UUID.randomUUID()
+                        .toString(),
+                userId = dataStore.getOrCreateInternalUserId(),
+                noteId = localId.toString(),
+                operation = SyncOperation.DELETE, // -> prefer UPDATED for tombstones
                 payload = payloadJson,
-                // 🔑 IMPORTANT: use the NOTE's lastEditedOn for LWW, never "enqueue time"
                 timestamp = tombstone.lastEditedOn
         )
         syncDao.upsertLatest(record)

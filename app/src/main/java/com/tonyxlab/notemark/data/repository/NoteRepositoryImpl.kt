@@ -56,22 +56,7 @@ class NoteRepositoryImpl(
                 } == true
     }
 
-    override suspend fun deleteNote(id: Long, queueDelete: Boolean): Resource<Boolean> =
-        safeIoCall {
-            localWriter.softDelete(
-                    id = id,
-                    queueDelete = queueDelete
-            )
-        }
-/*
-    override suspend fun deleteNote(id: Long, queueDelete: Boolean): Resource<Boolean> =
-        safeIoCall {
-            localWriter.delete(
-                    id = id,
-                    queueDelete = queueDelete
-            )
-        }
-*/
+
 
     override suspend fun clearAllNotes(): Resource<Boolean> = safeIoCall {
         noteDao.clearAllNotes()
@@ -82,4 +67,46 @@ class NoteRepositoryImpl(
         syncDao.clearSyncQueue()
         true
     }
+
+
+   /* override suspend fun softDeleteNote(id: Long, queueDelete: Boolean): Resource<Boolean> =
+        safeIoCall {
+            localWriter.softDelete(
+                    localId = id,
+                    queueSync = queueDelete
+            )
+            true
+        }*/
+
+    override suspend fun deleteNote(
+        id: Long,
+        hardDelete: Boolean,
+        queueDelete: Boolean
+    ): Resource<Boolean> = safeIoCall {
+        if (hardDelete){
+        localWriter.hardDelete(
+                localId = id,
+                queueDelete = queueDelete
+        )
+
+        }else {
+
+            localWriter.softDelete(
+                    localId = id,
+                    queueDelete = queueDelete
+            )
+            true
+
+        }
+    }
+    /*
+        override suspend fun deleteNote(id: Long, queueDelete: Boolean): Resource<Boolean> =
+            safeIoCall {
+                localWriter.delete(
+                        id = id,
+                        queueDelete = queueDelete
+                )
+            }
+    */
+
 }

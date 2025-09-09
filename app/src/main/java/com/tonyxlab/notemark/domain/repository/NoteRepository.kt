@@ -14,9 +14,11 @@ interface NoteRepository {
 
     suspend fun isSyncQueueEmpty(): Boolean
 
-    suspend fun deleteNote(id:Long, queueDelete: Boolean): Resource<Boolean>
-
     suspend fun clearAllNotes(): Resource<Boolean>
 
     suspend fun clearSyncQueue(): Resource<Boolean>
+
+
+
+    suspend fun deleteNote(id:Long, hardDelete:Boolean, queueDelete: Boolean): Resource<Boolean>
 }
