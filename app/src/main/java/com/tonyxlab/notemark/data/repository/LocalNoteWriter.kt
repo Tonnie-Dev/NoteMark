@@ -17,32 +17,64 @@ class LocalNoteWriter(
     private val clock: () -> Long = { System.currentTimeMillis() }
 ) {
 
+
     suspend fun upsert(
         noteEntity: NoteEntity,
         queueSync: Boolean = true
     ): Long {
-
-        val id = noteDao.upsert(noteEntity)
-        val noteWithId = noteEntity.copy(id = id)
-
-        if (queueSync) {
-            val syncOp = if (noteWithId.remoteId.isNullOrBlank())
-                SyncOperation.CREATE
-            else
-                SyncOperation.UPDATE
-
-            queue(
-                    localNoteId = id,
-                    noteEntity = noteWithId,
-                    syncOp = syncOp
+        val now = clock()
+        val toSave = if (noteEntity.id > 0) {
+            noteEntity.copy(lastEditedOn = now)
+        } else {
+            noteEntity.copy(
+                    createdOn = noteEntity.createdOn.takeIf { it > 0 } ?: now,
+                    lastEditedOn = now
             )
         }
-        return id
+
+        // ALWAYS persist
+        val rowId = noteDao.upsert(toSave)
+
+        // If DAO returns -1/0 on update, use the existing id
+        val localId = when {
+            rowId > 0L -> rowId
+            toSave.id > 0L -> toSave.id
+            else -> error("Upsert did not return a valid id and entity had no id")
+        }
+
+        val saved = toSave.copy(id = localId)
+
+        if (queueSync) {
+            val op = if (saved.remoteId.isNullOrBlank()) SyncOperation.CREATE else SyncOperation.UPDATE
+            queue(localNoteId = localId, noteEntity = saved, syncOp = op)
+        }
+        return localId
     }
 
 
+    /*    suspend fun upsert(
+            noteEntity: NoteEntity,
+            queueSync: Boolean = true
+        ): Long {
 
+            val localNoteId = if (noteEntity.id > 0)
+                noteEntity.id
+            else noteDao.upsert(noteEntity)
+            val saved = noteEntity.copy(id = localNoteId)
 
+            if (queueSync) {
+                val syncOp = if (saved.remoteId.isNullOrBlank())
+                    SyncOperation.CREATE
+                else
+                    SyncOperation.UPDATE
+                queue(
+                        localNoteId = localNoteId,
+                        noteEntity = saved,
+                        syncOp = syncOp
+                )
+            }
+            return localNoteId
+        }*/
 
     suspend fun softDelete(localId: Long, queueDelete: Boolean = true) {
 
@@ -58,7 +90,6 @@ class LocalNoteWriter(
             queueDelete(localId = localId, tombstone = tombstone)
         }
     }
-
 
     suspend fun hardDelete(localId: Long, queueDelete: Boolean = true): Boolean {
 
@@ -94,8 +125,6 @@ class LocalNoteWriter(
                 data = tombstone
         )
 
-
-
         val record = SyncRecord(
                 id = UUID.randomUUID()
                         .toString(),
@@ -108,29 +137,29 @@ class LocalNoteWriter(
         syncDao.upsertLatest(record)
     }
 
-        private suspend fun queue(
-            localNoteId: Long,
-            noteEntity: NoteEntity,
-            syncOp: SyncOperation
-        ) {
+    private suspend fun queue(
+        localNoteId: Long,
+        noteEntity: NoteEntity,
+        syncOp: SyncOperation
+    ) {
 
-            val payloadJsonSnapshot = jsonSerializer
-                    .toJson(
-                            serializer = NoteEntity.serializer(),
-                            data = noteEntity
-                    )
+        val payloadJsonSnapshot = jsonSerializer
+                .toJson(
+                        serializer = NoteEntity.serializer(),
+                        data = noteEntity
+                )
 
-            val userId = dataStore.getOrCreateInternalUserId()
+        val userId = dataStore.getOrCreateInternalUserId()
 
-            val record = SyncRecord(
-                    id = UUID.randomUUID()
-                            .toString(),
-                    userId = userId,
-                    noteId = localNoteId.toString(),
-                    operation = syncOp,
-                    payload = payloadJsonSnapshot, // JSON snapshot at time of change
-                    timestamp = noteEntity.lastEditedOn
-            )
-            syncDao.upsertLatest(record)
-        }
+        val record = SyncRecord(
+                id = UUID.randomUUID()
+                        .toString(),
+                userId = userId,
+                noteId = localNoteId.toString(),
+                operation = syncOp,
+                payload = payloadJsonSnapshot, // JSON snapshot at time of change
+                timestamp = noteEntity.lastEditedOn
+        )
+        syncDao.upsertLatest(record)
+    }
 }

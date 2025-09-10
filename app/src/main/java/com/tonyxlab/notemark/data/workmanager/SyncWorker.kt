@@ -19,6 +19,7 @@ import com.tonyxlab.notemark.data.remote.sync.entity.SyncOperation
 import com.tonyxlab.notemark.domain.json.JsonSerializer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.IOException
 
 class SyncWorker(
@@ -49,12 +50,12 @@ class SyncWorker(
         try {
             // === 1) UPLOAD QUEUE (record-by-record) ===
             val batch = syncDao.loadBatch(userId = userId, limit = 100)
-
+Timber.tag("SyncWorker").i("batch size is:${batch.size}")
 
             for (rec in batch) {
                 val localNote: NoteEntity =
                     jsonSerializer.fromJson(NoteEntity.serializer(), rec.payload)
-
+                Timber.tag("SyncWorker").i("LocalId processed:${localNote.id}")
                 when (rec.operation) {
                     SyncOperation.CREATE -> {
 
@@ -67,7 +68,7 @@ class SyncWorker(
                         syncDao.deleteByIds(listOf(rec.id))
                     }
 
-                    /*SyncOperation.UPDATE -> {
+              /*      SyncOperation.UPDATE -> {
                         val body = if (localNote.remoteId == null) {
                             // No remoteId? Promote to create.
                             localNote.toRemoteDto()
@@ -77,9 +78,9 @@ class SyncWorker(
                         }
 
                         val saved = if (localNote.remoteId == null) {
-                            notesRemote.create(token, email, body)
+                            remoteNoteWriter.create(token, email, body)
                         } else {
-                            notesRemote.update(token, email, body)
+                            remoteNoteWriter.update(token, email, body)
                         }
 
                         noteDao.upsert(

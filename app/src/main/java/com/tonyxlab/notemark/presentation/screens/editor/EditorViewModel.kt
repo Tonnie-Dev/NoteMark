@@ -94,8 +94,10 @@ class EditorViewModel(
 
                         initializeOldAndNewNotePairs(oldNote, t to c)
 
+                        Timber.tag("EditorViewModel").i("Ejection detected")
                         if (isNoteEdited()) {
                             saveNote(queueSync = false)
+                            Timber.tag("EditorViewModel").i("Save Called inside if-Block")
                         }
 
                     }
