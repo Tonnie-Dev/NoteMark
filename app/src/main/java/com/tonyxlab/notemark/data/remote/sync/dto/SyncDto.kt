@@ -46,7 +46,7 @@ data class RemoteNoteDto(
 @Serializable
 data class NotesPage(
     val notes: List<RemoteNoteDto>,
-    val total: Int
+    val noteCount: Int =0
 )
 
 

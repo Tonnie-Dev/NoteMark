@@ -7,6 +7,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
+import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.delete
@@ -20,6 +21,7 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentLength
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 
 private const val EMAIL_HEADER_KEY = "X-User-Email"
 
@@ -71,33 +73,53 @@ class RemoteNoteWriterImpl(
             }
         }
 
+    // RemoteNoteWriterImpl.kt
     override suspend fun getAll(token: String, email: String?): List<RemoteNoteDto> =
         mapNetworkErrors {
-            // single-shot first
-            val first: NotesPage = client.get("$baseUrl/api/notes") {
+            val response = client.get("$baseUrl/api/notes") {
                 attachAuth(token, email)
-                parameter("page", -1)
+                // Avoid page=-1 unless your backend supports it
+                parameter("page", 0)
+                parameter("size", 50)
+                expectSuccess = false
             }
-                    .body()
 
-            if (first.total <= first.notes.size) first.notes else {
-                val all = first.notes.toMutableList()
-                var page = 0
+            when (response.status.value) {
+                401 -> throw AuthException("Unauthorized (401) when fetching notes")
+            }
+
+            if (!response.status.isSuccess()) {
+                val text = response.bodyAsText() // helpful for server error messages
+                throw ResponseException(response, "Unexpected ${response.status}: $text")
+            }
+
+            val notePage: NotesPage = response.body()
+
+            if (notePage.noteCount <= notePage.notes.size)
+                notePage.notes
+            else {
+                val noteList = notePage.notes.toMutableList()
+                var page = 1
                 val size = 50
-                while (all.size < first.total) {
-                    val p: NotesPage = client.get("$baseUrl/api/notes") {
+                while (noteList.size < notePage.noteCount) {
+                    val pResp = client.get("$baseUrl/api/notes") {
                         attachAuth(token, email)
                         parameter("page", page)
                         parameter("size", size)
+                        expectSuccess = false
                     }
-                            .body()
+                    if (!pResp.status.isSuccess()) break
+                    val p: NotesPage = pResp.body()
                     if (p.notes.isEmpty()) break
-                    all += p.notes
+                    noteList += p.notes
                     page++
                 }
-                all
+                noteList
             }
         }
+
+    class AuthException(msg: String) : Exception(msg)
+
 
     // Map 5xx/timeout to IOException so WM can RETRY; 4xx bubble up.
     private suspend inline fun <T> mapNetworkErrors(crossinline block: suspend () -> T): T =

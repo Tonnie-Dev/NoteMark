@@ -110,7 +110,6 @@ class LocalNoteWriter(
                 userId = dataStore.getOrCreateInternalUserId(),
                 noteId = localId.toString(),
                 operation = syncOp,
-              //  operation = SyncOperation.DELETE, // -> prefer UPDATED for tombstones
                 payload = payloadJson,
                 timestamp = tombstone.lastEditedOn
         )

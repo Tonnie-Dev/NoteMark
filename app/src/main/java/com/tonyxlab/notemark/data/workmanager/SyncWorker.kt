@@ -38,10 +38,12 @@ class SyncWorker(
 
         val token = dataStore.getAccessToken()
 
-        Timber.tag("SyncWorker").i("Token: $token")
+        Timber.tag("SyncWorker")
+                .i("Token: $token")
         if (token.isNullOrEmpty()) {
 
-            Timber.tag("SyncWorker").i("Not token, exiting")
+            Timber.tag("SyncWorker")
+                    .i("Not token, exiting")
             return@withContext Result.success()
         }
 
@@ -52,12 +54,14 @@ class SyncWorker(
         try {
             // === 1) UPLOAD QUEUE (record-by-record) ===
             val batch = syncDao.loadBatch(userId = userId, limit = 100)
-Timber.tag("SyncWorker").i("batch size is:${batch.size}")
+            Timber.tag("SyncWorker")
+                    .i("batch size is:${batch.size}")
 
             for (rec in batch) {
                 val localNote: NoteEntity =
                     jsonSerializer.fromJson(NoteEntity.serializer(), rec.payload)
-                Timber.tag("SyncWorker").i("LocalId processed:${localNote.id}")
+                Timber.tag("SyncWorker")
+                        .i("LocalId processed:${localNote.id}")
                 when (rec.operation) {
                     SyncOperation.CREATE -> {
 
@@ -70,7 +74,7 @@ Timber.tag("SyncWorker").i("batch size is:${batch.size}")
                         syncDao.deleteByIds(listOf(rec.id))
                     }
 
-              /*      SyncOperation.UPDATE -> {
+                    SyncOperation.UPDATE -> {
                         val body = if (localNote.remoteId == null) {
                             // No remoteId? Promote to create.
                             localNote.toRemoteDto()
@@ -90,75 +94,55 @@ Timber.tag("SyncWorker").i("batch size is:${batch.size}")
                                         .copy(id = localNote.id)
                         )
                         syncDao.deleteByIds(listOf(rec.id))
-                    }*/
-                    SyncOperation.UPDATE,
+                    }
+
                     SyncOperation.DELETE -> {
 
-                        val localNote: NoteEntity =
-                            jsonSerializer.fromJson(
-                                    serializer = NoteEntity.serializer(),
-                                    json = rec.payload
-                            )
+                        val remoteId = localNote.remoteId
+                        if (remoteId != null) {
 
-                        val body = localNote.toRemoteDto()
-                                .copy(
-                                        id = localNote.remoteId ?: localNote.toRemoteDto().id
-                                )
-                        val uploadedNote = if (localNote.remoteId == null){
-                            remoteNoteWriter.create(token, email, body)
-                        }else {
-                            remoteNoteWriter.update(token,email,body)
+                            // if server call fails, throw to let WM retry
+                            remoteNoteWriter.delete(token, email, remoteId)
                         }
 
-                        noteDao.upsert(uploadedNote.toEntity().copy(id = localNote.id))
+                        // remove locally now that server delete succeeded
+                        noteDao.deleteById(localNote.id)
                         syncDao.deleteByIds(listOf(rec.id))
-                        /*   val remoteId = localNote.remoteId
-                           if (remoteId != null) {
-
-                               // if server call fails, throw to let WM retry
-                               notesRemote.delete(token, email, remoteId)
-                           }
-
-                           // local already deleted; drop queue entry either way
-                           syncDao.deleteByIds(listOf(rec.id))*/
 
                     }
                 }
             }
 
-            // === 2) DOWNLOAD FULL SNAPSHOT & RECONCILE(LWW) ===
-
-            val remoteItems:List<RemoteNoteDto> = remoteNoteWriter.getAll(token,email)
-            remoteItems.forEach { applyRemoteNoteLww(it) }
             // === 2) DOWNLOAD FULL SNAPSHOT & RECONCILE ===
-         /*   val remoteNoteDtos: List<RemoteNoteDto> = remoteNoteWriter.getAll(token, email)
-
+            val remoteNotesList = remoteNoteWriter.getAll(token, email)
 
             // upsert all server items locally
-            if (remoteNoteDtos.isNotEmpty()) {
-                val toUpsert = remoteNoteDtos.map { rn ->
-                    val localId = noteDao.findIdByRemoteId(rn.id) ?: 0L
-                    rn.toEntity()
+            if (remoteNotesList.isNotEmpty()) {
+                val toUpsert = remoteNotesList.map { remoteNote ->
+                    val localId = noteDao.findIdByRemoteId(remoteNote.id) ?: 0L
+                    remoteNote.toEntity()
                             .copy(id = localId)      // preserve existing local id
                 }
                 noteDao.upsertAll(toUpsert)
 
             }
 
-            // delete locals that vanished on server (but keep local-only notes still queued)
-            val serverIds = remoteNoteDtos.map { it.id }
+            // delete locals that vanished on server (but keep local-only notes without remote_id still queued)
+            val serverIds = remoteNotesList.map { it.id }
                     .toSet()
             noteDao.deleteMissingRemoteIds(serverIds)
-            dataStore.saveLastSyncTimeInMillis(System.currentTimeMillis())*/
+            dataStore.saveLastSyncTimeInMillis(System.currentTimeMillis())
             Result.success()
         } catch (e: IOException) {
 
-            Timber.tag("SyncWorker").i("IO Exception - ${e.message}")
+            Timber.tag("SyncWorker")
+                    .i("IO Exception - ${e.message}")
             // network/timeouts/transient -> retry with backoff
             Result.retry()
         } catch (e: Exception) {
 
-            Timber.tag("SyncWorker").i("Other Exception - ${e.message}")
+            Timber.tag("SyncWorker")
+                    .i("Other Exception - ${e.message}")
             // unexpected error -> fail and surface in WorkManager
             Result.failure()
         }
