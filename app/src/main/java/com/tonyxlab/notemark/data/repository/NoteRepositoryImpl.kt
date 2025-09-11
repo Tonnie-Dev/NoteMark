@@ -17,7 +17,6 @@ import com.tonyxlab.notemark.util.safeIoCall
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 
 class NoteRepositoryImpl(
     private val noteDao: NoteDao,
@@ -26,16 +25,12 @@ class NoteRepositoryImpl(
     private val localWriter: LocalNoteWriter
 ) : NoteRepository {
 
-  /*  override fun getAllNotes(): Flow<List<NoteItem>> {
-        return noteDao.getAllNotes()
+    override fun getAllNotes(): Flow<List<NoteItem>> {
+        return noteDao.getActiveNotes()
                 .filterNotNull()
                 .map { notes -> notes.map { it.toModel() } }
-    }*/
-  override fun getAllNotes(): Flow<List<NoteItem>> {
-      return noteDao.getActiveNotes()
-              .filterNotNull()
-              .map { notes -> notes.map { it.toModel() } }
-  }
+    }
+
     override suspend fun upsertNote(noteItem: NoteItem, queueSync: Boolean): Resource<Long> =
         safeIoCall {
             localWriter.upsert(
@@ -47,7 +42,6 @@ class NoteRepositoryImpl(
     override suspend fun getNoteById(id: Long): Resource<NoteItem> =
         safeIoCall {
             val note = noteDao.getNoteById(id)
-            Timber.tag("NoteRepositoryImpl").i("Repo - Note Id is ${note?.id}, R-Id is: ${note?.remoteId}")
             note?.toModel() ?: throw NoteNotFoundException(id)
         }
 
@@ -57,8 +51,6 @@ class NoteRepositoryImpl(
                     syncDao.isSyncQueueEmpty(it)
                 } == true
     }
-
-
 
     override suspend fun clearAllNotes(): Resource<Boolean> = safeIoCall {
         noteDao.clearAllNotes()
@@ -70,28 +62,18 @@ class NoteRepositoryImpl(
         true
     }
 
-
-   /* override suspend fun softDeleteNote(id: Long, queueDelete: Boolean): Resource<Boolean> =
-        safeIoCall {
-            localWriter.softDelete(
-                    localId = id,
-                    queueSync = queueDelete
-            )
-            true
-        }*/
-
     override suspend fun deleteNote(
         id: Long,
         hardDelete: Boolean,
         queueDelete: Boolean
     ): Resource<Boolean> = safeIoCall {
-        if (hardDelete){
-        localWriter.hardDelete(
-                localId = id,
-                queueDelete = queueDelete
-        )
+        if (hardDelete) {
+            localWriter.hardDelete(
+                    localId = id,
+                    queueDelete = queueDelete
+            )
 
-        }else {
+        } else {
 
             localWriter.softDelete(
                     localId = id,
@@ -101,14 +83,4 @@ class NoteRepositoryImpl(
 
         }
     }
-    /*
-        override suspend fun deleteNote(id: Long, queueDelete: Boolean): Resource<Boolean> =
-            safeIoCall {
-                localWriter.delete(
-                        id = id,
-                        queueDelete = queueDelete
-                )
-            }
-    */
-
 }

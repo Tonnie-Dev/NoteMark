@@ -17,11 +17,11 @@ class LocalNoteWriter(
     private val clock: () -> Long = { System.currentTimeMillis() }
 ) {
 
-
     suspend fun upsert(
         noteEntity: NoteEntity,
         queueSync: Boolean = true
     ): Long {
+
         val now = clock()
         val toSave = if (noteEntity.id > 0) {
             noteEntity.copy(lastEditedOn = now)
@@ -32,7 +32,7 @@ class LocalNoteWriter(
             )
         }
 
-        // ALWAYS persist
+        //  Persist
         val rowId = noteDao.upsert(toSave)
 
         // If DAO returns -1/0 on update, use the existing id
@@ -45,36 +45,15 @@ class LocalNoteWriter(
         val saved = toSave.copy(id = localId)
 
         if (queueSync) {
-            val op = if (saved.remoteId.isNullOrBlank()) SyncOperation.CREATE else SyncOperation.UPDATE
-            queue(localNoteId = localId, noteEntity = saved, syncOp = op)
+            val syncOp = if (saved.remoteId.isNullOrBlank())
+                SyncOperation.CREATE
+            else
+                SyncOperation.UPDATE
+
+            queue(localNoteId = localId, noteEntity = saved, syncOp = syncOp)
         }
         return localId
     }
-
-
-    /*    suspend fun upsert(
-            noteEntity: NoteEntity,
-            queueSync: Boolean = true
-        ): Long {
-
-            val localNoteId = if (noteEntity.id > 0)
-                noteEntity.id
-            else noteDao.upsert(noteEntity)
-            val saved = noteEntity.copy(id = localNoteId)
-
-            if (queueSync) {
-                val syncOp = if (saved.remoteId.isNullOrBlank())
-                    SyncOperation.CREATE
-                else
-                    SyncOperation.UPDATE
-                queue(
-                        localNoteId = localNoteId,
-                        noteEntity = saved,
-                        syncOp = syncOp
-                )
-            }
-            return localNoteId
-        }*/
 
     suspend fun softDelete(localId: Long, queueDelete: Boolean = true) {
 
@@ -114,7 +93,7 @@ class LocalNoteWriter(
     private suspend fun queueDelete(localId: Long, tombstone: NoteEntity) {
         // If your API exposes a DELETE op, use SyncOperation.DELETE.
         // If it doesn’t, send UPDATE with isDeleted=true (server treats as delete).
-        val op = if (tombstone.remoteId.isNullOrBlank())
+        val syncOp = if (tombstone.remoteId.isNullOrBlank())
             SyncOperation.UPDATE   // no remote id yet → just send full payload (server decides)
         else
             SyncOperation.DELETE   // or UPDATE if your API expects soft delete via update
@@ -130,7 +109,8 @@ class LocalNoteWriter(
                         .toString(),
                 userId = dataStore.getOrCreateInternalUserId(),
                 noteId = localId.toString(),
-                operation = SyncOperation.DELETE, // -> prefer UPDATED for tombstones
+                operation = syncOp,
+              //  operation = SyncOperation.DELETE, // -> prefer UPDATED for tombstones
                 payload = payloadJson,
                 timestamp = tombstone.lastEditedOn
         )

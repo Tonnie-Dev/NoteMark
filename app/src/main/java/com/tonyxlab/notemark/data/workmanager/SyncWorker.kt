@@ -38,8 +38,10 @@ class SyncWorker(
 
         val token = dataStore.getAccessToken()
 
+        Timber.tag("SyncWorker").i("Token: $token")
         if (token.isNullOrEmpty()) {
 
+            Timber.tag("SyncWorker").i("Not token, exiting")
             return@withContext Result.success()
         }
 
@@ -151,10 +153,12 @@ Timber.tag("SyncWorker").i("batch size is:${batch.size}")
             Result.success()
         } catch (e: IOException) {
 
+            Timber.tag("SyncWorker").i("IO Exception - ${e.message}")
             // network/timeouts/transient -> retry with backoff
             Result.retry()
         } catch (e: Exception) {
 
+            Timber.tag("SyncWorker").i("Other Exception - ${e.message}")
             // unexpected error -> fail and surface in WorkManager
             Result.failure()
         }
@@ -174,7 +178,7 @@ Timber.tag("SyncWorker").i("batch size is:${batch.size}")
         if (serverNewer) {
             // Server wins → overwrite and drop any stale local queue for this note
             noteDao.upsert(entity.copy(id = local.id))
-            syncDao.deleteByNoteId(local.id.toString())
+            syncDao.deleteByRecordId(local.id.toString())
         }
         // else local wins → do nothing (we’ll eventually push our newer local state)
     }

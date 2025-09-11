@@ -16,13 +16,21 @@ fun String.isoToMillis(): Long = java.time.Instant.parse(this)
 fun NoteEntity.toRemoteDto(): RemoteNoteDto = RemoteNoteDto(
         id = remoteId ?: java.util.UUID.randomUUID()
                 .toString(),
-        title = title, content = content,
-        createdAt = createdOn.toIso(), lastEditedAt = lastEditedOn.toIso()
+        title = title,
+        content = content,
+        createdAt = createdOn.toIso(),
+        lastEditedAt = lastEditedOn.toIso(),
+        isDeleted = isDeleted
 )
 
 fun RemoteNoteDto.toEntity(): NoteEntity = NoteEntity(
-        id = 0L, remoteId = id, title = title, content = content,
-        createdOn = createdAt.isoToMillis(), lastEditedOn = lastEditedAt.isoToMillis()
+        id = 0L,
+        remoteId = id,
+        title = title,
+        content = content,
+        createdOn = createdAt.isoToMillis(),
+        lastEditedOn = lastEditedAt.isoToMillis(),
+        isDeleted = isDeleted
 )
 
 @Serializable

@@ -1,13 +1,9 @@
 package com.tonyxlab.notemark.data.local.database.dao
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.tonyxlab.notemark.data.remote.sync.dto.RemoteNoteDto
-import com.tonyxlab.notemark.data.remote.sync.dto.toEntity
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncOperation
 import com.tonyxlab.notemark.data.remote.sync.entity.SyncRecord
 
@@ -20,15 +16,15 @@ interface SyncDao {
     @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertAll(syncRecords: List<SyncRecord>)
 
-@Query(
+    @Query(
             """
             SELECT * FROM sync_record 
             WHERE userId = :userId
             ORDER BY timestamp
             LIMIT :limit
             """
-        )
-        suspend fun loadBatch(userId: String, limit: Int): List<SyncRecord>
+    )
+    suspend fun loadBatch(userId: String, limit: Int): List<SyncRecord>
 
     @Query(
             """
@@ -65,7 +61,7 @@ WHERE id = :id
     suspend fun clearSyncQueue()
 
     @Query("DELETE FROM sync_record WHERE id =:id")
-    suspend fun deleteByNoteId(id: String)
+    suspend fun deleteByRecordId(id: String)
 
     @Query("DELETE FROM sync_record WHERE id IN (:ids)")
     suspend fun deleteByIds(ids: List<String>)
@@ -83,7 +79,5 @@ WHERE id = :id
             )
         }
     }
-
-
 
 }
