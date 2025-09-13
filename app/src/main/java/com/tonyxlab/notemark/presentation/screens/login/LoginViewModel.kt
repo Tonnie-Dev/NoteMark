@@ -128,7 +128,7 @@ class LoginViewModel(
     ): LoginUiState.FieldError {
 
         return LoginUiState.FieldError(
-                emailError = checkIfError(emailText, ::isValidEmail),
+                emailError = checkIfError(emailText.trim(), ::isValidEmail),
                 passwordError = checkIfError(passwordText, ::isValidLoginPassword),
                 allFieldsFilled = allFieldsFilled(emailText, passwordText)
         )

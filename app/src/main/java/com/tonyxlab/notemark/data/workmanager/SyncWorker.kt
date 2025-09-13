@@ -49,135 +49,20 @@ class SyncWorker(
                 onSuccess = { Result.success() },
                 // network/timeouts/transient -> retry with backoff
                 // unexpected error -> fail and surface in WorkManager
-                onFailure = { e -> if (e is IOException) Result.retry() else Result.failure()
+                onFailure = { e ->
+                    if (e is IOException) Result.retry() else Result.failure()
                 }
         )
     }
 
-    /*
-    override suspend fun doWork(): Result = withContext(context = Dispatchers.IO) {
-
-        val email = "vontonnie@gmail.com"
-
-        val token = dataStore.getAccessToken()
-
-        if (token.isNullOrEmpty()) {
-
-            return@withContext Result.success()
-        }
-
-        val userId = dataStore.getOrCreateInternalUserId()
-
-
-        try {
-            // === 1) UPLOAD QUEUE
-            val batch = syncDao.loadBatch(userId = userId, limit = 100)
-
-            for (rec in batch) {
-
-                val localEntitySnapshot: NoteEntity =
-                    jsonSerializer.fromJson(NoteEntity.serializer(), rec.payload)
-
-                when (rec.operation) {
-
-                    SyncOperation.CREATE -> {
-
-                        val remoteNote =
-                            remoteNoteWriter.create(
-                                    token,
-                                    email,
-                                    localEntitySnapshot.toRemoteDto()
-                            )
-                        // Write back server id + timestamps, keep local id for continuity
-                        noteDao.upsert(
-                                value = remoteNote.toEntity()
-                                        .copy(id = localEntitySnapshot.id)
-                        )
-                        syncDao.deleteByIds(listOf(rec.id))
-                    }
-
-                    SyncOperation.UPDATE -> {
-                        val remoteNote = if (localEntitySnapshot.remoteId == null) {
-                            // No remoteId? Promote to create.
-                            localEntitySnapshot.toRemoteDto()
-                        } else {
-                            localEntitySnapshot.toRemoteDto()
-                                    .copy(id = localEntitySnapshot.remoteId)
-                        }
-
-                        val saved = if (localEntitySnapshot.remoteId == null) {
-                            remoteNoteWriter.create(token, email, remoteNote)
-                        } else {
-                            remoteNoteWriter.update(token, email, remoteNote)
-                        }
-
-                        noteDao.upsert(
-                                saved.toEntity()
-                                        .copy(id = localEntitySnapshot.id)
-                        )
-                        syncDao.deleteByIds(listOf(rec.id))
-                    }
-
-                    SyncOperation.DELETE -> {
-
-                        val remoteId = localEntitySnapshot.remoteId
-                        if (remoteId != null) {
-
-                            // delete remotely if has remoteId
-                            remoteNoteWriter.delete(token, email, remoteId)
-                        }
-
-                        // remove locally now that server delete succeeded
-                        noteDao.deleteById(localEntitySnapshot.id)
-                        syncDao.deleteByIds(listOf(rec.id))
-
-                    }
-                }
-            }
-
-            // === 2) DOWNLOAD FULL SNAPSHOT & RECONCILE ===
-            val remoteNotesList = remoteNoteWriter.getAll(token, email)
-
-            // upsert all server items locally
-            if (remoteNotesList.isNotEmpty()) {
-                val toUpsert = remoteNotesList.map { remoteNote ->
-                    val localId = noteDao.findIdByRemoteId(remoteNote.id) ?: 0L
-                    remoteNote.toEntity()
-                            .copy(id = localId)      // preserve existing local id
-                }
-                noteDao.upsertAll(toUpsert)
-
-            }
-
-            // delete locals that vanished on server (but keep local-only notes without remote_id still queued)
-            val serverIds = remoteNotesList.map { it.id }
-                    .toSet()
-            noteDao.deleteMissingRemoteIds(serverIds)
-            dataStore.saveLastSyncTimeInMillis(System.currentTimeMillis())
-            Result.success()
-        } catch (e: IOException) {
-
-            Timber.tag("SyncWorker")
-                    .i("IO Exception - ${e.message}")
-            // network/timeouts/transient -> retry with backoff
-            Result.retry()
-        } catch (e: Exception) {
-
-            Timber.tag("SyncWorker")
-                    .i("Other Exception - ${e.message}")
-            // unexpected error -> fail and surface in WorkManager
-            Result.failure()
-        }
-    }
-*/
-
-    /* === 2) DOWNLOAD FULL SNAPSHOT & RECONCILE === */
+    // DOWNLOAD
     private suspend fun downloadQueue(
         token: String,
         email: String
     ) {
         val remoteNotes = remoteNoteWriter.getAll(token, email)
-        Timber.tag("SyncWorker").i("Size: ${remoteNotes.size}")
+        Timber.tag("SyncWorker")
+                .i("Size: ${remoteNotes.size}")
 
         if (remoteNotes.isNotEmpty()) {
             val toUpsert = remoteNotes.map { rn ->
@@ -194,7 +79,7 @@ class SyncWorker(
         noteDao.deleteMissingRemoteIds(serverIds)
     }
 
-    /* === 1) UPLOAD QUEUE === */
+    // UPLOAD
     private suspend fun uploadQueue(
         token: String,
         email: String,
@@ -207,9 +92,14 @@ class SyncWorker(
                 jsonSerializer.fromJson(NoteEntity.serializer(), rec.payload)
 
             when (rec.operation) {
-                SyncOperation.CREATE -> handleCreate(token, email, localEntitySnapshot, rec.id)
-                SyncOperation.UPDATE -> handleUpdate(token, email, localEntitySnapshot, rec.id)
-                SyncOperation.DELETE -> handleDelete(token, email, localEntitySnapshot, rec.id)
+                SyncOperation.CREATE ->
+                    handleCreate(token, email, localEntitySnapshot, rec.id)
+
+                SyncOperation.UPDATE ->
+                    handleUpdate(token, email, localEntitySnapshot, rec.id)
+
+                SyncOperation.DELETE ->
+                    handleDelete(token, email, localEntitySnapshot, rec.id)
             }
         }
     }
@@ -264,7 +154,6 @@ class SyncWorker(
         noteDao.deleteById(local.id)
         syncDao.deleteByIds(listOf(recordId))
     }
-
 }
 
 

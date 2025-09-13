@@ -5,10 +5,7 @@ import android.net.NetworkCapabilities.NET_CAPABILITY_NOT_VPN
 import android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED
 
 fun NetworkCapabilities?.isValidatedConnection(): Boolean {
-
-    return this?.hasCapability(NET_CAPABILITY_VALIDATED) == true
-            && this.hasCapability(NET_CAPABILITY_NOT_VPN)
+    return this?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true &&
+            this.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
 }
 
-
-//val isWifi = caps?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
