@@ -47,8 +47,13 @@ class EditorViewModel(
     private var timer: CountdownTimer? = null
 
     init {
-        val navigationId = savedStateHandle.toRoute<EditorScreenDestination>().id
-        loadNote(navigationId)
+        val destinationArgs =
+            savedStateHandle.toRoute<EditorScreenDestination>()
+
+        loadNote(noteId = destinationArgs.id)
+        if (destinationArgs.launchInEditMode) {
+            updateState { it.copy(editorMode = EditorUiState.EditorMode.EditMode) }
+        }
     }
 
     override val initialState: EditorUiState
@@ -59,7 +64,6 @@ class EditorViewModel(
         when (event) {
             EditorUiEvent.EditNoteTitle -> editNoteTitle()
             EditorUiEvent.EditNoteContent -> editNoteContent()
-            //   EditorUiEvent.SaveNote -> saveNote()
             EditorUiEvent.ExitEditor -> handleEditorExit()
             EditorUiEvent.ShowDialog -> updateState { it.copy(showDialog = true) }
             EditorUiEvent.KeepEditing -> keepEditing()
@@ -94,15 +98,13 @@ class EditorViewModel(
 
                         initializeOldAndNewNotePairs(oldNote, t to c)
 
-                        Timber.tag("EditorViewModel").i("Ejection detected")
                         if (isNoteEdited()) {
                             saveNote(queueSync = false)
-                            Timber.tag("EditorViewModel").i("Save Called inside if-Block")
+
                         }
 
                     }
                     .launchIn(viewModelScope)
-
 
         }
     }
@@ -137,7 +139,6 @@ class EditorViewModel(
                 }
         ) {
             val currentNoteItem = getNoteByIdUseCase(id = noteId)
-            Timber.tag("EditorViewModel").i("Id is: ${currentNoteItem.id},Title is: ${currentNoteItem.title}, R-Id: ${currentNoteItem.remoteId}")
             populateOldNote(currentNoteItem)
             observeTitleAndContentFields(currentNoteItem)
         }
@@ -256,7 +257,6 @@ class EditorViewModel(
 
     private fun saveNote(queueSync: Boolean) {
 
-
         val now = LocalDateTime.now()
         val noteItem = NoteItem(
                 id = currentState.activeNote.id,
@@ -268,7 +268,7 @@ class EditorViewModel(
         )
 
         upsertNote(noteItem = noteItem, queueSync = queueSync)
-       Timber.tag("EditorViewModel").i("upsert() -> id: ${noteItem.id}, R-Id: ${noteItem.remoteId}")
+
     }
 
     private fun upsertNote(noteItem: NoteItem, queueSync: Boolean) {
@@ -276,8 +276,6 @@ class EditorViewModel(
         launchCatching(
 
         ) {
-            Timber.tag("EditorViewModel")
-                    .i("Upsert Code")
             upsertNoteUseCase(noteItem = noteItem, queueSync = queueSync)
         }
     }
@@ -320,7 +318,8 @@ class EditorViewModel(
             when (currentState.editorMode) {
 
                 EditorUiState.EditorMode.ViewMode -> {
-Timber.tag("EditorViewModel").i("Exiting V-Mode - Status: ${currentState.activeNote.remoteId}")
+                    Timber.tag("EditorViewModel")
+                            .i("Exiting V-Mode - Status: ${currentState.activeNote.remoteId}")
                     if (currentNoteItem.isBlankNote()) {
                         deleteNote(
                                 noteItem = currentNoteItem,
@@ -328,8 +327,6 @@ Timber.tag("EditorViewModel").i("Exiting V-Mode - Status: ${currentState.activeN
                                 hardDelete = true
                         )
                     }
-
-
                     sendActionEvent(EditorActionEvent.NavigateToHome)
                     return@launchCatching
                 }
@@ -341,16 +338,15 @@ Timber.tag("EditorViewModel").i("Exiting V-Mode - Status: ${currentState.activeN
                 }
 
                 EditorUiState.EditorMode.EditMode -> {
-                    Timber.tag("EditorViewModel").i("Exiting Ed-Mode - Status: ${currentState.activeNote.remoteId}")
+                    Timber.tag("EditorViewModel")
+                            .i("Exiting Ed-Mode - Status: ${currentState.activeNote.remoteId}")
                     saveNote(queueSync = true)
                     enterViewMode()
                     return@launchCatching
 
                 }
-
             }
         }
-
     }
 
     private fun buildTextFieldState(value: String): TextFieldState {

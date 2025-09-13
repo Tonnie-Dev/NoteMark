@@ -32,9 +32,9 @@ import com.tonyxlab.notemark.navigation.NavOperations
 import com.tonyxlab.notemark.presentation.core.base.BaseContentLayout
 import com.tonyxlab.notemark.presentation.core.components.AppDialog
 import com.tonyxlab.notemark.presentation.core.components.AppFloatingActionButton
-import com.tonyxlab.notemark.presentation.screens.home.components.HomeTopBar
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.screens.home.components.EmptyBoard
+import com.tonyxlab.notemark.presentation.screens.home.components.HomeTopBar
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeActionEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiEvent
 import com.tonyxlab.notemark.presentation.screens.home.handling.HomeUiState
@@ -45,7 +45,6 @@ import com.tonyxlab.notemark.util.DeviceType
 import com.tonyxlab.notemark.util.SetStatusBarIconsColor
 import com.tonyxlab.notemark.util.formatUserInitials
 import org.koin.androidx.compose.koinViewModel
-import timber.log.Timber
 
 @Composable
 fun HomeScreen(
@@ -69,7 +68,7 @@ fun HomeScreen(
                 HomeTopBar(
                         profileInitials = formatUserInitials(homeState.username),
                         isOffline = homeState.isOffline,
-                        onClickSettingsIcon = { viewModel.onEvent(HomeUiEvent.ClickSettingsIcon)}
+                        onClickSettingsIcon = { viewModel.onEvent(HomeUiEvent.ClickSettingsIcon) }
                 )
             },
             floatingActionButton = {
@@ -82,7 +81,10 @@ fun HomeScreen(
 
                     is HomeActionEvent.NavigateToEditorScreen -> {
 
-                        navOperations.navigateToEditorScreenDestination(action.noteId)
+                        navOperations.navigateToEditorScreenDestination(
+                                action.noteId,
+                                launchInEditMode = action.launchInEditMode
+                        )
                     }
 
                     HomeActionEvent.NavigateToLoginScreen -> {
@@ -157,7 +159,7 @@ fun HomeScreenContent(
             verticalItemSpacing = MaterialTheme.spacing.spaceMedium,
             horizontalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.spaceMedium),
     ) {
-        items(items =state.notes, key = {it.id}) { note ->
+        items(items = state.notes, key = { it.id }) { note ->
             NotePreview(
                     noteItem = note,
                     onEvent = onEvent

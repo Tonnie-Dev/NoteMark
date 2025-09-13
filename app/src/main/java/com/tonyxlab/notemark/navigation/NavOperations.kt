@@ -9,13 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
-
 class NavOperations(val navHostController: NavHostController) {
-
-    fun navigateToDestination(destination: Destinations) {
-
-        navHostController.navigate(destination)
-    }
 
     fun navigateToLandingScreenDestination() {
 
@@ -46,16 +40,20 @@ class NavOperations(val navHostController: NavHostController) {
 
     }
 
-    fun navigateToEditorScreenDestination(id: Long) {
+    fun navigateToEditorScreenDestination(id: Long, launchInEditMode: Boolean) {
 
-        navHostController.navigate(Destinations.EditorScreenDestination(id = id))
+        navHostController.navigate(
+                Destinations.EditorScreenDestination(
+                        id = id,
+                        launchInEditMode = launchInEditMode
+                )
+        )
 
     }
 
     fun navigateToSettingsScreenDestination() {
 
         navHostController.navigate(Destinations.SettingsScreenDestination)
-
     }
 
     fun popBackStack() {
@@ -63,7 +61,6 @@ class NavOperations(val navHostController: NavHostController) {
         navHostController.popBackStack()
     }
 }
-
 
 @Composable
 fun rememberNavOperations(

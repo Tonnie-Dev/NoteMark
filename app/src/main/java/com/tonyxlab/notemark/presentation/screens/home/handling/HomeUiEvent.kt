@@ -8,5 +8,5 @@ sealed interface HomeUiEvent : UiEvent {
     data class LongPressNote(val noteId: Long) : HomeUiEvent
     data class ConfirmDeleteNote(val notedId: Long) : HomeUiEvent
     data object DismissDialog : HomeUiEvent
-    data object ClickSettingsIcon: HomeUiEvent
+    data object ClickSettingsIcon : HomeUiEvent
 }

@@ -30,7 +30,6 @@ typealias HomeViewModelBaseClass = BaseViewModel<HomeUiState, HomeUiEvent, HomeA
 class HomeViewModel(
     private val authRepository: AuthRepository,
     private val getAllNotesUseCase: GetAllNotesUseCase,
-    private val getNoteByIdUseCase: GetNoteByIdUseCase,
     private val upsertNoteUseCase: UpsertNoteUseCase,
     private val deleteNoteUseCase: DeleteNoteUseCase,
     private val connectivityObserver: ConnectivityObserver,
@@ -103,7 +102,7 @@ class HomeViewModel(
     }
 
     private fun editNote(noteId: Long) {
-        sendActionEvent(HomeActionEvent.NavigateToEditorScreen(noteId))
+        sendActionEvent(HomeActionEvent.NavigateToEditorScreen(noteId, false))
     }
 
     private fun createNote() {
@@ -127,7 +126,7 @@ class HomeViewModel(
             )
             val result = upsertNoteUseCase(noteItem = newNote, queueSync = false)
             val noteId = result
-            sendActionEvent(HomeActionEvent.NavigateToEditorScreen(noteId))
+            sendActionEvent(HomeActionEvent.NavigateToEditorScreen(noteId, true))
         }
     }
 

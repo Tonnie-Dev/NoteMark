@@ -16,7 +16,6 @@ import com.tonyxlab.notemark.presentation.screens.settings.SettingsScreen
 import com.tonyxlab.notemark.presentation.screens.signup.SignupScreen
 import kotlinx.serialization.Serializable
 
-
 fun NavGraphBuilder.appDestinations(
     navOperations: NavOperations,
     modifier: Modifier = Modifier
@@ -47,7 +46,6 @@ fun NavGraphBuilder.appDestinations(
     }
 
     composable<Destinations.HomeScreenDestination> {
-
         HomeScreen(
                 modifier = modifier,
                 navOperations = navOperations
@@ -55,7 +53,6 @@ fun NavGraphBuilder.appDestinations(
     }
 
     composable<Destinations.EditorScreenDestination> {
-
         EditorScreen(
                 modifier = modifier,
                 navOperations = navOperations
@@ -63,7 +60,6 @@ fun NavGraphBuilder.appDestinations(
     }
 
     composable<Destinations.SettingsScreenDestination> {
-
         SettingsScreen(
                 modifier = modifier,
                 navOperations = navOperations
@@ -86,7 +82,7 @@ sealed class Destinations {
     data object HomeScreenDestination : Destinations()
 
     @Serializable
-    data class EditorScreenDestination(val id: Long) : Destinations()
+    data class EditorScreenDestination(val id: Long, val launchInEditMode: Boolean) : Destinations()
 
     @Serializable
     data object SettingsScreenDestination : Destinations()
