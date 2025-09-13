@@ -4,9 +4,6 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import com.tonyxlab.notemark.domain.connectivity.ConnectivityObserver
-import com.tonyxlab.notemark.util.isValidatedConnection
-
-
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -16,8 +13,9 @@ class ConnectivityObserverImpl(
     private val connectivityManager: ConnectivityManager
 ) : ConnectivityObserver {
 
-    override fun isOnline(): Flow<Boolean> = callbackFlow {
 
+    override fun isOnline(): Flow<Boolean> = callbackFlow {
+        trySend(connectivityManager.currentOnline())
         val networkCallback = object : ConnectivityManager.NetworkCallback() {
 
             override fun onAvailable(network: Network) {
@@ -30,6 +28,10 @@ class ConnectivityObserverImpl(
                 networkCapabilities: NetworkCapabilities
             ) {
                 trySend(networkCapabilities.isValidatedConnection())
+            }
+
+            override fun onLosing(network: Network, maxMsToLive: Int) {
+                trySend(false)
             }
 
             override fun onLost(network: Network) {
@@ -45,4 +47,15 @@ class ConnectivityObserverImpl(
         awaitClose { connectivityManager.unregisterNetworkCallback(networkCallback) }
 
     }.distinctUntilChanged()
+
+    private fun NetworkCapabilities?.isValidatedConnection(): Boolean {
+        return this?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED) == true &&
+                this.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+    }
+
+    private fun ConnectivityManager.currentOnline(): Boolean {
+        val caps = activeNetwork?.let { getNetworkCapabilities(it) }
+        return caps?.isValidatedConnection() == true
+    }
+
 }

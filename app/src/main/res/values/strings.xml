@@ -89,8 +89,8 @@
     <string name="dialog_text_sync_error_msg">An Error Occurred during Sync.
         You can try again or log out without syncing. Your changes will remain saved locally
     </string>
+
     <!--Supporting Texts-->
-    <string name="sup_text_blank" />
     <string name="sup_text_def_username">Use between 3 and 20 characters for your username.</string>
     <string name="sup_text_error_username">Username must be at least 3 characters</string>
     <string name="sup_text_error_email">Invalid email provided</string>

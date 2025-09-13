@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -110,15 +111,20 @@ fun AppTextField(
         )
 
         if ((isFocussed && !isSupportingTextEmpty) || isError) {
-            Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceSmall))
-            Text(
-                    modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = MaterialTheme.spacing.spaceMedium),
-                    text = supportingText,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = currentStyle.supportingTextColor()
-            )
+
+            if (!isFocussed){
+
+                Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceSmall))
+                Text(
+                        modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = MaterialTheme.spacing.spaceMedium),
+                        text = supportingText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = currentStyle.supportingTextColor()
+                )
+
+            }
         }
     }
 }
