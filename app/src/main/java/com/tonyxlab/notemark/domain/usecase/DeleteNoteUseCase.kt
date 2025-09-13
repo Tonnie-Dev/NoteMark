@@ -6,12 +6,11 @@ import com.tonyxlab.notemark.domain.repository.NoteRepository
 class DeleteNoteUseCase(private val repository: NoteRepository) {
 
     suspend operator fun invoke(
-        id: Long,
-        queueDelete: Boolean = true,
-        hardDelete: Boolean = false
-    ): Boolean =
+        id: Long, queueDelete: Boolean = true,
+
+        ): Boolean =
         when (val result =
-            repository.deleteNote(id = id, queueDelete = queueDelete, hardDelete = hardDelete)) {
+            repository.deleteNote(id = id, queueDelete = queueDelete)) {
 
             is Resource.Success -> {
                 result.data
@@ -25,5 +24,4 @@ class DeleteNoteUseCase(private val repository: NoteRepository) {
             else -> false
 
         }
-
 }

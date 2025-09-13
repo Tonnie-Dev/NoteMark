@@ -20,7 +20,6 @@ fun NoteEntity.toRemoteDto(): RemoteNoteDto = RemoteNoteDto(
         content = content,
         createdAt = createdOn.toIso(),
         lastEditedAt = lastEditedOn.toIso(),
-        isDeleted = isDeleted
 )
 
 fun RemoteNoteDto.toEntity(): NoteEntity = NoteEntity(
@@ -30,7 +29,6 @@ fun RemoteNoteDto.toEntity(): NoteEntity = NoteEntity(
         content = content,
         createdOn = createdAt.isoToMillis(),
         lastEditedOn = lastEditedAt.isoToMillis(),
-        isDeleted = isDeleted
 )
 
 @Serializable

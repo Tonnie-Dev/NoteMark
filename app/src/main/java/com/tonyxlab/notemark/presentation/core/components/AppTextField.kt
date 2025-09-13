@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.OutputTransformation
-import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -44,7 +43,6 @@ import com.tonyxlab.notemark.presentation.core.utils.getErrorText
 import com.tonyxlab.notemark.presentation.core.utils.spacing
 import com.tonyxlab.notemark.presentation.theme.NoteMarkTheme
 
-
 @Composable
 fun AppTextField(
     label: String,
@@ -65,7 +63,8 @@ fun AppTextField(
     var isFocussed by remember { mutableStateOf(false) }
 
     val isTextEmpty = textFieldState.text.isEmpty()
-    val isSupportingTextEmpty = supportText.getDefaultText(context).isBlank()
+    val isSupportingTextEmpty = supportText.getDefaultText(context)
+            .isBlank()
 
     val currentStyle = remember(isError, isFocussed, textFieldStyle) {
         when {
@@ -111,20 +110,15 @@ fun AppTextField(
         )
 
         if ((isFocussed && !isSupportingTextEmpty) || isError) {
-
-            if (!isFocussed){
-
-                Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceSmall))
-                Text(
-                        modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = MaterialTheme.spacing.spaceMedium),
-                        text = supportingText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = currentStyle.supportingTextColor()
-                )
-
-            }
+            Spacer(modifier = Modifier.height(MaterialTheme.spacing.spaceSmall))
+            Text(
+                    modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = MaterialTheme.spacing.spaceMedium),
+                    text = supportingText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = currentStyle.supportingTextColor()
+            )
         }
     }
 }
@@ -185,7 +179,6 @@ private fun TextFieldDecorator(
 @PreviewLightDark
 @Composable
 private fun AppTextFieldPreview() {
-
 
     NoteMarkTheme {
 

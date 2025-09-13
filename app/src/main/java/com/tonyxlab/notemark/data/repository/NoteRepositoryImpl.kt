@@ -26,7 +26,7 @@ class NoteRepositoryImpl(
 ) : NoteRepository {
 
     override fun getAllNotes(): Flow<List<NoteItem>> {
-        return noteDao.getActiveNotes()
+        return noteDao.getNotes()
                 .filterNotNull()
                 .map { notes -> notes.map { it.toModel() } }
     }
@@ -64,14 +64,17 @@ class NoteRepositoryImpl(
 
     override suspend fun deleteNote(
         id: Long,
-        hardDelete: Boolean,
         queueDelete: Boolean
     ): Resource<Boolean> = safeIoCall {
+
+        localWriter.hardDelete(
+                localId = id,
+                queueDelete = queueDelete
+        )
+
+        true
+/*
         if (hardDelete) {
-            localWriter.hardDelete(
-                    localId = id,
-                    queueDelete = queueDelete
-            )
 
         } else {
 
@@ -82,5 +85,6 @@ class NoteRepositoryImpl(
             true
 
         }
+*/
     }
 }

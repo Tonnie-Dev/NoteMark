@@ -42,7 +42,7 @@ class ConnectivityObserverImpl(
                 trySend(false)
             }
         }
-
+//vontonnie@gmail.com
         connectivityManager.registerDefaultNetworkCallback(networkCallback)
         awaitClose { connectivityManager.unregisterNetworkCallback(networkCallback) }
 

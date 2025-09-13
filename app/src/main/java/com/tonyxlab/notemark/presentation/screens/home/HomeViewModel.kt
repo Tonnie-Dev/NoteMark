@@ -139,7 +139,6 @@ class HomeViewModel(
                                     messageRes = R.string.snack_text_note_not_found
                             )
                     )
-
                 }
         ) {
 

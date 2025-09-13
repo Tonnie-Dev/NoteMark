@@ -21,7 +21,4 @@ data class NoteEntity(
     val createdOn: Long,
     @ColumnInfo(name = "last_edited_on")
     val lastEditedOn: Long,
-    @ColumnInfo(name = "is_deleted")
-    val isDeleted: Boolean = false
-
 )

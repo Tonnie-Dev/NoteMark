@@ -33,15 +33,6 @@ interface NoteDao : BaseDao<NoteEntity> {
     )
     suspend fun deleteMissingRemoteIds(serverIds: Set<String>)
 
-   @Query("""
-       UPDATE notes_table
-       SET is_deleted = :isDeleted,
-       last_edited_on = :lastEditedOn
-       WHERE id = :id
-   """
-   )
-    suspend fun markDeleted(id: Long, isDeleted: Boolean, lastEditedOn: Long)
-
-    @Query("SELECT * FROM notes_table WHERE is_deleted = 0 ORDER BY last_edited_on DESC")
-    fun getActiveNotes(): Flow<List<NoteEntity>>
+    @Query("SELECT * FROM notes_table ORDER BY last_edited_on DESC")
+    fun getNotes(): Flow<List<NoteEntity>>
 }

@@ -80,19 +80,6 @@ class LocalNoteWriter(
         syncDao.upsertLatest(record)
     }
 
-    suspend fun softDelete(localId: Long, queueDelete: Boolean = true) {
-
-        val note = noteDao.getNoteById(localId) ?: return
-        val now = clock()
-
-        val tombstone = note.copy(isDeleted = true, lastEditedOn = now)
-        noteDao.upsert(tombstone)
-
-        if (queueDelete) {
-            queueDelete(localId = localId, tombstone = tombstone)
-        }
-    }
-
     suspend fun hardDelete(localId: Long, queueDelete: Boolean = true): Boolean {
 
         val latestLocalNoteSnapshot =
@@ -111,30 +98,4 @@ class LocalNoteWriter(
         val rowsDeleted = noteDao.deleteById(latestLocalNoteSnapshot.id)
         return rowsDeleted > 0
     }
-
-    private suspend fun queueDelete(localId: Long, tombstone: NoteEntity) {
-
-        val syncOp = if (tombstone.remoteId.isNullOrBlank())
-            SyncOperation.UPDATE   // no remote id yet → just send full payload (server decides)
-        else
-            SyncOperation.DELETE   // or UPDATE if your API expects soft delete via update
-
-        // Serialize the full tombstoned note; remote will see isDeleted=true + lastEditedOn
-        val payloadJson = jsonSerializer.toJson(
-                serializer = NoteEntity.serializer(),
-                data = tombstone
-        )
-
-        val record = SyncRecord(
-                id = UUID.randomUUID()
-                        .toString(),
-                userId = dataStore.getOrCreateInternalUserId(),
-                noteId = localId.toString(),
-                operation = syncOp,
-                payload = payloadJson,
-                timestamp = tombstone.lastEditedOn
-        )
-        syncDao.upsertLatest(record)
-    }
-
 }

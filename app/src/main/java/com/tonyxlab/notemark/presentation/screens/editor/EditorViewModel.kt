@@ -280,11 +280,7 @@ class EditorViewModel(
         }
     }
 
-    private fun deleteNote(
-        noteItem: NoteItem,
-        queueDelete: Boolean = true,
-        hardDelete: Boolean = false
-    ) {
+    private fun deleteNote(noteItem: NoteItem) {
 
         launchCatching(
                 onError = {
@@ -296,7 +292,7 @@ class EditorViewModel(
                     )
                 }
         ) {
-            deleteNoteUseCase(id = noteItem.id, queueDelete = queueDelete, hardDelete = hardDelete)
+            deleteNoteUseCase(id = noteItem.id, queueDelete = false)
         }
     }
 
@@ -321,11 +317,7 @@ class EditorViewModel(
                     Timber.tag("EditorViewModel")
                             .i("Exiting V-Mode - Status: ${currentState.activeNote.remoteId}")
                     if (currentNoteItem.isBlankNote()) {
-                        deleteNote(
-                                noteItem = currentNoteItem,
-                                queueDelete = false,
-                                hardDelete = true
-                        )
+                        deleteNote(noteItem = currentNoteItem)
                     }
                     sendActionEvent(EditorActionEvent.NavigateToHome)
                     return@launchCatching
@@ -338,8 +330,11 @@ class EditorViewModel(
                 }
 
                 EditorUiState.EditorMode.EditMode -> {
-                    Timber.tag("EditorViewModel")
-                            .i("Exiting Ed-Mode - Status: ${currentState.activeNote.remoteId}")
+                    if (currentNoteItem.isBlankNote()) {
+                        deleteNote(noteItem = currentNoteItem  )
+                        sendActionEvent(EditorActionEvent.NavigateToHome)
+                        return@launchCatching
+                    }
                     saveNote(queueSync = true)
                     enterViewMode()
                     return@launchCatching
