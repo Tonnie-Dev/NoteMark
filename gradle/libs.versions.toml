@@ -11,7 +11,7 @@ kotlin-serializer-plugin = { id = "org.jetbrains.kotlin.plugin.serialization", v
 
 [versions]
 
-agp = "8.10.1"
+agp = "8.13.0"
 ##⬆= "8.11.0-alpha01"
 ##⬆= "8.11.0-alpha02"
 ##⬆= "8.11.0-alpha03"
