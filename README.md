@@ -27,8 +27,7 @@
 
 ---
 
-Android app for creating, editing, and syncing notes with **offline-first support**.  
-
+Android app for Notes creation, editing and background notes syncing. 
 
 <p align="center">
   <!-- Google Play badge -->
@@ -56,23 +55,23 @@ Android app for creating, editing, and syncing notes with **offline-first suppor
 ## 📱 Features
 
 - ✍️ Create, edit, and delete notes  
-- 🔄 Offline-first architecture with **background sync**  
+- 🔄 Offline-first architecture with Background Sync
 - 🕑 Auto-save while typing  
 - ☁️ Conflict resolution with **Last-Write-Wins** strategy  
-- 🎨 Clean UI powered by Jetpack Compose  
+- 🎨 Clean and Adaptive UI powered by Jetpack Compose  
 
 ---
 
 ## 🚀 Tech Stack
 
 - Kotlin  
-- Jetpack Compose  
-- JWT (JSON Web Token) authentication
-- Room Database + DataStore  
+- Jetpack Compose for UI 
+- JWT (JSON Web Token) for authentication
+- Room Database + DataStore for persistence  
 - WorkManager for background sync  
-- Ktor for API communication  
-- Dagger Hilt for Dependency Injection  
-- Coroutines & Flow for async work  
+- Ktor Client for Auth API  
+- Koin for Dependency Injection  
+- Coroutines, Flows and Debouncing when Typing
 
 ---
 
@@ -80,14 +79,17 @@ Android app for creating, editing, and syncing notes with **offline-first suppor
 
 ### Prerequisites
 - Android Studio Narwhal or Later 
-- Android device or emulator running Android 6.0 (Marshmallow) or higher  
+- Android device or Emulator running Android 6.0 (Marshmallow) or higher  
 
 ### Installation
 1. Clone the repository:
    ```sh
    git clone https://github.com/Tonnie-Dev/NoteMark.git
 
+Use **Guest Account** for easy Login, alternatively use these credentials:
 
+**Email:** vontonnie@gmail.com
+**Password:** Tonnie99
 ## 🖋️ Author
 
 **Tonnie** – [@Tonnie-Dev](https://github.com/Tonnie-Dev)
@@ -105,14 +107,9 @@ Android app for creating, editing, and syncing notes with **offline-first suppor
 </p>
 
 
-
-
-
-
-
 ## 🛂 Contributing
 
-Contributions Echo Journal are welcome and appreciated! Whether it's a bug fix, new feature, improvement, or even a typo correction – you're more than welcome to jump in 🚀
+Contributions NoteMark are welcome and appreciated! Whether it's a bug fix, new feature, improvement, or even a typo correction – you're more than welcome to jump in 🚀
 
 If you are interested in seeing a particular feature implemented in this app, please open a new issue after which you can make a PR!
 
