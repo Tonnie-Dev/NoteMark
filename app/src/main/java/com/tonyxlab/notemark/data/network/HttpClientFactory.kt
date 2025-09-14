@@ -35,7 +35,7 @@ class HttpClientFactory(private val dataStore: DataStore) {
 
         defaultRequest {
             contentType(ContentType.Application.Json)
-            header(EMAIL_HEADER_KEY, BuildConfig.USER_EMAIL)
+            header(EMAIL_HEADER_KEY, BuildConfig.DEFAULT_USER_EMAIL)
            // header("Debug", true)
         }
     }

@@ -42,7 +42,7 @@ class AuthRepositoryImpl(
 
                 val result = client.post(ApiEndpoints.REGISTRATION_ENDPOINT) {
                     contentType(ContentType.Application.Json)
-                    header("X-User-Email", BuildConfig.USER_EMAIL)
+                    header("X-User-Email", BuildConfig.DEFAULT_USER_EMAIL)
                     setBody(credentials.toRegistrationRequest())
                 }
 
@@ -72,7 +72,7 @@ class AuthRepositoryImpl(
                     url(ApiEndpoints.LOGIN_ENDPOINT)
                     contentType(ContentType.Application.Json)
                     header(HttpHeaders.Accept, ContentType.Application.Json)
-                    header(EMAIL_HEADER_KEY, BuildConfig.USER_EMAIL)
+                    header(EMAIL_HEADER_KEY, BuildConfig.DEFAULT_USER_EMAIL)
                     setBody(credentials.toAccessTokenRequest())
                 }
 
@@ -123,7 +123,7 @@ class AuthRepositoryImpl(
 
             client.post(ApiEndpoints.LOGOUT_ENDPOINT) {
                 contentType(ContentType.Application.Json)
-                header(ApiEndpoints.EMAIL_HEADER, BuildConfig.USER_EMAIL)
+                header(ApiEndpoints.EMAIL_HEADER, BuildConfig.DEFAULT_USER_EMAIL)
                 setBody(LogoutRequest(refreshToken = refreshToken))
             }
             Unit

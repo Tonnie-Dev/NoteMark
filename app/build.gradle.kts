@@ -9,7 +9,6 @@ plugins {
 
 }
 
-
 android {
     namespace = "com.tonyxlab.notemark"
     compileSdk = 36
@@ -18,24 +17,28 @@ android {
         applicationId = "com.tonyxlab.notemark"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-
-        //load the values from .properties file
         val keysFile = project.rootProject.file("keys.properties")
         val properties = Properties()
         properties.load(keysFile.inputStream())
 
-        //return empty key in case something goes wrong
-        val userEmail = properties.getProperty("USER_EMAIL") ?: ""
+        val defaultUserEmail = properties.getProperty("DEFAULT_USER_EMAIL") ?: ""
+        val defaultUserPassword = properties.getProperty("DEFAULT_USER_PASSWORD") ?: ""
 
         buildConfigField(
                 type = "String",
-                name = "USER_EMAIL",
-                value = userEmail
+                name = "DEFAULT_USER_EMAIL",
+                value = defaultUserEmail
+        )
+
+        buildConfigField(
+                type = "String",
+                name = "DEFAULT_USER_PASSWORD",
+                value = defaultUserPassword
         )
     }
 

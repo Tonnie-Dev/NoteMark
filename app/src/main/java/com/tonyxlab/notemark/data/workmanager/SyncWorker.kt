@@ -36,7 +36,7 @@ class SyncWorker(
 
         val token = dataStore.getAccessToken() ?: return@withContext Result.success()
 
-        val email = BuildConfig.USER_EMAIL
+        val email = BuildConfig.DEFAULT_USER_EMAIL
 
         val userId = dataStore.getOrCreateInternalUserId()
 

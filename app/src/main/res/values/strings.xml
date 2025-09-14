@@ -21,7 +21,7 @@
         first note on it</string>
 
     <!--Button Texts-->
-    <string name="btn_text_get_started">Get Started</string>
+    <string name="btn_text_guest_login">Guest Login</string>
     <string name="btn_text_login"> Log in</string>
 
     <!--Text Button Texts-->
